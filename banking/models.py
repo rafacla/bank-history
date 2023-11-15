@@ -48,6 +48,9 @@ class Account(models.Model):
     currency = models.ForeignKey(Currency, on_delete=models.RESTRICT)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ('user', 'name')
+
     def __str__(self):
         return f"{self.name} ({self.type} - {self.currency.name})"
 
