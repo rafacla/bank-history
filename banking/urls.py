@@ -4,6 +4,7 @@ from . import views
 app_name = 'banking'
 
 urlpatterns = [
+    path('', views.AccountListView.as_view(), name='home'),
     path('accounts/', views.AccountListView.as_view(), name='account_list'),
     path('accounts/<int:pk>/detail', views.AccountDetailView.as_view(), name='account_detail'),
     path('accounts/create/', views.AccountCreateView.as_view(), name='account_create'),

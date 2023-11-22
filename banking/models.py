@@ -42,8 +42,8 @@ class Account(models.Model):
 
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=20, choices=ACCOUNT_TYPES)
-    closing_day = models.IntegerField(blank=True, null=True)
-    due_day = models.IntegerField(blank=True, null=True)
+    closing_day = models.PositiveIntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(28)])
+    due_day = models.PositiveIntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(28)])
     bank = models.ForeignKey(Bank, on_delete=models.RESTRICT)
     currency = models.ForeignKey(Currency, on_delete=models.RESTRICT)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
