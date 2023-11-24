@@ -212,5 +212,15 @@
 <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
 <!-- AdminLTE App -->
 <script src="{% static 'styles/js/adminlte.min.js' %}"></script>
+<!-- DataTables -->
+<script src="{% static 'plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'plugins/datatables/dataTables.bootstrap5.min.js' %}"></script>
+<script>
+  $(function () {
+    if($('#dataTable').length){
+      $("#dataTable").DataTable();
+    }
+  });
+</script>
 </body>
 </html>

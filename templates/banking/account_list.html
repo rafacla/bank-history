@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n %} 
+{% load static %}
 
 {% block content %}
 {% for account in account_list %}
@@ -9,9 +10,9 @@
 {% endfor %}
 
 
-<div class="container d-flex mt-12">
-    <div class="col">
-        <table class="table table-striped mt-12">
+<div class="d-flex w-100">
+    <div class="w-100">
+        <table class="table table-sm table-hover dataTable" id="dataTable">
             <thead>
                 <tr>
                     {% comment %} <th>#</th> {% endcomment %}
@@ -49,5 +50,4 @@
     </div>
         
 </div>
-
 {% endblock content %}
