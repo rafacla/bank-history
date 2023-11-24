@@ -34,7 +34,7 @@
                             <img src="{{media_url}}{{account.bank.logo.url}}" width="24"/> {{account.name}}
                         </a>
                     </td>
-                    <td class="text-center">{{account.type}}</td>
+                    <td class="text-center">{% trans account.get_type_display %}</td>
                     <td class="text-center">{{account.closing_day}}</td>
                     <td class="text-center">{{account.due_day}}</td>
                     <td><a href="{% url 'banking:account_update' account.id %} ">{% translate "Update" %}</a></td>

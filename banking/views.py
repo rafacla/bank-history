@@ -5,6 +5,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+
 from .models import Account
 
 
@@ -30,17 +31,18 @@ class AccountDetailView(AccountBaseView, DetailView):
 class AccountCreateView(AccountBaseView, CreateView):
     """View to create a new account"""
     extra_context = {"title": "Create Account"}
-    fields = ["name", "type", "closing_day", "due_day", "bank", "currency"]  # don't include 'school' here
+    fields = ["name", "type", "closing_day", "due_day", "bank", "currency"]  # don't include 'user' here
     
     def form_valid(self, form):
-        user = request.user
+        user = self.request.user
         form.instance.user = user
         return super(AccountCreateView, self).form_valid(form)
 
 
 class AccountUpdateView(AccountBaseView, UpdateView):
     """View to update a account"""
-
+    extra_context = {"title": "Update Account"}
+    fields = ["name", "type", "closing_day", "due_day", "bank", "currency"]  # don't include 'user' here
 
 class AccountDeleteView(AccountBaseView, DeleteView):
     """View to delete a account"""
