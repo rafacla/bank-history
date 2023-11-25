@@ -63,7 +63,7 @@ class Category(models.Model):
 
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=1, choices=CATEGORY_TYPE)
-    ordering = models.IntegerField()
+    sorting = models.IntegerField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     nested_to = models.ForeignKey(
         "self", on_delete=models.CASCADE, blank=True, null=True
