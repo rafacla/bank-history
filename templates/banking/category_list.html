@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load i18n %} 
+{% load static %}
+
+{% block content %}
+
+<div class="d-flex w-100">
+    <div class="w-100">
+        <div id="nestedDemo" class="list-group col nested-sortable">
+            {% for item1 in category_list %}
+            {% if item1.nested_to == null and item1.type == "D" %}
+            <div class="list-group-item nested-1" id="categoryId-{{item1.id}}">
+                {{item1.name}}
+                {% for item2 in category_list %}
+                    {% if item2.nested_to == item1 %}
+                    <div class="list-group nested-sortable" id="categoryNestedToId-{{item1.id}}">
+						<div class="list-group-item nested-2" id="categoryId-{{item2.id}}">
+                            {{item2.name}}
+							{% for item3 in category_list %}
+                                {% if item3.nested_to == item2 %}
+                                <div class="list-group nested-sortable" id="categoryNestedToId-{{item2.id}}">
+                                    <div class="list-group-item nested-3" id="categoryId-{{item3.id}}">{{item3.name}}</div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+						</div>
+					</div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <div class="d-flex justify-content-center">
+            <a href="{% url 'banking:category_create' %}" class="d-block btn btn-primary btn-lg my-5">{% translate "Add New" %}</a>
+        </div>
+    </div>
+        
+</div>
+
+<script src="{% static 'plugins/sortable/Sortable.min.js' %}"></script>
+
+<script type="text/javascript">
+	function logitem(item) {
+        console.log(item);
+    }
+
+    var elements = document.getElementsByClassName('nested-sortable');
+
+	for (var i = 0; i < elements.length; i++) {
+		new Sortable(elements[i], {
+			group: 'shared',
+			invertSwap: true,
+            onEnd: function (/**Event*/evt) {
+                var items = evt.to.children;
+                console.log(items);   // Get target's children
+                console.log(evt);
+            }
+		});
+	}
+</script>
+
+{% endblock content %}
