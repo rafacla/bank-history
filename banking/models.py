@@ -54,6 +54,10 @@ class Account(models.Model):
     def __str__(self):
         return f"{self.name} ({self.type} - {self.currency.name})"
 
+    def getBalance(self):
+        return sum([item.value for item in Transaction.objects.filter(account=self)])
+
+
 
 class Category(models.Model):
     CATEGORY_TYPE = (
@@ -77,6 +81,7 @@ class Category(models.Model):
 
 
 class Transaction(models.Model):
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, blank=True, null=True)
     date = models.DateField()
     competency_date = models.DateField(blank=True, null=True)
     description = models.CharField(max_length=200)
@@ -88,3 +93,4 @@ class Transaction(models.Model):
         Category, on_delete=models.SET_NULL, blank=True, null=True
     )
     concilied = models.BooleanField(default=False)
+    value = models.DecimalField(max_digits=10 ,decimal_places=2)
