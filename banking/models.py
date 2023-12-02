@@ -57,6 +57,13 @@ class Account(models.Model):
     def getBalance(self):
         return sum([item.value for item in Transaction.objects.filter(account=self)])
 
+    def getNotClassifiedTransactions(self):
+        return Transaction.objects.filter(account=self, category=None, is_transfer=False)
+
+    def getNotConciliedTransactions(self):
+        return Transaction.objects.filter(account=self, concilied=False)
+
+
 
 
 class Category(models.Model):

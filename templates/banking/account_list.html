@@ -1,11 +1,8 @@
-{% extends 'base.html' %}
-{% load i18n %} 
+{% extends "base.html" %}
+{% load i18n %}
 {% load static %}
-
 {% block content %}
-
-
-<div class="col-12">
+  <div class="col-12">
     <div class="card">
       <div class="card-header">
         <h3 class="card-title">Invoices</h3>
@@ -14,49 +11,89 @@
         <table class="table card-table table-vcenter text-nowrap datatable">
           <thead>
             <tr>
-              <th class="w-1"><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices"></th>
-              <th>{% translate  "Name" %}</th>
-              <th>{% translate  "Type" %}</th>
-              <th>{% translate  "Currency" %}</th>
-              <th>{% translate  "Closing Day" %}</th>
-              <th>{% translate  "Due Day" %}</th>
-              <th>{% translate  "Balance" %}</th>
+              <th class="w-1">
+                <input class="form-check-input m-0 align-middle"
+                       type="checkbox"
+                       aria-label="Select all invoices">
+              </th>
+              <th>{% trans "Name" %}</th>
+              <th>{% trans "Type" %}</th>
+              <th>{% trans "Currency" %}</th>
+              <th>{% trans "Closing Day" %}</th>
+              <th>{% trans "Due Day" %}</th>
+              <th>{% trans "Balance" %}</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {% for account in account_list %}
-            <tr>
-              <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select account"></td>
-              <td>
-                <a href="{% url 'banking:account_detail' account.id %}">
-                  <img src="{{media_url}}{{account.bank.logo.url}}" width="32"/> {{account.name}}
-                </a>
-              </td>
-              <td>
-                {% trans account.get_type_display %}
-              </td>
-              <td>
-                <span class="flag flag-xs flag-country-{{account.currency.code|slice:2|lower}} me-2"></span>
-                {{account.currency}} ({{account.currency.code}})
-                
-              </td>
-              <td>
-                {{account.closing_day}}
-              </td>
-              <td>
-                {{account.due_day}}
-              </td>
-              <td>{{account.getBalance}}</td>
-              <td class="text-end">
-                <button class="btn align-text-top">Edit</button>
-                </span>
+              <tr>
+                <td>
+                  <input class="form-check-input m-0 align-middle"
+                         type="checkbox"
+                         aria-label="Select account">
+                </td>
+                <td>
+                  <a hx-target="#modals-here"
+                     hx-trigger="click"
+                     data-bs-toggle="modal"
+                     data-bs-target="#modals-here"
+                     hx-get="{% url 'banking:account_detail' account.id %}"
+                     href="#">
+                    <img src="{{ media_url }}{{ account.bank.logo.url }}"
+                         width="32"
+                         height="32"
+                         alt="Bank Logo" />
+                    <span class="px-2">{{ account.name }}</span>
+                  </a>
+                  <span class="badge badge-pill bg-red text-white mb-3" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans "Transactions not classified" %}">{{ account.getNotClassifiedTransactions.count }}</span>
+                  <span class="badge badge-pill bg-yellow text-white mb-3" data-bs-toggle="tooltip" data-bs-placement="top" title="{% trans "Transactions not concilied" %}">{{ account.getNotConciliedTransactions.count }}</span>
+                </td>
+                <td>{% trans account.get_type_display %}</td>
+                <td>
+                  <span class="flag flag-xs flag-country-{{ account.currency.code|slice:2|lower }} me-2"></span>
+                  {{ account.currency }} ({{ account.currency.code }})
+                </td>
+                <td>{{ account.closing_day }}</td>
+                <td>{{ account.due_day }}</td>
+                <td>{{ account.getBalance }}</td>
+                <td class="text-end">
+                  <button class="btn align-text-top">Edit</button>
               </td>
             </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
+</div>
+<!-- Page title actions -->
+<div class="col-auto ms-auto d-print-none">
+  <div class="btn-list">
+    <a hx-target="#modals-here"
+       hx-trigger="click"
+       data-bs-toggle="modal"
+       data-bs-target="#modals-here"
+       hx-get="{% url 'banking:account_create' %}"
+       href="#"
+       class="btn btn-primary">
+      <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+      <svg xmlns="http://www.w3.org/2000/svg"
+           class="icon"
+           width="24"
+           height="24"
+           viewBox="0 0 24 24"
+           stroke-width="2"
+           stroke="currentColor"
+           fill="none"
+           stroke-linecap="round"
+           stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M12 5l0 14" />
+        <path d="M5 12l14 0" />
+      </svg>
+      {% trans "Create new account" %}
+    </a>
+  </div>
+</div>
 {% endblock content %}

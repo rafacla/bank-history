@@ -1,25 +1,59 @@
-{% extends "base.html" %}
 
 {% block content %}
 
 <!-- BOOTSTRAP FORM -->
-
-<div class="container d-flex justify-content-center mt-5" style="width: 25%;">
-    <div class="col mt-5">
-        <form action="" method="post">
-            {% csrf_token %}
-            <table class="table">
-                {{form.as_table}}
-            </table>
-            <div class="container d-flex justify-content-center" style="width: 10%;">
-                <input type="submit" class="btn btn-primary btn-lg" value="Submit" style="margin-right: 30px; margin-top: 30px;">
-                <input type="submit" class="btn btn-danger btn-lg" style="margin-top: 30px;" onclick="window.location='{% url 'banking:account_list' %}'; return false;" value="Cancel">
-            </div>    
-        </form> 
-
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">New report</h5>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="modal"
+        aria-label="Close"
+      ></button>
     </div>
+    <div class="modal-body">
+      <div class="row">
+<form action="" method="post">
+    {% csrf_token %}
+    <table class="table">
+        {{ form.as_table }}
+    </table>
+    <div class="container d-flex justify-content-center">
+        <input type="submit" class="btn btn-primary btn-lg" value="Submit">
+        <input type="submit" class="btn btn-danger btn-lg" style="margin-top: 30px;" onclick="window.location='{% url 'banking:account_list' %}'; return false;" value="Cancel">
+    </div>    
+</form> 
 </div>
-
+</div>
+<div class="modal-footer">
+  <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+    Cancel
+  </a>
+  <input type="submit" class="btn btn-primary ms-auto" data-bs-dismiss="modal">
+    <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="icon"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      stroke-width="2"
+      stroke="currentColor"
+      fill="none"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 5l0 14" />
+      <path d="M5 12l14 0" />
+    </svg>
+    Create new account
+  </input>
+</div>
+</div>
+</div>
 <!-- END BOOTSTRAP FORM -->
 
-{% endblock %}
+{% endblock content %}
