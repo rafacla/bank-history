@@ -12,8 +12,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="Your bank history begins here. A financial web app to store yours banks transactions for life.">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description"
+          content="Your bank history begins here. A financial web app to store yours banks transactions for life.">
     <meta name="keywords" content="Banking, Finance, Financial APP">
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     {% block title %}
@@ -32,6 +34,19 @@
     <link href="{% static './dist/css/tabler-vendors.min.css' %}"
           rel="stylesheet" />
     <link href="{% static './dist/css/bank-history.css' %}" rel="stylesheet" />
+    <!-- Libs JS -->
+    <script src="{% static './dist/libs/apexcharts/dist/apexcharts.min.js' %}"
+            defer></script>
+    <script src="{% static './dist/libs/jsvectormap/dist/js/jsvectormap.min.js' %}"
+            defer></script>
+    <script src="{% static './dist/libs/jsvectormap/dist/maps/world.js' %}" defer></script>
+    <script src="{% static '/dist/libs/jsvectormap/dist/maps/world-merc.js' %}"
+            defer></script>
+    <!-- Tabler Core -->
+    <script src="{% static './dist/js/tabler.min.js' %}" defer></script>
+    <script src="{% static './dist/js/demo.min.js' %}" defer></script>
+    <!-- Bootstrap Modal Forms -->
+    <script src="{% static 'js/bootstrap5.modal.forms.min.js' %}"></script>
   </head>
   <body class="layout-fluid">
     <script src="{% static './dist/js/demo-theme.min.js' %}"></script>
@@ -432,57 +447,8 @@
          role="dialog"
          aria-hidden="true">
       <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">New report</h5>
-              <button type="button"
-                      class="btn-close"
-                      data-bs-dismiss="modal"
-                      aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <div class="row">
-                <div class="col-lg-6">{{ account }}</div>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</a>
-              <a href="#" class="btn btn-primary ms-auto" data-bs-dismiss="modal">
-                <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     class="icon"
-                     width="24"
-                     height="24"
-                     viewBox="0 0 24 24"
-                     stroke-width="2"
-                     stroke="currentColor"
-                     fill="none"
-                     stroke-linecap="round"
-                     stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                  <path d="M12 5l0 14" />
-                  <path d="M5 12l14 0" />
-                </svg>
-                Create new report
-              </a>
-            </div>
-          </div>
-        </div>
+        <div class="modal-content"></div>
       </div>
     </div>
-    <!-- Libs JS -->
-    <script src="{% static './dist/libs/apexcharts/dist/apexcharts.min.js' %}"
-            defer></script>
-    <script src="{% static './dist/libs/jsvectormap/dist/js/jsvectormap.min.js' %}"
-            defer></script>
-    <script src="{% static './dist/libs/jsvectormap/dist/maps/world.js' %}" defer></script>
-    <script src="{% static '/dist/libs/jsvectormap/dist/maps/world-merc.js' %}"
-            defer></script>
-    <!-- HTMX -->
-    <script src="https://unpkg.com/htmx.org@1.9.9"></script>
-    <!-- Tabler Core -->
-    <script src="{% static './dist/js/tabler.min.js' %}" defer></script>
-    <script src="{% static './dist/js/demo.min.js' %}" defer></script>
   </body>
 </html>

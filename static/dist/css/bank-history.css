@@ -2,3 +2,7 @@
     max-height: 60vh;
     overflow-y: auto;
 }
+
+.blue-background-class {
+    background-color: gainsboro;
+}

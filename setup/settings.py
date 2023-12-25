@@ -43,6 +43,8 @@ THIRD_PARTY_APPS = [
     'django_extensions',
     'crispy_forms',
     'crispy_bootstrap5',
+    'bootstrap_modal_forms',
+    'widget_tweaks'
 ]
 
 PROJECT_APPS = [

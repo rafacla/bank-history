@@ -1,31 +1,86 @@
-{% extends 'base.html' %}
-
+{% load i18n %}
+{% load static %}
 {% block content %}
-
-<div class="container mt-5" style="width: 70%;">
-    <div class="col">
-        <h1 class="text-center">Film Details</h1>
-        <div class="d-flex justify-content-center">
-            <table class="table table-striped mt-5" style="width: 50%">
-                <thead>
-                    <tr>
-                        <th scope="col"></th>
-                        <th scope="col"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                
-                    {{account}}
-                        
-                </tbody>
-            </table>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{% trans "Category Details" %}</h5>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="datagrid">
+          <div class="datagrid-item">
+            <div class="datagrid-title">{% trans "Category Name" %}</div>
+            <div class="datagrid-content">
+              {{ category.name }}
+            </div>
+          </div>
+          <div class="datagrid-item">
+            <div class="datagrid-title">{% trans "Category Path" %}</div>
+            <div class="datagrid-content">
+              <ol class="breadcrumb" aria-label="breadcrumbs">
+                <li class="breadcrumb-item">{% trans category.get_type_display|add:' Category' %}</li>
+                {% if category.nested_to %}
+                  {% if category.nested_to.nested_to %}
+                    <li class="breadcrumb-item">{{ category.nested_to.nested_to.name }}</li>
+                  {% endif %}
+                {% endif %}
+                {% if category.nested_to %}<li class="breadcrumb-item">{{ category.nested_to.name }}</li>{% endif %}
+              </ol>
+            </div>
+          </div>
+          <div class="datagrid-item">
+            <div class="datagrid-title">{% trans "Subcategories" %}</div>
+            <div class="datagrid-content"></div>
+          </div>
         </div>
-
-        <div class="d-flex justify-content-center">
-            <a href="{% url 'banking:account_list' %}" class="d-block btn btn-primary btn-lg my-5">BACK</a>
+        <div class="row">
+          <div class="col-sm-9 col-xl-10 order-2 order-sm-1 mt-3">
+            <div id="sortablelist" class="list-group mb-4 mt-3" data-id="1">
+              {% for item in category.getSubcategories %}
+              <div class="p-2 list-group-item d-flex align-items-center justify-content-between" data-id="2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-grip-horizontal" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 9m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M5 15m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M12 9m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M12 15m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M19 9m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M19 15m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>
+                {{ item.name }}
+              </div>
+              {% endfor %}
+            </div>
+          </div>
         </div>
+        <div class="modal-footer">
+          <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">{% trans "Close" %}</a>
+          <a href="{% url "banking:account_update" category.id %}"
+             class="btn btn-success ms-auto"
+             data-bs-dismiss="modal">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="icon icon-tabler icon-tabler-check"
+                 width="24"
+                 height="24"
+                 viewBox="0 0 24 24"
+                 stroke-width="2"
+                 stroke="currentColor"
+                 fill="none"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M5 12l5 5l10 -10" />
+            </svg>
+            {% trans "Edit Category" %}
+          </a>
+        </div>
+      </div>
     </div>
-        
-</div>
-
-{% endblock  %}
+  </div>
+  <script>
+    new Sortable(sortablelist, {
+        animation: 150,
+        ghostClass: 'blue-background-class',
+        onSort: function (/**Event*/evt) {
+          console.log(evt);
+        }
+    });
+  </script>
+  
+{% endblock content %}

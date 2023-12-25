@@ -42,14 +42,18 @@ class Account(models.Model):
 
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=20, choices=ACCOUNT_TYPES)
-    closing_day = models.PositiveIntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(28)])
-    due_day = models.PositiveIntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(28)])
+    closing_day = models.PositiveIntegerField(
+        blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(28)]
+    )
+    due_day = models.PositiveIntegerField(
+        blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(28)]
+    )
     bank = models.ForeignKey(Bank, on_delete=models.RESTRICT)
     currency = models.ForeignKey(Currency, on_delete=models.RESTRICT)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('user', 'name')
+        unique_together = ("user", "name")
 
     def __str__(self):
         return f"{self.name} ({self.type} - {self.currency.name})"
@@ -58,12 +62,12 @@ class Account(models.Model):
         return sum([item.value for item in Transaction.objects.filter(account=self)])
 
     def getNotClassifiedTransactions(self):
-        return Transaction.objects.filter(account=self, category=None, is_transfer=False)
+        return Transaction.objects.filter(
+            account=self, category=None, is_transfer=False
+        )
 
     def getNotConciliedTransactions(self):
         return Transaction.objects.filter(account=self, concilied=False)
-
-
 
 
 class Category(models.Model):
@@ -86,9 +90,29 @@ class Category(models.Model):
     class Meta:
         verbose_name_plural = "categories"
 
+    def getLastSort(nested_to, user):
+        last_sort = Category.objects.filter(nested_to=nested_to, user=user).aggregate(
+            last_sort=models.Max("sorting", output_field=models.IntegerField())
+        )["last_sort"]
+        if last_sort == None:
+            last_sort = 0
+        else:
+            last_sort = last_sort + 1
+        return last_sort
+
+    def getNumberOfTransactions(self):
+        transactions = Transaction.objects.filter(category=self).count()
+        return transactions
+
+    def getSubcategories(self):
+        categories = Category.objects.filter(nested_to=self)
+        return categories
+
 
 class Transaction(models.Model):
-    account = models.ForeignKey(Account, on_delete=models.CASCADE, blank=True, null=True)
+    account = models.ForeignKey(
+        Account, on_delete=models.CASCADE, blank=True, null=True
+    )
     date = models.DateField()
     competency_date = models.DateField(blank=True, null=True)
     description = models.CharField(max_length=200)
@@ -100,4 +124,4 @@ class Transaction(models.Model):
         Category, on_delete=models.SET_NULL, blank=True, null=True
     )
     concilied = models.BooleanField(default=False)
-    value = models.DecimalField(max_digits=10 ,decimal_places=2)
+    value = models.DecimalField(max_digits=10, decimal_places=2)

@@ -4,9 +4,15 @@ from django.views import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
-
+from bootstrap_modal_forms.generic import (
+  BSModalCreateView,
+  BSModalUpdateView,
+  BSModalReadView,
+  BSModalDeleteView
+)
 
 from .models import Account, Category
+from .forms import CategoryForm
 
 
 class AccountBaseView(LoginRequiredMixin, View):
@@ -68,7 +74,6 @@ class AccountDeleteView(AccountBaseView, DeleteView):
 
 class CategoryBaseView(LoginRequiredMixin, View):
     model = Category
-    fields = "__all__"
     success_url = reverse_lazy("banking:category_list")
 
 
@@ -86,21 +91,27 @@ class CategoryDetailView(CategoryBaseView, DetailView):
     the specific category here and in the Views below"""
 
 
-class CategoryCreateView(CategoryBaseView, CreateView):
-    """View to create a new category"""
+class CategoryCreateView(CategoryBaseView, BSModalCreateView):
+    """View to create a new category"""    
+    form_class = CategoryForm
+    success_message = "Success!"
 
-    extra_context = {"title": "Create Category"}
-    fields = [
-        "name",
-        "type",
-        "nested_to"
-    ]  # don't include 'user' here
+    def get_initial(self):
+        super().get_initial()
+        if ("type" in self.request.resolver_match.kwargs):
+            self.initial['type'] = self.request.resolver_match.kwargs['type']
+        return self.initial
 
     def form_valid(self, form):
         user = self.request.user
         form.instance.user = user
-        sort = Category
+        form.instance.sorting = Category.getLastSort(form.instance.nested_to, user)
+        if ("type" in self.request.resolver_match.kwargs):
+            form.instance.type = self.request.resolver_match.kwargs['type']
+        if ("nested_to_id" in self.request.resolver_match.kwargs):
+            form.instance.nested_to = Category.objects.filter(user=user, id=self.request.resolver_match.kwargs['nested_to_id']).first()
         return super(CategoryCreateView, self).form_valid(form)
+
 
 
 class CategoryUpdateView(CategoryBaseView, UpdateView):
@@ -109,7 +120,6 @@ class CategoryUpdateView(CategoryBaseView, UpdateView):
     extra_context = {"title": "Update Category"}
     fields = [
         "name",
-        "nested_to"
     ]  # don't include 'user' here
 
 
