@@ -4,4 +4,4 @@ Pillow==10.1.0
 django-crysp-forms
 crispy-bootstrap5
 django-bootstrap-modal-forms
-django-widget-tweaks
+django-environ
