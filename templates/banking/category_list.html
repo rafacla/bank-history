@@ -53,7 +53,7 @@
                   <td>
                     <a data-bs-toggle="modal"
                        data-bs-target="#modals-here"
-                       data-form-url="{% url 'banking:category_detail' item.id %}"
+                       data-form-url="{% url 'banking:category_update' item.id %}"
                        href="#"
                        class="modal-button">
                       <span class="px-2">{{ item.name }}</span>
@@ -92,7 +92,7 @@
                   {% if item2.nested_to == item %}
                     <tr>
                       <td>
-                        <a data-form-url="{% url 'banking:category_detail' item2.id %}"
+                        <a data-form-url="{% url 'banking:category_update' item2.id %}"
                            href="#"
                            data-bs-toggle="modal"
                            data-bs-target="#modals-here"
@@ -148,7 +148,7 @@
                           <td>
                             <a data-bs-toggle="modal"
                                data-bs-target="#modals-here"
-                               data-form-url="{% url 'banking:category_detail' item3.id %}"
+                               data-form-url="{% url 'banking:category_update' item3.id %}"
                                href="#"
                                class="ms-5 modal-button">
                               <svg xmlns="http://www.w3.org/2000/svg"
@@ -237,7 +237,7 @@
                   <td>
                     <a data-bs-toggle="modal"
                        data-bs-target="#modals-here"
-                       data-form-url="{% url 'banking:category_detail' item.id %}"
+                       data-form-url="{% url 'banking:category_update' item.id %}"
                        href="#"
                        class="modal-button">
                       <span class="px-2">{{ item.emoji }} {{ item.name }}</span>
@@ -278,7 +278,7 @@
                       <td>
                         <a data-bs-toggle="modal"
                            data-bs-target="#modals-here"
-                           data-form-url="{% url 'banking:category_detail' item2.id %}"
+                           data-form-url="{% url 'banking:category_update' item2.id %}"
                            href="#"
                            class="ms-2 modal-button">
                           <svg xmlns="http://www.w3.org/2000/svg"
@@ -332,7 +332,7 @@
                           <td>
                             <a data-bs-toggle="modal"
                                data-bs-target="#modals-here"
-                               data-form-url="{% url 'banking:category_detail' item3.id %}"
+                               data-form-url="{% url 'banking:category_update' item3.id %}"
                                href="#"
                                class="ms-5 modal-button">
                               <svg xmlns="http://www.w3.org/2000/svg"

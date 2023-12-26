@@ -114,13 +114,17 @@ class CategoryCreateView(CategoryBaseView, BSModalCreateView):
 
 
 
-class CategoryUpdateView(CategoryBaseView, UpdateView):
+class CategoryUpdateView(CategoryBaseView, BSModalUpdateView):
     """View to update a category"""
 
-    extra_context = {"title": "Update Category"}
-    fields = [
-        "name",
-    ]  # don't include 'user' here
+    form_class = CategoryForm
+    success_message = "Success!"
+
+    def get_initial(self):
+        super().get_initial()
+        self.initial['type'] = self.object.type
+        self.initial['id'] = self.object.id
+        return self.initial
 
 
 class CategoryDeleteView(CategoryBaseView, DeleteView):

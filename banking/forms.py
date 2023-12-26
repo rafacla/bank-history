@@ -12,4 +12,4 @@ class CategoryForm(BSModalModelForm):
     def __init__(self, *args, **kwargs):
         super(CategoryForm, self).__init__(*args, **kwargs)
         if 'type' in kwargs["initial"]:
-             self.fields['nested_to'].queryset = Category.objects.filter(type=kwargs["initial"]["type"], nested_to=None)
+             self.fields['nested_to'].queryset = Category.objects.filter(type=kwargs["initial"]["type"], nested_to=None).exclude(id=kwargs["initial"]["id"])
