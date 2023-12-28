@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormView
 from django.views.generic.list import ListView
 from django.db import models
 
@@ -11,10 +11,11 @@ from bootstrap_modal_forms.generic import (
     BSModalUpdateView,
     BSModalReadView,
     BSModalDeleteView,
+    BSModalFormView,
 )
 
 from .models import Account, Category, Transaction
-from .forms import AccountForm, CategoryForm, TransactionForm
+from .forms import AccountForm, CategoryForm, TransactionForm, TransactionDeleteForm
 
 
 class AccountBaseView(LoginRequiredMixin, View):
@@ -185,5 +186,18 @@ class TransactionUpdateView(TransactionBaseView, BSModalUpdateView):
     success_message = "Success!"
 
 
-class TransactionDeleteView(TransactionBaseView, DeleteView):
-    """View to delete a Transaction"""
+class TransactionDeleteView(BSModalFormView):
+    form_class = TransactionDeleteForm
+    template_name = 'banking/transaction_confirm_delete.html'
+    success_url = reverse_lazy("banking:transaction_list")
+
+    def form_valid(self, form):
+        Transaction.objects.filter(id__in=form.cleaned_data['id']).delete()
+        return super(TransactionDeleteView, self).form_valid(form)
+
+    def get_form_kwargs(self):
+        form_kwargs = super(TransactionDeleteView, self).get_form_kwargs()
+        query = self.request.resolver_match.kwargs["transaction_ids"].split(",")
+        form_kwargs['transaction_ids'] = [(transaction_id, transaction_id) for transaction_id in query]
+        form_kwargs['initial_transaction_ids'] = query
+        return form_kwargs
