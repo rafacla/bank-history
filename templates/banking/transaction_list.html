@@ -141,8 +141,8 @@
                         </span>
                       {% endif %}
                     </td>
-                    <td class="text-end">{{ item.value }}</td>
-                    <td class="text-end">{{ item.balance }}</td>
+                    <td class="text-end">{{ item.value|floatformat:2 }}</td>
+                    <td class="text-end">{{ item.balance|floatformat:2 }}</td>
                   </tr>
                 {% endif %}
               {% endfor %}
