@@ -138,7 +138,7 @@ class TransactionBaseView(LoginRequiredMixin, View):
 
 
 class TransactionListView(TransactionBaseView, ListView):
-    extra_context = {"title": "Transactions"}
+    extra_context = {"title": "Transactions", "add_button_title": "Add Transaction"}
 
     """View to list all transactions of given user.
     Use the 'transaction_list' variable in the template

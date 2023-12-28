@@ -49,7 +49,6 @@
     <script src="{% static 'js/bootstrap5.modal.forms.min.js' %}"></script>
     <!-- JQuery -->
     <script src="{% static './dist/libs/jquery/jquery-3.7.1.min.js' %}"></script>
-    
   </head>
   <body class="layout-fluid">
     <script src="{% static './dist/js/demo-theme.min.js' %}"></script>
@@ -366,7 +365,24 @@
                   <li class="nav-item {% if url_name == 'transaction_list' %}active{% endif %}">
                     <a class="nav-link" href="{% url 'banking:transaction_list' %}">
                       <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/ghost -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transaction-dollar" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20.8 13a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1" /><path d="M18 11v10" /><path d="M5 5m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 5m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M7 5h8" /><path d="M7 5v8a3 3 0 0 0 3 3h1" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="icon icon-tabler icon-tabler-transaction-dollar"
+                             width="24"
+                             height="24"
+                             viewBox="0 0 24 24"
+                             stroke-width="2"
+                             stroke="currentColor"
+                             fill="none"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M20.8 13a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1" />
+                          <path d="M18 11v10" />
+                          <path d="M5 5m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                          <path d="M17 5m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                          <path d="M7 5h8" />
+                          <path d="M7 5v8a3 3 0 0 0 3 3h1" />
+                        </svg>
                       </span>
                       <span class="nav-link-title">{% trans "Transactions" %}</span>
                     </a>
@@ -386,6 +402,34 @@
                 <!-- Page pre-title -->
                 <div class="page-pretitle">Overview</div>
                 <h2 class="page-title">{{ title }}</h2>
+              </div>
+              <div class="col-auto ms-auto d-print-none">
+                <div class="btn-list">
+                  {% if add_button_title != None %}
+                    <a href="#"
+                       class="btn btn-primary d-none d-sm-inline-block"
+                       data-bs-toggle="modal"
+                       data-bs-target="#modals-here"
+                       id="add_button">
+                      <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                      <svg xmlns="http://www.w3.org/2000/svg"
+                           class="icon"
+                           width="24"
+                           height="24"
+                           viewBox="0 0 24 24"
+                           stroke-width="2"
+                           stroke="currentColor"
+                           fill="none"
+                           stroke-linecap="round"
+                           stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M12 5l0 14"></path>
+                        <path d="M5 12l14 0"></path>
+                      </svg>
+                      {{ add_button_title }}
+                    </a>
+                  {% endif %}
+                </div>
               </div>
             </div>
           </div>
