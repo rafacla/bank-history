@@ -7,19 +7,18 @@ from django.views.generic.list import ListView
 from django.db import models
 
 from bootstrap_modal_forms.generic import (
-  BSModalCreateView,
-  BSModalUpdateView,
-  BSModalReadView,
-  BSModalDeleteView
+    BSModalCreateView,
+    BSModalUpdateView,
+    BSModalReadView,
+    BSModalDeleteView,
 )
 
 from .models import Account, Category, Transaction
-from .forms import CategoryForm, TransactionForm
+from .forms import AccountForm, CategoryForm, TransactionForm
 
 
 class AccountBaseView(LoginRequiredMixin, View):
     model = Account
-    fields = "__all__"
     success_url = reverse_lazy("banking:account_list")
 
 
@@ -37,18 +36,10 @@ class AccountDetailView(AccountBaseView, DetailView):
     the specific account here and in the Views below"""
 
 
-class AccountCreateView(AccountBaseView, CreateView):
+class AccountCreateView(AccountBaseView, BSModalCreateView):
     """View to create a new account"""
-
-    extra_context = {"title": "Create Account"}
-    fields = [
-        "name",
-        "type",
-        "closing_day",
-        "due_day",
-        "bank",
-        "currency",
-    ]  # don't include 'user' here
+    form_class = AccountForm
+    success_message = "Success!"
 
     def form_valid(self, form):
         user = self.request.user
@@ -56,18 +47,11 @@ class AccountCreateView(AccountBaseView, CreateView):
         return super(AccountCreateView, self).form_valid(form)
 
 
-class AccountUpdateView(AccountBaseView, UpdateView):
+class AccountUpdateView(AccountBaseView, BSModalUpdateView):
     """View to update a account"""
 
-    extra_context = {"title": "Update Account"}
-    fields = [
-        "name",
-        "type",
-        "closing_day",
-        "due_day",
-        "bank",
-        "currency",
-    ]  # don't include 'user' here
+    form_class = AccountForm
+    success_message = "Success!"
 
 
 class AccountDeleteView(AccountBaseView, DeleteView):
@@ -94,24 +78,27 @@ class CategoryDetailView(CategoryBaseView, DetailView):
 
 
 class CategoryCreateView(CategoryBaseView, BSModalCreateView):
-    """View to create a new category"""    
+    """View to create a new category"""
+
     form_class = CategoryForm
     success_message = "Success!"
 
     def get_initial(self):
         super().get_initial()
-        if ("type" in self.request.resolver_match.kwargs):
-            self.initial['type'] = self.request.resolver_match.kwargs['type']
+        if "type" in self.request.resolver_match.kwargs:
+            self.initial["type"] = self.request.resolver_match.kwargs["type"]
         return self.initial
 
     def form_valid(self, form):
         user = self.request.user
         form.instance.user = user
         form.instance.sorting = Category.getLastSort(form.instance.nested_to, user)
-        if ("type" in self.request.resolver_match.kwargs):
-            form.instance.type = self.request.resolver_match.kwargs['type']
-        if ("nested_to_id" in self.request.resolver_match.kwargs):
-            form.instance.nested_to = Category.objects.filter(user=user, id=self.request.resolver_match.kwargs['nested_to_id']).first()
+        if "type" in self.request.resolver_match.kwargs:
+            form.instance.type = self.request.resolver_match.kwargs["type"]
+        if "nested_to_id" in self.request.resolver_match.kwargs:
+            form.instance.nested_to = Category.objects.filter(
+                user=user, id=self.request.resolver_match.kwargs["nested_to_id"]
+            ).first()
         return super(CategoryCreateView, self).form_valid(form)
 
 
@@ -123,8 +110,8 @@ class CategoryUpdateView(CategoryBaseView, BSModalUpdateView):
 
     def get_initial(self):
         super().get_initial()
-        self.initial['type'] = self.object.type
-        self.initial['id'] = self.object.id
+        self.initial["type"] = self.object.type
+        self.initial["id"] = self.object.id
         return self.initial
 
 
@@ -138,26 +125,43 @@ class TransactionBaseView(LoginRequiredMixin, View):
 
 
 class TransactionListView(TransactionBaseView, ListView):
-    extra_context = {"title": "Transactions", "add_button_title": "Add Transaction", "add_button_url": "banking:transaction_create"}
-
     """View to list all transactions of given user.
     Use the 'transaction_list' variable in the template
     to access all Transaction objects"""
-    def get_queryset(self, *args, **kwargs): 
-        qs = super(TransactionListView, self).get_queryset(*args, **kwargs) 
-        qs = qs.filter(merged_to=None).annotate(
-            balance=models.Window(models.Sum('value'), order_by=models.F('date').asc())
-        ).order_by("date")
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super(TransactionListView, self).get_queryset(*args, **kwargs)
+        qs = (
+            qs.filter(merged_to=None)
+            .annotate(
+                balance=models.Window(
+                    models.Sum("value"), order_by=models.F("date").asc()
+                )
+            )
+            .order_by("date")
+        )
         return qs
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
         user = self.request.user
-        qs = self.object_list.aggregate(first_date=models.Min("date"), last_date=models.Max("date"))
+        qs = self.object_list.aggregate(
+            first_date=models.Min("date"), last_date=models.Max("date")
+        )
         data["first_date"] = qs["first_date"]
         data["last_date"] = qs["last_date"]
-        data["balance_first_date"] = Transaction.objects.filter(account__user = user, date__lt=data["first_date"], merged_to=None).aggregate(balance=models.Sum("value"))["balance"] or 0
-        data["balance_last_date"] = Transaction.objects.filter(account__user = user, date__lte=data["last_date"], merged_to=None).aggregate(balance=models.Sum("value"))["balance"] or 0
+        data["balance_first_date"] = (
+            Transaction.objects.filter(
+                account__user=user, date__lt=data["first_date"], merged_to=None
+            ).aggregate(balance=models.Sum("value"))["balance"]
+            or 0
+        )
+        data["balance_last_date"] = (
+            Transaction.objects.filter(
+                account__user=user, date__lte=data["last_date"], merged_to=None
+            ).aggregate(balance=models.Sum("value"))["balance"]
+            or 0
+        )
         return data
 
 
@@ -169,12 +173,14 @@ class TransactionDetailView(TransactionBaseView, DetailView):
 
 class TransactionCreateView(TransactionBaseView, BSModalCreateView):
     """View to create a new Transaction"""
+
     form_class = TransactionForm
-    success_message = "Success!" 
+    success_message = "Success!"
 
 
 class TransactionUpdateView(TransactionBaseView, BSModalUpdateView):
     """View to update a Transaction"""
+
     form_class = TransactionForm
     success_message = "Success!"
 

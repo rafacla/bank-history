@@ -2,145 +2,170 @@
 {% load i18n %}
 {% load static %}
 {% block content %}
-  <div class="col-12">
-    <div class="card">
-      <div class="card-header">
-        {% trans "List of Accounts" %}
-      </div>
-      <div class="table-responsive">
-        <table class="table card-table table-vcenter text-nowrap datatable">
-          <thead>
-            <tr>
-              <th>{% trans "Name" %}</th>
-              <th>{% trans "Type" %}</th>
-              <th>{% trans "Currency" %}</th>
-              <th>{% trans "Closing Day" %}</th>
-              <th>{% trans "Due Day" %}</th>
-              <th>{% trans "Balance" %}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for account in account_list %}
-              <tr>
-                <td>
-                  <a hx-target="#modals-here"
-                     hx-trigger="click"
-                     data-bs-toggle="modal"
-                     data-bs-target="#modals-here"
-                     hx-get="{% url 'banking:account_detail' account.id %}"
-                     href="#">
-                    <img src="{{ media_url }}{{ account.bank.logo.url }}"
-                         width="32"
-                         height="32"
-                         alt="Bank Logo" />
-                    <span class="px-2">{{ account.name }}</span>
-                  </a>
-                  {% if account.getNotClassifiedTransactions.count > 0 %}
-                  <span class="badge badge-pill bg-red text-white mb-3"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="{% trans "Transactions not classified" %}">{{ account.getNotClassifiedTransactions.count }}</span>
-                  {% endif %}
-                  {% if account.getNotConciliedTransactions.count > 0 %}
-                  <span class="badge badge-pill bg-yellow text-white mb-3"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="{% trans "Transactions not concilied" %}">{{ account.getNotConciliedTransactions.count }}</span>
-                  {% endif %}
-                </td>
-                <td>{% trans account.get_type_display %}</td>
-                <td>
-                  <span class="flag flag-xs flag-country-{{ account.currency.code|slice:2|lower }} me-2"></span>
-                  {{ account.currency }} ({{ account.currency.code }})
-                </td>
-                <td>{{ account.closing_day }}</td>
-                <td>{{ account.due_day }}</td>
-                <td>{{ account.getBalance }}</td>
-                <td class="text-end">
-                  <button class="btn align-text-top btn-danger"
-                          hx-target="#modals-here"
-                          hx-trigger="click"
-                          data-bs-toggle="modal"
-                          data-bs-target="#modals-here"
-                          hx-get="{% url 'banking:account_delete' account.id %}">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         class="icon icon-tabler icon-tabler-trash"
-                         width="24"
-                         height="24"
-                         viewBox="0 0 24 24"
-                         stroke-width="2"
-                         stroke="currentColor"
-                         fill="none"
-                         stroke-linecap="round"
-                         stroke-linejoin="round">
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                      <path d="M4 7l16 0" />
-                      <path d="M10 11l0 6" />
-                      <path d="M14 11l0 6" />
-                      <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                      <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                    </svg>
-                    {% trans "Delete" %}
-                  </button>
-                  <button class="btn align-text-top btn-success"
-                          hx-target="#modals-here"
-                          hx-trigger="click"
-                          data-bs-toggle="modal"
-                          data-bs-target="#modals-here"
-                          hx-get="{% url 'banking:account_update' account.id %}">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         class="icon icon-tabler icon-tabler-edit"
-                         width="24"
-                         height="24"
-                         viewBox="0 0 24 24"
-                         stroke-width="2"
-                         stroke="currentColor"
-                         fill="none"
-                         stroke-linecap="round"
-                         stroke-linejoin="round">
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                      <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                      <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                      <path d="M16 5l3 3" />
-                    </svg>
-                    {% trans "Edit" %}
-                  </button>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <!-- Page pre-title -->
+          <div class="page-pretitle">Overview</div>
+          <h2 class="page-title">{% trans "Accounts" %}</h2>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+          <div class="btn-list">
+              <a href="#"
+                 class="btn btn-primary d-none d-sm-inline-block modal-button"
+                 data-form-url="{% url 'banking:account_create' %}"
+                 data-bs-toggle="modal"
+                 data-bs-target="#modals-here"
+                 id="add_button">
+                <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="icon"
+                     width="24"
+                     height="24"
+                     viewBox="0 0 24 24"
+                     stroke-width="2"
+                     stroke="currentColor"
+                     fill="none"
+                     stroke-linecap="round"
+                     stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <path d="M12 5l0 14"></path>
+                  <path d="M5 12l14 0"></path>
+                </svg>
+                {% trans "Create new account" %}
+              </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <!-- Page title actions -->
-  <div class="col-auto ms-auto d-print-none">
-    <div class="btn-list">
-      <a hx-target="#modals-here"
-         hx-trigger="click"
-         data-bs-toggle="modal"
-         data-bs-target="#modals-here"
-         hx-get="{% url 'banking:account_create' %}"
-         href="#"
-         class="btn btn-primary">
-        <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-        <svg xmlns="http://www.w3.org/2000/svg"
-             class="icon"
-             width="24"
-             height="24"
-             viewBox="0 0 24 24"
-             stroke-width="2"
-             stroke="currentColor"
-             fill="none"
-             stroke-linecap="round"
-             stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-          <path d="M12 5l0 14" />
-          <path d="M5 12l14 0" />
-        </svg>
-        {% trans "Create new account" %}
-      </a>
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="row row-deck row-cards">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">{% trans "List of Accounts" %}</div>
+            <div class="table-responsive">
+              <table class="table card-table table-vcenter text-nowrap datatable">
+                <thead>
+                  <tr>
+                    <th>{% trans "Name" %}</th>
+                    <th>{% trans "Type" %}</th>
+                    <th>{% trans "Currency" %}</th>
+                    <th>{% trans "Closing Day" %}</th>
+                    <th>{% trans "Due Day" %}</th>
+                    <th>{% trans "Balance" %}</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for account in account_list %}
+                    <tr>
+                      <td>
+                        <a hx-target="#modals-here"
+                           hx-trigger="click"
+                           data-bs-toggle="modal"
+                           data-bs-target="#modals-here"
+                           hx-get="{% url 'banking:account_detail' account.id %}"
+                           href="#">
+                          <img src="{{ media_url }}{{ account.bank.logo.url }}"
+                               width="32"
+                               height="32"
+                               alt="Bank Logo" />
+                          <span class="px-2">{{ account.name }}</span>
+                        </a>
+                        {% if account.getNotClassifiedTransactions.count > 0 %}
+                          <span class="badge badge-pill bg-red text-white mb-3"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="{% trans "Transactions not classified" %}">{{ account.getNotClassifiedTransactions.count }}</span>
+                        {% endif %}
+                        {% if account.getNotConciliedTransactions.count > 0 %}
+                          <span class="badge badge-pill bg-yellow text-white mb-3"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="{% trans "Transactions not concilied" %}">{{ account.getNotConciliedTransactions.count }}</span>
+                        {% endif %}
+                      </td>
+                      <td>{% trans account.get_type_display %}</td>
+                      <td>
+                        <span class="flag flag-xs flag-country-{{ account.currency.code|slice:2|lower }} me-2"></span>
+                        {{ account.currency }} ({{ account.currency.code }})
+                      </td>
+                      <td>{{ account.closing_day }}</td>
+                      <td>{{ account.due_day }}</td>
+                      <td>{{ account.getBalance }}</td>
+                      <td class="text-end">
+                        <button class="btn align-text-top btn-danger modal-button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modals-here"
+                                data-form-url="{% url 'banking:account_delete' account.id %}"
+                                data-form-delete="True">
+                          <svg xmlns="http://www.w3.org/2000/svg"
+                               class="icon icon-tabler icon-tabler-trash"
+                               width="24"
+                               height="24"
+                               viewBox="0 0 24 24"
+                               stroke-width="2"
+                               stroke="currentColor"
+                               fill="none"
+                               stroke-linecap="round"
+                               stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M4 7l16 0" />
+                            <path d="M10 11l0 6" />
+                            <path d="M14 11l0 6" />
+                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                          </svg>
+                          {% trans "Delete" %}
+                        </button>
+                        <button class="btn align-text-top btn-success modal-button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modals-here"
+                                data-form-url="{% url 'banking:account_update' account.id %}">
+                          <svg xmlns="http://www.w3.org/2000/svg"
+                               class="icon icon-tabler icon-tabler-edit"
+                               width="24"
+                               height="24"
+                               viewBox="0 0 24 24"
+                               stroke-width="2"
+                               stroke="currentColor"
+                               fill="none"
+                               stroke-linecap="round"
+                               stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                            <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                            <path d="M16 5l3 3" />
+                          </svg>
+                          {% trans "Edit" %}
+                        </button>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-{% endblock content %}
+  <script>
+    document.addEventListener('DOMContentLoaded', (e) => {
+      var modalButtons = document.getElementsByClassName("modal-button");
+      for (var index=0; index < modalButtons.length; index++) {
+        modalForm(modalButtons[index], {
+          formURL: modalButtons[index]["dataset"]["formUrl"],
+          modalID: "#modals-here",
+          isDeleteForm: modalButtons[index]["dataset"]["formDelete"],
+          errorClass: '.is-invalid'
+        });
+      }
+    });
+  </script>
+  {% endblock content %}
