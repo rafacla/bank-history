@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% block content %}
+  <div class="col-12">
+    <div class="card">
+      <div class="card-head"></div>
+      <div class="table-responsive">
+        <table class="table card-table table-vcenter text-nowrap datatable table-hover table-condensed">
+          <thead>
+            <tr>
+              <th>
+                <input id="select-all"
+                       class="form-check-input m-0 align-middle"
+                       type="checkbox"
+                       aria-label="Select all transactions">
+              </th>
+              <th>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="icon icon-tabler icon-tabler-info-circle"
+                     width="24"
+                     height="24"
+                     viewBox="0 0 24 24"
+                     stroke-width="2"
+                     stroke="currentColor"
+                     fill="none"
+                     stroke-linecap="round"
+                     stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                  <path d="M12 9h.01" />
+                  <path d="M11 12h1v4h1" />
+                </svg>
+              </th>
+              <th>{% trans "Account" %}</th>
+              <th>{% trans "Competency" %}</th>
+              <th>{% trans "Date" %}</th>
+              <th>{% trans "Description" %}</th>
+              <th>{% trans "Category" %}</th>
+              <th class="text-end">{% trans "Value" %}</th>
+              <th class="text-end">{% trans "Balance" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if transaction_list.count == 0 %}
+              <tr>
+                <td colspan="9">{% trans "No transactions yet for the given filter" %} 😐</td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="8" class="text-end">{% trans "Account balance for current filter before" %} {{ first_date|date:"d/m/Y" }}</td>
+                <td class="text-end">{{ balance_first_date|floatformat:2 }}</td>
+              </tr>
+              {% for item in transaction_list %}
+                {% if item.merged_to == None %}
+                  <tr>
+                    <td>
+                      <input class="form-check-input m-0 align-middle"
+                             type="checkbox"
+                             aria-label="Select transaction of {{ item.date }}">
+                    </td>
+                    <td>
+                      {% if item.getMergedTransactions.count > 0 %}
+                        <svg data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "There's one or more transactions merged to this one. Click at Transaction to show more details" %}" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                          <path d="M9 15l6 -6" />
+                          <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" />
+                          <path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" />
+                        </svg>
+                      {% endif %}
+                    </td>
+                    <td>{{ item.account.name }}</td>
+                    <td>
+                      {% if item.competency_date != None %}
+                        {{ item.competency_date|date:"b-y" }}
+                      {% else %}
+                        {{ item.date|date:"b-y" }}
+                      {% endif %}
+                    </td>
+                    <td>{{ item.date|date:"d/m/Y" }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>
+                      {% if item.is_transfer %}
+                        <span data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "This is a Transfer! It doesn't need a Category, because this is only internal money moving from your own account and not actual spending!" %}">
+                          <svg xmlns="http://www.w3.org/2000/svg"
+                               class="icon icon-tabler icon-tabler-transfer"
+                               width="24"
+                               height="24"
+                               viewBox="0 0 24 24"
+                               stroke-width="2"
+                               stroke="currentColor"
+                               fill="none"
+                               stroke-linecap="round"
+                               stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M20 10h-16l5.5 -6" />
+                            <path d="M4 14h16l-5.5 6" />
+                          </svg>
+                          Internal Transfer
+                        </span>
+                      {% elif item.category != None %}
+                        <span data-bs-toggle="popover"
+                              data-bs-trigger="hover focus"
+                              data-bs-content="{% trans "This is a categorized transaction, it means you are spending or receiving money!" %}">
+                          <svg xmlns="http://www.w3.org/2000/svg"
+                               class="icon icon-tabler icon-tabler-category-2"
+                               width="24"
+                               height="24"
+                               viewBox="0 0 24 24"
+                               stroke-width="2"
+                               stroke="currentColor"
+                               fill="none"
+                               stroke-linecap="round"
+                               stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M14 4h6v6h-6z" />
+                            <path d="M4 14h6v6h-6z" />
+                            <path d="M17 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                            <path d="M7 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                          </svg>
+                          {{ item.category.name }}
+                        </span>
+                      {% else %}
+                        <span class="badge m-0 h6 text-bg-warning" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "You did not classified this transaction! It's always recommended that you classify every transaction to get control of your finances!" %}">
+                          <svg xmlns="http://www.w3.org/2000/svg"
+                               class="icon icon-tabler icon-tabler-alert-triangle"
+                               width="24"
+                               height="24"
+                               viewBox="0 0 24 24"
+                               stroke-width="2"
+                               stroke="currentColor"
+                               fill="none"
+                               stroke-linecap="round"
+                               stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M12 9v4" />
+                            <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                            <path d="M12 16h.01" />
+                          </svg>
+                          {% trans "Not classified" %}
+                        </span>
+                      {% endif %}
+                    </td>
+                    <td class="text-end">{{ item.value }}</td>
+                    <td class="text-end">{{ item.balance }}</td>
+                  </tr>
+                {% endif %}
+              {% endfor %}
+              <tr>
+                <td colspan="8" class="text-end">{% trans "Account balance for current filter on" %} {{ last_date|date:"d/m/Y" }}</td>
+                <td class="text-end">{{ balance_last_date|floatformat:2 }}</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!-- Page title actions -->
+  <div class="col-auto ms-auto d-print-none">
+    <div class="btn-list"></div>
+  </div>
+  <script src="{% static './dist/libs/sortable/Sortable.min.js' %}" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', (e) => {
+      var modalButtons = document.getElementsByClassName("modal-button");
+      for (var index=0; index < modalButtons.length; index++) {
+        modalForm(modalButtons[index], {
+          formURL: modalButtons[index]["dataset"]["formUrl"],
+          modalID: "#modals-here",
+          isDeleteForm: modalButtons[index]["dataset"]["formDelete"],
+          errorClass: '.is-invalid'
+        });
+      }
+    });
+    // Listen for click on toggle checkbox
+    $('#select-all').click(function(event) {   
+      if(this.checked) {
+          // Iterate each checkbox
+          $(':checkbox').each(function() {
+              this.checked = true;                        
+          });
+      } else {
+          $(':checkbox').each(function() {
+              this.checked = false;                       
+          });
+      }
+    }); 
+  </script>
+{% endblock content %}

@@ -125,3 +125,7 @@ class Transaction(models.Model):
     )
     concilied = models.BooleanField(default=False)
     value = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def getMergedTransactions(self):
+        mergedTransactions = Transaction.objects.filter(merged_to=self)
+        return mergedTransactions

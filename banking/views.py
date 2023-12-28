@@ -4,6 +4,8 @@ from django.views import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
+from django.db import models
+
 from bootstrap_modal_forms.generic import (
   BSModalCreateView,
   BSModalUpdateView,
@@ -11,7 +13,7 @@ from bootstrap_modal_forms.generic import (
   BSModalDeleteView
 )
 
-from .models import Account, Category
+from .models import Account, Category, Transaction
 from .forms import CategoryForm
 
 
@@ -113,7 +115,6 @@ class CategoryCreateView(CategoryBaseView, BSModalCreateView):
         return super(CategoryCreateView, self).form_valid(form)
 
 
-
 class CategoryUpdateView(CategoryBaseView, BSModalUpdateView):
     """View to update a category"""
 
@@ -129,3 +130,32 @@ class CategoryUpdateView(CategoryBaseView, BSModalUpdateView):
 
 class CategoryDeleteView(CategoryBaseView, DeleteView):
     """View to delete a category"""
+
+
+class TransactionBaseView(LoginRequiredMixin, View):
+    model = Transaction
+    success_url = reverse_lazy("banking:transaction_list")
+
+
+class TransactionListView(TransactionBaseView, ListView):
+    extra_context = {"title": "Transactions"}
+
+    """View to list all transactions of given user.
+    Use the 'transaction_list' variable in the template
+    to access all Transaction objects"""
+    def get_queryset(self, *args, **kwargs): 
+        qs = super(TransactionListView, self).get_queryset(*args, **kwargs) 
+        qs = qs.filter(merged_to=None).annotate(
+            balance=models.Window(models.Sum('value'), order_by=models.F('date').asc())
+        ).order_by("date")
+        return qs
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        user = self.request.user
+        qs = self.object_list.aggregate(first_date=models.Min("date"), last_date=models.Max("date"))
+        data["first_date"] = qs["first_date"]
+        data["last_date"] = qs["last_date"]
+        data["balance_first_date"] = Transaction.objects.filter(account__user = user, date__lt=data["first_date"], merged_to=None).aggregate(balance=models.Sum("value"))["balance"] or 0
+        data["balance_last_date"] = Transaction.objects.filter(account__user = user, date__lte=data["last_date"], merged_to=None).aggregate(balance=models.Sum("value"))["balance"] or 0
+        return data
