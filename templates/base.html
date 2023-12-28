@@ -407,7 +407,8 @@
                 <div class="btn-list">
                   {% if add_button_title != None %}
                     <a href="#"
-                       class="btn btn-primary d-none d-sm-inline-block"
+                       class="btn btn-primary d-none d-sm-inline-block modal-button"
+                       data-form-url="{% url add_button_url %}"
                        data-bs-toggle="modal"
                        data-bs-target="#modals-here"
                        id="add_button">

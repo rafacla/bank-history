@@ -4,8 +4,7 @@
 {% block content %}
   <div class="col-12">
     <div class="card">
-      <div class="card-head">
-      </div>
+      <div class="card-head"></div>
       <div class="table-responsive">
         <table class="table card-table table-vcenter text-nowrap datatable table-hover table-condensed">
           <thead>
@@ -49,7 +48,9 @@
               </tr>
             {% else %}
               <tr>
-                <td colspan="8" class="text-end">{% trans "Account balance for current filter before" %} {{ first_date|date:"d/m/Y" }}</td>
+                <td colspan="8" class="text-end">
+                  {% trans "Account balance for current filter before" %} {{ first_date|date:"d/m/Y" }}
+                </td>
                 <td class="text-end">{{ balance_first_date|floatformat:2 }}</td>
               </tr>
               {% for item in transaction_list %}
@@ -79,90 +80,112 @@
                       {% endif %}
                     </td>
                     <td>{{ item.date|date:"d/m/Y" }}</td>
-                    <td>{{ item.description }}</td>
                     <td>
-                      {% if item.is_transfer %}
-                        <span data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "This is a Transfer! It doesn't need a Category, because this is only internal money moving from your own account and not actual spending!" %}">
-                          <svg xmlns="http://www.w3.org/2000/svg"
-                               class="icon icon-tabler icon-tabler-transfer"
-                               width="24"
-                               height="24"
-                               viewBox="0 0 24 24"
-                               stroke-width="2"
-                               stroke="currentColor"
-                               fill="none"
-                               stroke-linecap="round"
-                               stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M20 10h-16l5.5 -6" />
-                            <path d="M4 14h16l-5.5 6" />
-                          </svg>
-                          Internal Transfer
-                        </span>
-                      {% elif item.category != None %}
-                        <span data-bs-toggle="popover"
-                              data-bs-trigger="hover focus"
-                              data-bs-content="{% trans "This is a categorized transaction, it means you are spending or receiving money!" %}">
-                          <svg xmlns="http://www.w3.org/2000/svg"
-                               class="icon icon-tabler icon-tabler-category-2"
-                               width="24"
-                               height="24"
-                               viewBox="0 0 24 24"
-                               stroke-width="2"
-                               stroke="currentColor"
-                               fill="none"
-                               stroke-linecap="round"
-                               stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M14 4h6v6h-6z" />
-                            <path d="M4 14h6v6h-6z" />
-                            <path d="M17 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-                            <path d="M7 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-                          </svg>
-                          {{ item.category.name }}
-                        </span>
-                      {% else %}
-                        <span class="badge m-0 h6 text-bg-warning" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "You did not classified this transaction! It's always recommended that you classify every transaction to get control of your finances!" %}">
-                          <svg xmlns="http://www.w3.org/2000/svg"
-                               class="icon icon-tabler icon-tabler-alert-triangle"
-                               width="24"
-                               height="24"
-                               viewBox="0 0 24 24"
-                               stroke-width="2"
-                               stroke="currentColor"
-                               fill="none"
-                               stroke-linecap="round"
-                               stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M12 9v4" />
-                            <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
-                            <path d="M12 16h.01" />
-                          </svg>
-                          {% trans "Not classified" %}
-                        </span>
-                      {% endif %}
-                    </td>
-                    <td class="text-end">{{ item.value|floatformat:2 }}</td>
-                    <td class="text-end">{{ item.balance|floatformat:2 }}</td>
-                  </tr>
-                {% endif %}
-              {% endfor %}
-              <tr>
-                <td colspan="8" class="text-end">{% trans "Account balance for current filter on" %} {{ last_date|date:"d/m/Y" }}</td>
-                <td class="text-end">{{ balance_last_date|floatformat:2 }}</td>
-              </tr>
-            {% endif %}
-          </tbody>
-        </table>
-      </div>
+                      {{ item.description }} <a href="#"
+    data-form-url="{% url 'banking:transaction_update' item.id %}"
+    class="modal-button on-hover-link"
+    data-bs-toggle="modal"
+    data-bs-target="#modals-here">
+                      <svg xmlns="http://www.w3.org/2000/svg"
+                           class="icon icon-tabler icon-tabler-edit"
+                           width="24"
+                           height="24"
+                           viewBox="0 0 24 24"
+                           stroke-width="2"
+                           stroke="currentColor"
+                           fill="none"
+                           stroke-linecap="round"
+                           stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                        <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                        <path d="M16 5l3 3" />
+                      </svg>
+                    </a>
+                  </td>
+                  <td>
+                    {% if item.is_transfer %}
+                      <span data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "This is a Transfer! It doesn't need a Category, because this is only internal money moving from your own account and not actual spending!" %}">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="icon icon-tabler icon-tabler-transfer"
+                             width="24"
+                             height="24"
+                             viewBox="0 0 24 24"
+                             stroke-width="2"
+                             stroke="currentColor"
+                             fill="none"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M20 10h-16l5.5 -6" />
+                          <path d="M4 14h16l-5.5 6" />
+                        </svg>
+                        Internal Transfer
+                      </span>
+                    {% elif item.category != None %}
+                      <span data-bs-toggle="popover"
+                            data-bs-trigger="hover focus"
+                            data-bs-content="{% trans "This is a categorized transaction, it means you are spending or receiving money!" %}">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="icon icon-tabler icon-tabler-category-2"
+                             width="24"
+                             height="24"
+                             viewBox="0 0 24 24"
+                             stroke-width="2"
+                             stroke="currentColor"
+                             fill="none"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M14 4h6v6h-6z" />
+                          <path d="M4 14h6v6h-6z" />
+                          <path d="M17 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                          <path d="M7 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                        </svg>
+                        {{ item.category.name }}
+                      </span>
+                    {% else %}
+                      <span class="badge m-0 h6 text-bg-warning" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "You did not classified this transaction! It's always recommended that you classify every transaction to get control of your finances!" %}">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="icon icon-tabler icon-tabler-alert-triangle"
+                             width="24"
+                             height="24"
+                             viewBox="0 0 24 24"
+                             stroke-width="2"
+                             stroke="currentColor"
+                             fill="none"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M12 9v4" />
+                          <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                          <path d="M12 16h.01" />
+                        </svg>
+                        {% trans "Not classified" %}
+                      </span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">{{ item.value|floatformat:2 }}</td>
+                  <td class="text-end">{{ item.balance|floatformat:2 }}</td>
+                </tr>
+              {% endif %}
+            {% endfor %}
+            <tr>
+              <td colspan="8" class="text-end">{% trans "Account balance for current filter on" %} {{ last_date|date:"d/m/Y" }}</td>
+              <td class="text-end">{{ balance_last_date|floatformat:2 }}</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
     </div>
   </div>
-  <!-- Page title actions -->
-  <div class="col-auto ms-auto d-print-none">
-    <div class="btn-list"></div>
-  </div>
-  <script src="{% static './dist/libs/sortable/Sortable.min.js' %}" defer></script>
-  <script>
+</div>
+<!-- Page title actions -->
+<div class="col-auto ms-auto d-print-none">
+  <div class="btn-list"></div>
+</div>
+<script src="{% static './dist/libs/sortable/Sortable.min.js' %}" defer></script>
+<script>
     document.addEventListener('DOMContentLoaded', (e) => {
       var modalButtons = document.getElementsByClassName("modal-button");
       for (var index=0; index < modalButtons.length; index++) {
@@ -187,5 +210,5 @@
           });
       }
     }); 
-  </script>
+</script>
 {% endblock content %}

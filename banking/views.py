@@ -14,7 +14,7 @@ from bootstrap_modal_forms.generic import (
 )
 
 from .models import Account, Category, Transaction
-from .forms import CategoryForm
+from .forms import CategoryForm, TransactionForm
 
 
 class AccountBaseView(LoginRequiredMixin, View):
@@ -138,7 +138,7 @@ class TransactionBaseView(LoginRequiredMixin, View):
 
 
 class TransactionListView(TransactionBaseView, ListView):
-    extra_context = {"title": "Transactions", "add_button_title": "Add Transaction"}
+    extra_context = {"title": "Transactions", "add_button_title": "Add Transaction", "add_button_url": "banking:transaction_create"}
 
     """View to list all transactions of given user.
     Use the 'transaction_list' variable in the template
@@ -159,3 +159,25 @@ class TransactionListView(TransactionBaseView, ListView):
         data["balance_first_date"] = Transaction.objects.filter(account__user = user, date__lt=data["first_date"], merged_to=None).aggregate(balance=models.Sum("value"))["balance"] or 0
         data["balance_last_date"] = Transaction.objects.filter(account__user = user, date__lte=data["last_date"], merged_to=None).aggregate(balance=models.Sum("value"))["balance"] or 0
         return data
+
+
+class TransactionDetailView(TransactionBaseView, DetailView):
+    """View to list the details from one Transaction.
+    Use the 'transaction' variable in the template to access
+    the specific transaction here and in the Views below"""
+
+
+class TransactionCreateView(TransactionBaseView, BSModalCreateView):
+    """View to create a new Transaction"""
+    form_class = TransactionForm
+    success_message = "Success!" 
+
+
+class TransactionUpdateView(TransactionBaseView, BSModalUpdateView):
+    """View to update a Transaction"""
+    form_class = TransactionForm
+    success_message = "Success!"
+
+
+class TransactionDeleteView(TransactionBaseView, DeleteView):
+    """View to delete a Transaction"""

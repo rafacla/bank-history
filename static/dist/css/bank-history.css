@@ -6,3 +6,11 @@
 .blue-background-class {
     background-color: gainsboro;
 }
+
+tr:hover > td > .on-hover-link {
+    display: inline-block;
+}
+
+tr > td > .on-hover-link {
+    display: none;
+}

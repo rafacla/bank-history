@@ -18,4 +18,8 @@ urlpatterns = [
     path('categories/<int:pk>/delete/', views.CategoryDeleteView.as_view(), name='category_delete'),
     path('transactions/', views.TransactionListView.as_view(), name='transaction_list'),
     path('transactions/<int:pk>/statement', views.TransactionListView.as_view(), name='account_statement'),
+    path('transactions/<int:pk>/detail', views.TransactionDetailView.as_view(), name='transaction_detail'),
+    path('transactions/create/', views.TransactionCreateView.as_view(), name='transaction_create'),
+    path('transactions/<int:pk>/update/', views.TransactionUpdateView.as_view(), name='transaction_update'),
+    path('transactions/<int:pk>/delete/', views.TransactionDeleteView.as_view(), name='transaction_delete'),
 ]

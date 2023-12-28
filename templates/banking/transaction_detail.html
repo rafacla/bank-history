@@ -1,0 +1,82 @@
+{% load i18n %}
+{% block content %}
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{% trans "Account Details" %}</h5>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="datagrid">
+          <div class="datagrid-item">
+            <div class="datagrid-title">{% trans "Account Name" %}</div>
+            <div class="datagrid-content">{{ account.name }}</div>
+          </div>
+          <div class="datagrid-item">
+            <div class="datagrid-title">{% trans "Bank Name" %}</div>
+            <div class="datagrid-content">
+              <img src="{{ media_url }}{{ account.bank.logo.url }}"
+                   width="24"
+                   height="24"
+                   alt="Bank Logo" />
+              <span class="p-2">{{ account.bank.name }}</span>
+            </div>
+          </div>
+          <div class="datagrid-item">
+            <div class="datagrid-title">{% trans "Account Type" %}</div>
+            <div class="datagrid-content">{% trans account.get_type_display %}</div>
+          </div>
+          <div class="datagrid-item">
+            <div class="datagrid-title">{% trans "Currency" %}</div>
+            <div class="datagrid-content"><span class="flag flag-xs flag-country-{{ account.currency.code|slice:2|lower }} me-2"></span>
+              {{ account.currency }} ({{ account.currency.code }})</div>
+          </div>
+          <div class="datagrid-item">
+            <div class="datagrid-title">{% trans "Closing Day" %}</div>
+            <div class="datagrid-content">{{ account.closing_day }}</div>
+          </div>
+          <div class="datagrid-item">
+            <div class="datagrid-title">{% trans "Due Day" %}</div>
+            <div class="datagrid-content">{{ account.due_day }}</div>
+          </div>
+          <div class="datagrid-item">
+            <div class="datagrid-title">{% trans "Transactions without Classification" %}</div>
+            <div class="datagrid-content">{{ account.getNotClassifiedTransactions.count }}</div>
+          </div>
+          <div class="datagrid-item">
+            <div class="datagrid-title">{% trans "Transactions not Concilied" %}</div>
+            <div class="datagrid-content">{{ account.getNotConciliedTransactions.count }}</div>
+          </div>
+          <div class="datagrid-item">
+            <div class="datagrid-title">{% trans "Account Balance" %}</div>
+            <div class="datagrid-content">{{ account.getBalance }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">{% trans "Close" %}</a>
+        <a href="{% url "banking:account_statement" account.id %}" class="btn btn-primary ms-auto" data-bs-dismiss="modal">
+          <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+          <svg xmlns="http://www.w3.org/2000/svg"
+               class="icon"
+               width="24"
+               height="24"
+               viewBox="0 0 24 24"
+               stroke-width="2"
+               stroke="currentColor"
+               fill="none"
+               stroke-linecap="round"
+               stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M12 5l0 14" />
+            <path d="M5 12l14 0" />
+          </svg>
+          {% trans "Open Statement" %}
+        </a>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
