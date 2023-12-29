@@ -344,4 +344,11 @@
 });
 $("#edit_button").hide()
 </script>
+<script type="text/javascript">
+  $('#modals-here').on('shown.bs.modal', function () {
+    $('select').select2({
+      dropdownParent: $('#modals-here')
+  });
+  })
+</script>  
 {% endblock extrascripts %}

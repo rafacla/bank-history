@@ -1,7 +1,5 @@
 {% load static %}
 {% load i18n %}
-{% load widget_tweaks %}
-{{ form.media }}
 <form method="post">
     <div class="modal-header">
         <h5 class="modal-title">{% trans "Apply Categories" %}</h5>
@@ -16,7 +14,7 @@
             <span>{% trans "This action is permanent and there's no coming back." %}</span>
             <span>{% trans "It'll classify the selected transactions as the picked category below:" %}</span>
             {% load crispy_forms_tags %}
-            {{ form.as_p }}
+            {% crispy form %}
             <br />
             <br />
             <p>{% trans "Are you sure you want to continue?" %}</p>
