@@ -1,43 +1,63 @@
-  {% load i18n %}
-  <!-- BOOTSTRAP FORM -->
-      <form method="post">
-        <div class="modal-header">
-          <h5 class="modal-title">
-            {% if transaction.id %}
-              {% trans "Edit Transaction" %}
-            {% else %}
-              {% trans "Create Transaction" %}
-            {% endif %}
-          </h5>
-          <button type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-            {% csrf_token %}
-            <table class="table">
-              {% load crispy_forms_tags %}
-              {% crispy form %}
-            </table>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <a href="#" class="btn btn-link btn-danger" data-bs-dismiss="modal">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11l-4 4l4 4m-4 -4h11a4 4 0 0 0 0 -8h-1" /></svg>
-            {% trans "Cancel" %}
-          </a>
-          <button class="btn btn-primary ms-auto" data-bs-dismiss="modal">
-            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-6 0l0 -4" /></svg>
-            {% trans "Submit" %}
-          </button>
-        </div>
-        {% block extrascripts %}
-        <script type="text/javascript">
-          alert('oi');
-        </script>
-        {% endblock extrascripts %}
-      </form>
-<!-- END BOOTSTRAP FORM -->
+{% load i18n %}
+<form method="post">
+  <div class="modal-header">
+    <h5 class="modal-title">
+      {% if transaction.id %}
+        {% trans "Edit Transaction" %}
+      {% else %}
+        {% trans "Create Transaction" %}
+      {% endif %}
+    </h5>
+    <button type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"></button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      {% csrf_token %}
+      <table class="table">
+        {% load crispy_forms_tags %}
+        {% crispy form %}
+      </table>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn btn-link btn-danger" data-bs-dismiss="modal">
+      <svg xmlns="http://www.w3.org/2000/svg"
+           class="icon icon-tabler icon-tabler-arrow-back"
+           width="24"
+           height="24"
+           viewBox="0 0 24 24"
+           stroke-width="2"
+           stroke="currentColor"
+           fill="none"
+           stroke-linecap="round"
+           stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M9 11l-4 4l4 4m-4 -4h11a4 4 0 0 0 0 -8h-1" />
+      </svg>
+      {% trans "Cancel" %}
+    </a>
+    <button class="btn btn-primary ms-auto" data-bs-dismiss="modal">
+      <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+      <svg xmlns="http://www.w3.org/2000/svg"
+           class="icon icon-tabler icon-tabler-device-floppy"
+           width="24"
+           height="24"
+           viewBox="0 0 24 24"
+           stroke-width="2"
+           stroke="currentColor"
+           fill="none"
+           stroke-linecap="round"
+           stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
+        <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+        <path d="M14 4l0 4l-6 0l0 -4" />
+      </svg>
+      {% trans "Submit" %}
+    </button>
+  </div>
+  <script type="text/javascript">alert('oi');</script>
+</form>
