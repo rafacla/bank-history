@@ -46,10 +46,9 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     "django_extensions",
+    "bootstrap_modal_forms",
     "crispy_forms",
     "crispy_bootstrap5",
-    "bootstrap_modal_forms",
-    "widget_tweaks",
 ]
 
 PROJECT_APPS = [

@@ -16,6 +16,11 @@
   <div class="modal-body">
     <div class="row">
       {% csrf_token %}
+      <div class="{% if form.non_field_errors %} is-invalid{% endif %} mb-2">
+        {% for error in form.non_field_errors %}
+        {{ error }}
+        {% endfor %}
+      </div>
       <table class="table">
         {% load crispy_forms_tags %}
         {% crispy form %}
@@ -39,7 +44,7 @@
       </svg>
       {% trans "Cancel" %}
     </a>
-    <button class="btn btn-primary ms-auto" data-bs-dismiss="modal">
+    <button class="btn btn-primary ms-auto" type="submit">
       <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
       <svg xmlns="http://www.w3.org/2000/svg"
            class="icon icon-tabler icon-tabler-device-floppy"

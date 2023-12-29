@@ -280,8 +280,7 @@
       modalForm(modalButtons[index], {
         formURL: modalButtons[index]["dataset"]["formUrl"],
         modalID: "#modals-here",
-        isDeleteForm: modalButtons[index]["dataset"]["formDelete"],
-        errorClass: '.is-invalid'
+        isDeleteForm: (modalButtons[index]["dataset"]["formDelete"] == true),
       });
     }
   });
@@ -323,7 +322,6 @@
       formURL: url_string,
       modalID: "#modals-here",
       isDeleteForm: true,
-      errorClass: '.is-invalid'
     });
 
     url_string = "{% url 'banking:transaction_internal_transfer' 0 %}"
@@ -333,7 +331,6 @@
       formURL: url_string,
       modalID: "#modals-here",
       isDeleteForm: true,
-      errorClass: '.is-invalid'
     });
 
     url_string = "{% url 'banking:transaction_categorize' 0 %}"
@@ -343,7 +340,6 @@
       formURL: url_string,
       modalID: "#modals-here",
       isDeleteForm: true,
-      errorClass: '.is-invalid'
     });
 });
 $("#edit_button").hide()

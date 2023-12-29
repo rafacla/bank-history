@@ -271,12 +271,11 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <!-- Theme Selection (Dark/Light)-->
     <script src="{% static './dist/js/theme.min.js' %}"></script>
-    {% block extrascripts %}{% endblock extrascripts %}
-
     <div class="modal modal-blur fade" tabindex="-1" role="dialog" id="modals-here">
-      <div class="modal-dialog" role="document">
+      <div class="modal-dialog" >
         <div class="modal-content"></div>
       </div>
     </div>
+    {% block extrascripts %}{% endblock extrascripts %}
   </body>
 </html>

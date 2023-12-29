@@ -164,8 +164,7 @@
       modalForm(modalButtons[index], {
         formURL: modalButtons[index]["dataset"]["formUrl"],
         modalID: "#modals-here",
-        isDeleteForm: modalButtons[index]["dataset"]["formDelete"],
-        errorClass: '.is-invalid'
+        isDeleteForm: (modalButtons[index]["dataset"]["formDelete"] == true),
       });
     }
   });

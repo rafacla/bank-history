@@ -70,7 +70,7 @@ class Migration(migrations.Migration):
                 ('is_transfer', models.BooleanField(default=False)),
                 ('concilied', models.BooleanField(default=False)),
                 ('value', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('account', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='banking.account')),
+                ('account', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='banking.account')),
                 ('category', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='banking.category')),
                 ('merged_to', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='banking.transaction')),
             ],

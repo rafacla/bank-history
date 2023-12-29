@@ -111,7 +111,7 @@ class Category(models.Model):
 
 class Transaction(models.Model):
     account = models.ForeignKey(
-        Account, on_delete=models.CASCADE, blank=True, null=True
+        Account, on_delete=models.CASCADE
     )
     date = models.DateField()
     competency_date = models.DateField(blank=True, null=True)
