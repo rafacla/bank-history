@@ -33,25 +33,9 @@
           rel="stylesheet" />
     <link href="{% static './dist/css/tabler-vendors.min.css' %}"
           rel="stylesheet" />
-    <link href="{% static './dist/css/bank-history.css' %}" rel="stylesheet" />
-    <!-- Libs JS -->
-    <script src="{% static './dist/libs/apexcharts/dist/apexcharts.min.js' %}"
-            defer></script>
-    <script src="{% static './dist/libs/jsvectormap/dist/js/jsvectormap.min.js' %}"
-            defer></script>
-    <script src="{% static './dist/libs/jsvectormap/dist/maps/world.js' %}" defer></script>
-    <script src="{% static '/dist/libs/jsvectormap/dist/maps/world-merc.js' %}"
-            defer></script>
-    <!-- Tabler Core -->
-    <script src="{% static './dist/js/tabler.min.js' %}" defer></script>
-    <script src="{% static './dist/js/demo.min.js' %}" defer></script>
-    <!-- Bootstrap Modal Forms -->
-    <script src="{% static 'js/bootstrap5.modal.forms.min.js' %}"></script>
-    <!-- JQuery -->
-    <script src="{% static './dist/libs/jquery/jquery-3.7.1.min.js' %}"></script>
+    <link href="{% static './dist/css/bank-history.css' %}" rel="stylesheet" /> 
   </head>
   <body class="layout-fluid">
-    <script src="{% static './dist/js/demo-theme.min.js' %}"></script>
     <div class="page">
       <!-- Navbar -->
       <header class="navbar navbar-expand-md d-print-none">
@@ -271,12 +255,26 @@
         </footer>
       </div>
     </div>
-    <div class="modal modal-blur fade"
-         id="modals-here"
-         tabindex="-1"
-         role="dialog"
-         aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document">
+    <!-- JQuery -->
+    <script src="{% static './dist/libs/jquery/jquery-3.7.1.min.js' %}"></script>
+    <!-- Libs JS -->
+    <script src="{% static './dist/libs/apexcharts/dist/apexcharts.min.js' %}"defer></script>
+    <script src="{% static './dist/libs/jsvectormap/dist/js/jsvectormap.min.js' %}"defer></script>
+    <script src="{% static './dist/libs/jsvectormap/dist/maps/world.js' %}" defer></script>
+    <script src="{% static '/dist/libs/jsvectormap/dist/maps/world-merc.js' %}"defer></script>
+    <!-- Tabler Core -->
+    <script src="{% static './dist/js/tabler.min.js' %}" defer></script>
+    <!-- Bootstrap Modal Forms -->
+    <script src="{% static 'js/bootstrap5.modal.forms.min.js' %}"></script>
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- Theme Selection (Dark/Light)-->
+    <script src="{% static './dist/js/theme.min.js' %}"></script>
+    {% block extrascripts %}{% endblock extrascripts %}
+
+    <div class="modal modal-blur fade" tabindex="-1" role="dialog" id="modals-here">
+      <div class="modal-dialog" role="document">
         <div class="modal-content"></div>
       </div>
     </div>

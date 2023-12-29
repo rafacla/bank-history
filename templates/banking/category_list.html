@@ -2,474 +2,488 @@
 {% load i18n %}
 {% load static %}
 {% block content %}
-<!-- Page header -->
-<div class="page-header d-print-none">
-  <div class="container-xl">
-    <div class="row g-2 align-items-center">
-      <div class="col">
-        <!-- Page pre-title -->
-        <div class="page-pretitle">Overview</div>
-        <h2 class="page-title">{% trans "Categories" %}</h2>
-      </div>
-      <div class="col-auto ms-auto d-print-none">
-        <div class="btn-list">
-          {% if edit_button_title != None %}
-            <div>
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <!-- Page pre-title -->
+          <div class="page-pretitle">Overview</div>
+          <h2 class="page-title">{% trans "Categories" %}</h2>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+          <div class="btn-list">
+            {% if edit_button_title != None %}
+              <div>
+                <a href="#"
+                   class="btn dropdown-toggle on-hover-button"
+                   data-bs-toggle="dropdown"
+                   data-bs-auto-close="outside"
+                   role="button"
+                   id="edit_button">
+                  <!-- Download SVG icon from http://tabler-icons.io/i/edit -->
+                  <svg xmlns="http://www.w3.org/2000/svg"
+                       class="icon icon-tabler icon-tabler-edit"
+                       width="24"
+                       height="24"
+                       viewBox="0 0 24 24"
+                       stroke-width="2"
+                       stroke="currentColor"
+                       fill="none"
+                       stroke-linecap="round"
+                       stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                    <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                    <path d="M16 5l3 3" />
+                  </svg>
+                  {{ edit_button_title }}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="edit_button">
+                  <button class="dropdown-item" type="button">Action</button>
+                  <button class="dropdown-item" type="button">Another action</button>
+                  <button class="dropdown-item" type="button">Something else here</button>
+                </div>
+              </div>
+            {% endif %}
+            {% if add_button_title != None %}
               <a href="#"
-               class="btn dropdown-toggle on-hover-button"
-               data-bs-toggle="dropdown"
-               data-bs-auto-close="outside"
-               role="button"
-               id="edit_button"
-               >
-                <!-- Download SVG icon from http://tabler-icons.io/i/edit -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" /><path d="M16 5l3 3" /></svg>
-                {{ edit_button_title }}
+                 class="btn btn-primary d-none d-sm-inline-block modal-button"
+                 data-form-url="{% url add_button_url %}"
+                 data-bs-toggle="modal"
+                 data-bs-target="#modals-here"
+                 id="add_button">
+                <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="icon"
+                     width="24"
+                     height="24"
+                     viewBox="0 0 24 24"
+                     stroke-width="2"
+                     stroke="currentColor"
+                     fill="none"
+                     stroke-linecap="round"
+                     stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <path d="M12 5l0 14"></path>
+                  <path d="M5 12l14 0"></path>
+                </svg>
+                {{ add_button_title }}
               </a>
-              <div class="dropdown-menu" aria-labelledby="edit_button">
-                <button class="dropdown-item" type="button">Action</button>
-                <button class="dropdown-item" type="button">Another action</button>
-                <button class="dropdown-item" type="button">Something else here</button>
-              </div>                      
-            </div>
-          {% endif %}
-          {% if add_button_title != None %}
-            <a href="#"
-               class="btn btn-primary d-none d-sm-inline-block modal-button"
-               data-form-url="{% url add_button_url %}"
-               data-bs-toggle="modal"
-               data-bs-target="#modals-here"
-               id="add_button">
-              <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-              <svg xmlns="http://www.w3.org/2000/svg"
-                   class="icon"
-                   width="24"
-                   height="24"
-                   viewBox="0 0 24 24"
-                   stroke-width="2"
-                   stroke="currentColor"
-                   fill="none"
-                   stroke-linecap="round"
-                   stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M12 5l0 14"></path>
-                <path d="M5 12l14 0"></path>
-              </svg>
-              {{ add_button_title }}
-            </a>
-          {% endif %}
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>
   </div>
-
-</div>
-<!-- Page body -->
-<div class="page-body">
-  <div class="container-xl">
-    <div class="row row-deck row-cards">
-  <div class="col-12">
-    <div class="card">
-      <div class="card-head"></div>
-      <div class="table-responsive">
-        <table class="table card-table table-vcenter text-nowrap datatable table-hover table-condensed">
-          <thead>
-            <tr>
-              <th>{% trans "Name" %}</th>
-              <th>{% trans "Type" %}</th>
-              <th>{% trans "No. of Transactions" %}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td colspan="3">
-                <strong>{% trans "Credit Categories" %}</strong>
-              </td>
-              <td class="text-end">
-                <button 
-                        data-form-delete="false"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modals-here"
-                        data-form-url="{% url 'banking:category_create' type='C' %}"
-                        href="#"
-                        class="btn btn-primary btn-sm modal-button">
-                  <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                  <svg xmlns="http://www.w3.org/2000/svg"
-                       class="icon"
-                       width="24"
-                       height="24"
-                       viewBox="0 0 24 24"
-                       stroke-width="2"
-                       stroke="currentColor"
-                       fill="none"
-                       stroke-linecap="round"
-                       stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M12 5l0 14" />
-                    <path d="M5 12l14 0" />
-                  </svg>
-                  {% trans "New category" %}
-                </button>
-              </td>
-            </tr>
-            {% for item in category_list %}
-              {% if item.nested_to == null and item.type == "C" %}
-                <tr>
-                  <td>
-                    <a data-bs-toggle="modal"
-                       data-bs-target="#modals-here"
-                       data-form-url="{% url 'banking:category_update' item.id %}"
-                       href="#"
-                       class="modal-button">
-                      <span class="px-2">{{ item.name }}</span>
-                    </a>
-                  </td>
-                  <td>{% trans item.get_type_display %}</td>
-                  <td>{{ item.getNumberOfTransactions }}</td>
-                  <td class="text-end">
-                    <button class="btn align-text-top btn-danger btn-sm modal-button"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modals-here"
-                            data-form-delete="true"
-                            data-form-url="{% url 'banking:category_delete' item.id %}">
-                      <svg xmlns="http://www.w3.org/2000/svg"
-                           class="icon icon-tabler icon-tabler-trash"
-                           width="24"
-                           height="24"
-                           viewBox="0 0 24 24"
-                           stroke-width="2"
-                           stroke="currentColor"
-                           fill="none"
-                           stroke-linecap="round"
-                           stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M4 7l16 0" />
-                        <path d="M10 11l0 6" />
-                        <path d="M14 11l0 6" />
-                        <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                        <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                      </svg>
-                      {% trans "Delete" %}
-                    </button>
-                  </td>
-                </tr>
-                {% for item2 in category_list %}
-                  {% if item2.nested_to == item %}
-                    <tr>
-                      <td>
-                        <a data-form-url="{% url 'banking:category_update' item2.id %}"
-                           href="#"
-                           data-bs-toggle="modal"
-                           data-bs-target="#modals-here"
-                           class="ms-2 modal-button">
-                          <svg xmlns="http://www.w3.org/2000/svg"
-                               class="icon icon-tabler icon-tabler-corner-down-right"
-                               width="24"
-                               height="24"
-                               viewBox="0 0 24 24"
-                               stroke-width="2"
-                               stroke="currentColor"
-                               fill="none"
-                               stroke-linecap="round"
-                               stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4" />
-                          </svg>
-                          <span>{{ item2.name }}</span>
-                        </a>
-                      </td>
-                      <td>{% trans item2.get_type_display %}</td>
-                      <td>{{ item.getNumberOfTransactions }}</td>
-                      <td class="text-end">
-                        <button class="btn align-text-top btn-danger btn-sm modal-button"
-                                data-form-delete="true"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modals-here"
-                                data-form-url="{% url 'banking:category_delete' item2.id %}">
-                          <svg xmlns="http://www.w3.org/2000/svg"
-                               class="icon icon-tabler icon-tabler-trash"
-                               width="24"
-                               height="24"
-                               viewBox="0 0 24 24"
-                               stroke-width="2"
-                               stroke="currentColor"
-                               fill="none"
-                               stroke-linecap="round"
-                               stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M4 7l16 0" />
-                            <path d="M10 11l0 6" />
-                            <path d="M14 11l0 6" />
-                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                          </svg>
-                          {% trans "Delete" %}
-                        </button>
-                      </td>
-                    </tr>
-                    {% for item3 in category_list %}
-                      {% if item3.nested_to == item2 %}
-                        <tr>
-                          <td>
-                            <a data-bs-toggle="modal"
-                               data-bs-target="#modals-here"
-                               data-form-url="{% url 'banking:category_update' item3.id %}"
-                               href="#"
-                               class="ms-5 modal-button">
-                              <svg xmlns="http://www.w3.org/2000/svg"
-                                   class="icon icon-tabler icon-tabler-corner-down-right"
-                                   width="24"
-                                   height="24"
-                                   viewBox="0 0 24 24"
-                                   stroke-width="2"
-                                   stroke="currentColor"
-                                   fill="none"
-                                   stroke-linecap="round"
-                                   stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4" />
-                              </svg>
-                              <span>{{ item3.name }}</span>
-                            </a>
-                          </td>
-                          <td>{% trans item3.get_type_display %}</td>
-                          <td>{{ item.getNumberOfTransactions }}</td>
-                          <td class="text-end">
-                            <button class="btn align-text-top btn-danger btn-sm modal-button"
-                                    data-form-delete="true"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modals-here"
-                                    data-form-url="{% url 'banking:category_delete' item3.id %}">
-                              <svg xmlns="http://www.w3.org/2000/svg"
-                                   class="icon icon-tabler icon-tabler-trash"
-                                   width="24"
-                                   height="24"
-                                   viewBox="0 0 24 24"
-                                   stroke-width="2"
-                                   stroke="currentColor"
-                                   fill="none"
-                                   stroke-linecap="round"
-                                   stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M4 7l16 0" />
-                                <path d="M10 11l0 6" />
-                                <path d="M14 11l0 6" />
-                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                              </svg>
-                              {% trans "Delete" %}
-                            </button>
-                          </td>
-                        </tr>
-                      {% endif %}
-                    {% endfor %}
-                  {% endif %}
-                {% endfor %}
-              {% endif %}
-            {% endfor %}
-            <tr>
-              <td colspan="3">
-                <strong>{% trans "Debit Categories" %}</strong>
-              </td>
-              <td class="text-end">
-                <a data-bs-toggle="modal"
-                   data-bs-target="#modals-here"
-                   data-form-url="{% url 'banking:category_create' type="D" %}"
-                   href="#"
-                   class="btn btn-primary btn-sm modal-button">
-                  <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-                  <svg xmlns="http://www.w3.org/2000/svg"
-                       class="icon"
-                       width="24"
-                       height="24"
-                       viewBox="0 0 24 24"
-                       stroke-width="2"
-                       stroke="currentColor"
-                       fill="none"
-                       stroke-linecap="round"
-                       stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M12 5l0 14" />
-                    <path d="M5 12l14 0" />
-                  </svg>
-                  {% trans "New category" %}
-                </a>
-              </td>
-            </tr>
-            {% for item in category_list %}
-              {% if item.nested_to == null and item.type == "D" %}
-                <tr>
-                  <td>
-                    <a data-bs-toggle="modal"
-                       data-bs-target="#modals-here"
-                       data-form-url="{% url 'banking:category_update' item.id %}"
-                       href="#"
-                       class="modal-button">
-                      <span class="px-2">{{ item.emoji }} {{ item.name }}</span>
-                    </a>
-                  </td>
-                  <td>{% trans item.get_type_display %}</td>
-                  <td>{{ item.getNumberOfTransactions }}</td>
-                  <td class="text-end">
-                    <button class="btn align-text-top btn-danger btn-sm modal-button"
-                            data-form-delete="true"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modals-here"
-                            data-form-url="{% url 'banking:category_delete' item.id %}">
-                      <svg xmlns="http://www.w3.org/2000/svg"
-                           class="icon icon-tabler icon-tabler-trash"
-                           width="24"
-                           height="24"
-                           viewBox="0 0 24 24"
-                           stroke-width="2"
-                           stroke="currentColor"
-                           fill="none"
-                           stroke-linecap="round"
-                           stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M4 7l16 0" />
-                        <path d="M10 11l0 6" />
-                        <path d="M14 11l0 6" />
-                        <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                        <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                      </svg>
-                      {% trans "Delete" %}
-                    </button>
-                  </td>
-                </tr>
-                {% for item2 in category_list %}
-                  {% if item2.nested_to == item %}
-                    <tr>
-                      <td>
-                        <a data-bs-toggle="modal"
-                           data-bs-target="#modals-here"
-                           data-form-url="{% url 'banking:category_update' item2.id %}"
-                           href="#"
-                           class="ms-2 modal-button">
-                          <svg xmlns="http://www.w3.org/2000/svg"
-                               class="icon icon-tabler icon-tabler-corner-down-right"
-                               width="24"
-                               height="24"
-                               viewBox="0 0 24 24"
-                               stroke-width="2"
-                               stroke="currentColor"
-                               fill="none"
-                               stroke-linecap="round"
-                               stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4" />
-                          </svg>
-                          <span>{{ item2.name }}</span>
-                        </a>
-                      </td>
-                      <td>{% trans item2.get_type_display %}</td>
-                      <td>{{ item.getNumberOfTransactions }}</td>
-                      <td class="text-end">
-                        <button class="btn align-text-top btn-danger btn-sm modal-button"
-                                data-form-delete="true"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modals-here"
-                                data-form-url="{% url 'banking:category_delete' item2.id %}">
-                          <svg xmlns="http://www.w3.org/2000/svg"
-                               class="icon icon-tabler icon-tabler-trash"
-                               width="24"
-                               height="24"
-                               viewBox="0 0 24 24"
-                               stroke-width="2"
-                               stroke="currentColor"
-                               fill="none"
-                               stroke-linecap="round"
-                               stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M4 7l16 0" />
-                            <path d="M10 11l0 6" />
-                            <path d="M14 11l0 6" />
-                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                          </svg>
-                          {% trans "Delete" %}
-                        </button>
-                      </td>
-                    </tr>
-                    {% for item3 in category_list %}
-                      {% if item3.nested_to == item2 %}
-                        <tr>
-                          <td>
-                            <a data-bs-toggle="modal"
-                               data-bs-target="#modals-here"
-                               data-form-url="{% url 'banking:category_update' item3.id %}"
-                               href="#"
-                               class="ms-5 modal-button">
-                              <svg xmlns="http://www.w3.org/2000/svg"
-                                   class="icon icon-tabler icon-tabler-corner-down-right"
-                                   width="24"
-                                   height="24"
-                                   viewBox="0 0 24 24"
-                                   stroke-width="2"
-                                   stroke="currentColor"
-                                   fill="none"
-                                   stroke-linecap="round"
-                                   stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4" />
-                              </svg>
-                              <span>{{ item3.name }}</span>
-                            </a>
-                          </td>
-                          <td>{% trans item3.get_type_display %}</td>
-                          <td>{{ item.getNumberOfTransactions }}</td>
-                          <td class="text-end">
-                            <button class="btn align-text-top btn-danger btn-sm modal-button"
-                                    data-form-delete="true"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modals-here"
-                                    data-form-url="{% url 'banking:category_delete' item3.id %}">
-                              <svg xmlns="http://www.w3.org/2000/svg"
-                                   class="icon icon-tabler icon-tabler-trash"
-                                   width="24"
-                                   height="24"
-                                   viewBox="0 0 24 24"
-                                   stroke-width="2"
-                                   stroke="currentColor"
-                                   fill="none"
-                                   stroke-linecap="round"
-                                   stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M4 7l16 0" />
-                                <path d="M10 11l0 6" />
-                                <path d="M14 11l0 6" />
-                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                              </svg>
-                              {% trans "Delete" %}
-                            </button>
-                          </td>
-                        </tr>
-                      {% endif %}
-                    {% endfor %}
-                  {% endif %}
-                {% endfor %}
-              {% endif %}
-            {% endfor %}
-          </tbody>
-        </table>
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="row row-deck row-cards">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-head"></div>
+            <div class="table-responsive">
+              <table class="table card-table table-vcenter text-nowrap datatable table-hover table-condensed">
+                <thead>
+                  <tr>
+                    <th>{% trans "Name" %}</th>
+                    <th>{% trans "Type" %}</th>
+                    <th>{% trans "No. of Transactions" %}</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="3">
+                      <strong>{% trans "Credit Categories" %}</strong>
+                    </td>
+                    <td class="text-end">
+                      <button data-form-delete="false"
+                              data-bs-toggle="modal"
+                              data-bs-target="#modals-here"
+                              data-form-url="{% url 'banking:category_create' type='C' %}"
+                              href="#"
+                              class="btn btn-primary btn-sm modal-button">
+                        <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="icon"
+                             width="24"
+                             height="24"
+                             viewBox="0 0 24 24"
+                             stroke-width="2"
+                             stroke="currentColor"
+                             fill="none"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M12 5l0 14" />
+                          <path d="M5 12l14 0" />
+                        </svg>
+                        {% trans "New category" %}
+                      </button>
+                    </td>
+                  </tr>
+                  {% for item in category_list %}
+                    {% if item.nested_to == null and item.type == "C" %}
+                      <tr>
+                        <td>
+                          <a data-bs-toggle="modal"
+                             data-bs-target="#modals-here"
+                             data-form-url="{% url 'banking:category_update' item.id %}"
+                             href="#"
+                             class="modal-button">
+                            <span class="px-2">{{ item.name }}</span>
+                          </a>
+                        </td>
+                        <td>{% trans item.get_type_display %}</td>
+                        <td>{{ item.getNumberOfTransactions }}</td>
+                        <td class="text-end">
+                          <button class="btn align-text-top btn-danger btn-sm modal-button"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#modals-here"
+                                  data-form-delete="true"
+                                  data-form-url="{% url 'banking:category_delete' item.id %}">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 class="icon icon-tabler icon-tabler-trash"
+                                 width="24"
+                                 height="24"
+                                 viewBox="0 0 24 24"
+                                 stroke-width="2"
+                                 stroke="currentColor"
+                                 fill="none"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                              <path d="M4 7l16 0" />
+                              <path d="M10 11l0 6" />
+                              <path d="M14 11l0 6" />
+                              <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                              <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                            </svg>
+                            {% trans "Delete" %}
+                          </button>
+                        </td>
+                      </tr>
+                      {% for item2 in category_list %}
+                        {% if item2.nested_to == item %}
+                          <tr>
+                            <td>
+                              <a data-form-url="{% url 'banking:category_update' item2.id %}"
+                                 href="#"
+                                 data-bs-toggle="modal"
+                                 data-bs-target="#modals-here"
+                                 class="ms-2 modal-button">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="icon icon-tabler icon-tabler-corner-down-right"
+                                     width="24"
+                                     height="24"
+                                     viewBox="0 0 24 24"
+                                     stroke-width="2"
+                                     stroke="currentColor"
+                                     fill="none"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                  <path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4" />
+                                </svg>
+                                <span>{{ item2.name }}</span>
+                              </a>
+                            </td>
+                            <td>{% trans item2.get_type_display %}</td>
+                            <td>{{ item.getNumberOfTransactions }}</td>
+                            <td class="text-end">
+                              <button class="btn align-text-top btn-danger btn-sm modal-button"
+                                      data-form-delete="true"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#modals-here"
+                                      data-form-url="{% url 'banking:category_delete' item2.id %}">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="icon icon-tabler icon-tabler-trash"
+                                     width="24"
+                                     height="24"
+                                     viewBox="0 0 24 24"
+                                     stroke-width="2"
+                                     stroke="currentColor"
+                                     fill="none"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                  <path d="M4 7l16 0" />
+                                  <path d="M10 11l0 6" />
+                                  <path d="M14 11l0 6" />
+                                  <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                  <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                </svg>
+                                {% trans "Delete" %}
+                              </button>
+                            </td>
+                          </tr>
+                          {% for item3 in category_list %}
+                            {% if item3.nested_to == item2 %}
+                              <tr>
+                                <td>
+                                  <a data-bs-toggle="modal"
+                                     data-bs-target="#modals-here"
+                                     data-form-url="{% url 'banking:category_update' item3.id %}"
+                                     href="#"
+                                     class="ms-5 modal-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="icon icon-tabler icon-tabler-corner-down-right"
+                                         width="24"
+                                         height="24"
+                                         viewBox="0 0 24 24"
+                                         stroke-width="2"
+                                         stroke="currentColor"
+                                         fill="none"
+                                         stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                      <path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4" />
+                                    </svg>
+                                    <span>{{ item3.name }}</span>
+                                  </a>
+                                </td>
+                                <td>{% trans item3.get_type_display %}</td>
+                                <td>{{ item.getNumberOfTransactions }}</td>
+                                <td class="text-end">
+                                  <button class="btn align-text-top btn-danger btn-sm modal-button"
+                                          data-form-delete="true"
+                                          data-bs-toggle="modal"
+                                          data-bs-target="#modals-here"
+                                          data-form-url="{% url 'banking:category_delete' item3.id %}">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="icon icon-tabler icon-tabler-trash"
+                                         width="24"
+                                         height="24"
+                                         viewBox="0 0 24 24"
+                                         stroke-width="2"
+                                         stroke="currentColor"
+                                         fill="none"
+                                         stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                      <path d="M4 7l16 0" />
+                                      <path d="M10 11l0 6" />
+                                      <path d="M14 11l0 6" />
+                                      <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                      <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                    </svg>
+                                    {% trans "Delete" %}
+                                  </button>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                        {% endif %}
+                      {% endfor %}
+                    {% endif %}
+                  {% endfor %}
+                  <tr>
+                    <td colspan="3">
+                      <strong>{% trans "Debit Categories" %}</strong>
+                    </td>
+                    <td class="text-end">
+                      <a data-bs-toggle="modal"
+                         data-bs-target="#modals-here"
+                         data-form-url="{% url 'banking:category_create' type="D" %}"
+                         href="#"
+                         class="btn btn-primary btn-sm modal-button">
+                        <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="icon"
+                             width="24"
+                             height="24"
+                             viewBox="0 0 24 24"
+                             stroke-width="2"
+                             stroke="currentColor"
+                             fill="none"
+                             stroke-linecap="round"
+                             stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M12 5l0 14" />
+                          <path d="M5 12l14 0" />
+                        </svg>
+                        {% trans "New category" %}
+                      </a>
+                    </td>
+                  </tr>
+                  {% for item in category_list %}
+                    {% if item.nested_to == null and item.type == "D" %}
+                      <tr>
+                        <td>
+                          <a data-bs-toggle="modal"
+                             data-bs-target="#modals-here"
+                             data-form-url="{% url 'banking:category_update' item.id %}"
+                             href="#"
+                             class="modal-button">
+                            <span class="px-2">{{ item.emoji }} {{ item.name }}</span>
+                          </a>
+                        </td>
+                        <td>{% trans item.get_type_display %}</td>
+                        <td>{{ item.getNumberOfTransactions }}</td>
+                        <td class="text-end">
+                          <button class="btn align-text-top btn-danger btn-sm modal-button"
+                                  data-form-delete="true"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#modals-here"
+                                  data-form-url="{% url 'banking:category_delete' item.id %}">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 class="icon icon-tabler icon-tabler-trash"
+                                 width="24"
+                                 height="24"
+                                 viewBox="0 0 24 24"
+                                 stroke-width="2"
+                                 stroke="currentColor"
+                                 fill="none"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                              <path d="M4 7l16 0" />
+                              <path d="M10 11l0 6" />
+                              <path d="M14 11l0 6" />
+                              <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                              <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                            </svg>
+                            {% trans "Delete" %}
+                          </button>
+                        </td>
+                      </tr>
+                      {% for item2 in category_list %}
+                        {% if item2.nested_to == item %}
+                          <tr>
+                            <td>
+                              <a data-bs-toggle="modal"
+                                 data-bs-target="#modals-here"
+                                 data-form-url="{% url 'banking:category_update' item2.id %}"
+                                 href="#"
+                                 class="ms-2 modal-button">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="icon icon-tabler icon-tabler-corner-down-right"
+                                     width="24"
+                                     height="24"
+                                     viewBox="0 0 24 24"
+                                     stroke-width="2"
+                                     stroke="currentColor"
+                                     fill="none"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                  <path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4" />
+                                </svg>
+                                <span>{{ item2.name }}</span>
+                              </a>
+                            </td>
+                            <td>{% trans item2.get_type_display %}</td>
+                            <td>{{ item.getNumberOfTransactions }}</td>
+                            <td class="text-end">
+                              <button class="btn align-text-top btn-danger btn-sm modal-button"
+                                      data-form-delete="true"
+                                      data-bs-toggle="modal"
+                                      data-bs-target="#modals-here"
+                                      data-form-url="{% url 'banking:category_delete' item2.id %}">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="icon icon-tabler icon-tabler-trash"
+                                     width="24"
+                                     height="24"
+                                     viewBox="0 0 24 24"
+                                     stroke-width="2"
+                                     stroke="currentColor"
+                                     fill="none"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                  <path d="M4 7l16 0" />
+                                  <path d="M10 11l0 6" />
+                                  <path d="M14 11l0 6" />
+                                  <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                  <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                </svg>
+                                {% trans "Delete" %}
+                              </button>
+                            </td>
+                          </tr>
+                          {% for item3 in category_list %}
+                            {% if item3.nested_to == item2 %}
+                              <tr>
+                                <td>
+                                  <a data-bs-toggle="modal"
+                                     data-bs-target="#modals-here"
+                                     data-form-url="{% url 'banking:category_update' item3.id %}"
+                                     href="#"
+                                     class="ms-5 modal-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="icon icon-tabler icon-tabler-corner-down-right"
+                                         width="24"
+                                         height="24"
+                                         viewBox="0 0 24 24"
+                                         stroke-width="2"
+                                         stroke="currentColor"
+                                         fill="none"
+                                         stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                      <path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4" />
+                                    </svg>
+                                    <span>{{ item3.name }}</span>
+                                  </a>
+                                </td>
+                                <td>{% trans item3.get_type_display %}</td>
+                                <td>{{ item.getNumberOfTransactions }}</td>
+                                <td class="text-end">
+                                  <button class="btn align-text-top btn-danger btn-sm modal-button"
+                                          data-form-delete="true"
+                                          data-bs-toggle="modal"
+                                          data-bs-target="#modals-here"
+                                          data-form-url="{% url 'banking:category_delete' item3.id %}">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="icon icon-tabler icon-tabler-trash"
+                                         width="24"
+                                         height="24"
+                                         viewBox="0 0 24 24"
+                                         stroke-width="2"
+                                         stroke="currentColor"
+                                         fill="none"
+                                         stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                      <path d="M4 7l16 0" />
+                                      <path d="M10 11l0 6" />
+                                      <path d="M14 11l0 6" />
+                                      <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                      <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                    </svg>
+                                    {% trans "Delete" %}
+                                  </button>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                        {% endif %}
+                      {% endfor %}
+                    {% endif %}
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div></div></div>
-  <script src="{% static './dist/libs/sortable/Sortable.min.js' %}" defer></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', (e) => {
-      var modalButtons = document.getElementsByClassName("modal-button");
-      for (var index=0; index < modalButtons.length; index++) {
-        modalForm(modalButtons[index], {
-          formURL: modalButtons[index]["dataset"]["formUrl"],
-          modalID: "#modals-here",
-          isDeleteForm: modalButtons[index]["dataset"]["formDelete"],
-          errorClass: '.is-invalid'
-        });
-      }
-    });
-  </script>
 {% endblock content %}
+{% block extrascripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', (e) => {
+    var modalButtons = document.getElementsByClassName("modal-button");
+    for (var index=0; index < modalButtons.length; index++) {
+      modalForm(modalButtons[index], {
+        formURL: modalButtons[index]["dataset"]["formUrl"],
+        modalID: "#modals-here",
+        isDeleteForm: modalButtons[index]["dataset"]["formDelete"],
+        errorClass: '.is-invalid'
+      });
+    }
+  });
+</script>
+{% endblock extrascripts %}

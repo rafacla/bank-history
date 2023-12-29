@@ -15,7 +15,7 @@ from bootstrap_modal_forms.generic import (
 )
 
 from .models import Account, Category, Transaction
-from .forms import AccountForm, CategoryForm, TransactionForm, TransactionDeleteForm, TransactionInternalTransferForm
+from .forms import AccountForm, CategoryForm, TransactionForm, TransactionDeleteForm, TransactionInternalTransferForm, TransactionCategorizeForm
 
 
 class AccountBaseView(LoginRequiredMixin, View):
@@ -214,6 +214,23 @@ class TransactionInternalTransferView(BSModalFormView):
 
     def get_form_kwargs(self):
         form_kwargs = super(TransactionInternalTransferView, self).get_form_kwargs()
+        query = self.request.resolver_match.kwargs["transaction_ids"].split(",")
+        form_kwargs['transaction_ids'] = [(transaction_id, transaction_id) for transaction_id in query]
+        form_kwargs['initial_transaction_ids'] = query
+        return form_kwargs
+
+
+class TransactionCategorizeView(BSModalFormView):
+    form_class = TransactionCategorizeForm
+    template_name = 'banking/transaction_categorize.html'
+    success_url = reverse_lazy("banking:transaction_list")
+
+    def form_valid(self, form):
+        Transaction.objects.filter(id__in=form.cleaned_data['id']).update(is_transfer=False, category=form.cleaned_data['category'])
+        return super(TransactionCategorizeView, self).form_valid(form)
+
+    def get_form_kwargs(self):
+        form_kwargs = super(TransactionCategorizeView, self).get_form_kwargs()
         query = self.request.resolver_match.kwargs["transaction_ids"].split(",")
         form_kwargs['transaction_ids'] = [(transaction_id, transaction_id) for transaction_id in query]
         form_kwargs['initial_transaction_ids'] = query

@@ -75,3 +75,17 @@ class TransactionInternalTransferForm(BSModalForm):
         self.fields['id'].choices = transaction_ids
         self.initial['id'] = list(initial_transaction_ids)
         self.fields['id'].widget = forms.MultipleHiddenInput()
+
+
+class TransactionCategorizeForm(BSModalForm):
+    id = forms.MultipleChoiceField()
+    category = forms.ModelChoiceField(queryset=Category.objects.all(), required=True)
+
+    class Meta:
+        fields = ['id', 'category']
+
+    def __init__(self, transaction_ids, initial_transaction_ids, *args, **kwargs):
+        super(TransactionCategorizeForm, self).__init__(*args, **kwargs)
+        self.fields['id'].choices = transaction_ids
+        self.initial['id'] = list(initial_transaction_ids)
+        self.fields['id'].widget = forms.MultipleHiddenInput()

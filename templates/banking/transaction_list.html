@@ -40,7 +40,7 @@
                 </a>
                 <div class="dropdown-menu" aria-labelledby="edit_button">
                   <span class="dropdown-header">{% trans "Edit multiple transactions" %}</span>
-                  <a class="dropdown-item" href="#">
+                  <a class="dropdown-item" href="#" id="categorizeTransactions">
                     <!-- Download SVG icon from http://tabler-icons.io/i/category -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-category" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4h6v6h-6z" /><path d="M14 4h6v6h-6z" /><path d="M4 14h6v6h-6z" /><path d="M17 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /></svg>
                     {% trans "Set category" %}
@@ -268,74 +268,84 @@
           </div>
         </div>
       </div>
-      <!-- Page title actions -->
-      <script src="{% static './dist/libs/sortable/Sortable.min.js' %}" defer></script>
-      <script>
-        document.addEventListener('DOMContentLoaded', (e) => {
-          var modalButtons = document.getElementsByClassName("modal-button");
-          for (var index=0; index < modalButtons.length; index++) {
-            modalForm(modalButtons[index], {
-              formURL: modalButtons[index]["dataset"]["formUrl"],
-              modalID: "#modals-here",
-              isDeleteForm: modalButtons[index]["dataset"]["formDelete"],
-              errorClass: '.is-invalid'
-            });
-          }
-        });
-        // Listen for click on toggle checkbox
-        $('#select-all').click(function(event) {   
-          if(this.checked) {
-              // Iterate each checkbox
-              $(':checkbox').each(function() {
-                  this.checked = true;                        
-              });
-          } else {
-              $(':checkbox').each(function() {
-                  this.checked = false;                       
-              });
-          }
-        }); 
-        $(':checkbox').change(function(){
-          var checked = false;
-          var checked_ids = ""
-          $(':checkbox').each(function() {
-            if (checked != true && this.checked) {
-              checked = true;
-            }
-            if (this.checked) {
-              if (this.id != "select-all") {
-                checked_ids = checked_ids + this.id + ",";
-              }
-            }
-          });
-          if (checked) {
-             $("#edit_button").show()
-          }else{
-            $("#edit_button").hide()
-          }
-          let url_string = "{% url 'banking:transaction_delete' 0 %}"
-          url_string = url_string.slice(0, -2) + checked_ids.slice(0, -1) + "/"
-          
-          modalForm(document.getElementById('deleteTransactions'), {
-            formURL: url_string,
-            modalID: "#modals-here",
-            isDeleteForm: true,
-            errorClass: '.is-invalid'
-          });
-
-          url_string = "{% url 'banking:transaction_internal_transfer' 0 %}"
-          url_string = url_string.slice(0, -2) + checked_ids.slice(0, -1) + "/"
-
-          modalForm(document.getElementById('setInternalTransfer'), {
-            formURL: url_string,
-            modalID: "#modals-here",
-            isDeleteForm: true,
-            errorClass: '.is-invalid'
-          });
-      });
-      $("#edit_button").hide()
-      </script>
     </div>
   </div>
 </div>
 {% endblock content %}
+{% block extrascripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', (e) => {
+    var modalButtons = document.getElementsByClassName("modal-button");
+    for (var index=0; index < modalButtons.length; index++) {
+      modalForm(modalButtons[index], {
+        formURL: modalButtons[index]["dataset"]["formUrl"],
+        modalID: "#modals-here",
+        isDeleteForm: modalButtons[index]["dataset"]["formDelete"],
+        errorClass: '.is-invalid'
+      });
+    }
+  });
+  // Listen for click on toggle checkbox
+  $('#select-all').click(function(event) {   
+    if(this.checked) {
+        // Iterate each checkbox
+        $(':checkbox').each(function() {
+            this.checked = true;                        
+        });
+    } else {
+        $(':checkbox').each(function() {
+            this.checked = false;                       
+        });
+    }
+  }); 
+  $(':checkbox').change(function(){
+    var checked = false;
+    var checked_ids = ""
+    $(':checkbox').each(function() {
+      if (checked != true && this.checked) {
+        checked = true;
+      }
+      if (this.checked) {
+        if (this.id != "select-all") {
+          checked_ids = checked_ids + this.id + ",";
+        }
+      }
+    });
+    if (checked) {
+       $("#edit_button").show()
+    }else{
+      $("#edit_button").hide()
+    }
+    let url_string = "{% url 'banking:transaction_delete' 0 %}"
+    url_string = url_string.slice(0, -2) + checked_ids.slice(0, -1) + "/"
+    
+    modalForm(document.getElementById('deleteTransactions'), {
+      formURL: url_string,
+      modalID: "#modals-here",
+      isDeleteForm: true,
+      errorClass: '.is-invalid'
+    });
+
+    url_string = "{% url 'banking:transaction_internal_transfer' 0 %}"
+    url_string = url_string.slice(0, -2) + checked_ids.slice(0, -1) + "/"
+
+    modalForm(document.getElementById('setInternalTransfer'), {
+      formURL: url_string,
+      modalID: "#modals-here",
+      isDeleteForm: true,
+      errorClass: '.is-invalid'
+    });
+
+    url_string = "{% url 'banking:transaction_categorize' 0 %}"
+    url_string = url_string.slice(0, -2) + checked_ids.slice(0, -1) + "/"
+
+    modalForm(document.getElementById('categorizeTransactions'), {
+      formURL: url_string,
+      modalID: "#modals-here",
+      isDeleteForm: true,
+      errorClass: '.is-invalid'
+    });
+});
+$("#edit_button").hide()
+</script>
+{% endblock extrascripts %}
