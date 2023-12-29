@@ -52,7 +52,6 @@ class TransactionForm(BSModalModelForm):
         super(TransactionForm, self).__init__(*args, **kwargs)
 
 class TransactionDeleteForm(BSModalForm):
-    # This might be better as a ModelChoiecField
     id = forms.MultipleChoiceField()
 
     class Meta:
@@ -60,6 +59,19 @@ class TransactionDeleteForm(BSModalForm):
 
     def __init__(self, transaction_ids, initial_transaction_ids, *args, **kwargs):
         super(TransactionDeleteForm, self).__init__(*args, **kwargs)
+        self.fields['id'].choices = transaction_ids
+        self.initial['id'] = list(initial_transaction_ids)
+        self.fields['id'].widget = forms.MultipleHiddenInput()
+
+
+class TransactionInternalTransferForm(BSModalForm):
+    id = forms.MultipleChoiceField()
+
+    class Meta:
+        fields = ['id']
+
+    def __init__(self, transaction_ids, initial_transaction_ids, *args, **kwargs):
+        super(TransactionInternalTransferForm, self).__init__(*args, **kwargs)
         self.fields['id'].choices = transaction_ids
         self.initial['id'] = list(initial_transaction_ids)
         self.fields['id'].widget = forms.MultipleHiddenInput()
