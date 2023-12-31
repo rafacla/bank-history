@@ -32,6 +32,7 @@ class CategoryForm(BSModalModelForm):
             )
             if "id" in kwargs["initial"]:
                 self.fields["nested_to"].queryset = self.fields["nested_to"].queryset.exclude(id=kwargs["initial"]["id"])
+        self.fields["nested_to"].queryset = self.fields["nested_to"].queryset.filter(user=self.request.user)
 
 
 class TransactionForm(BSModalModelForm):
@@ -50,6 +51,8 @@ class TransactionForm(BSModalModelForm):
 
     def __init__(self, *args, **kwargs):
         super(TransactionForm, self).__init__(*args, **kwargs)
+        self.fields["account"].queryset = Account.objects.filter(user=self.request.user)
+        self.fields["category"].queryset = Category.objects.filter(user=self.request.user).order_by("type","sorting")
 
 class TransactionDeleteForm(BSModalForm):
     id = forms.MultipleChoiceField()

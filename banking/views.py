@@ -5,6 +5,8 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormView
 from django.views.generic.list import ListView
 from django.db import models
+from django.core.exceptions import PermissionDenied
+
 
 from bootstrap_modal_forms.generic import (
     BSModalCreateView,
@@ -29,12 +31,21 @@ class AccountListView(AccountBaseView, ListView):
     """View to list all accounts.
     Use the 'account_list' variable in the template
     to access all Account objects"""
+    
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(user=self.request.user)
 
 
 class AccountDetailView(AccountBaseView, DetailView):
     """View to list the details from one account.
     Use the 'account' variable in the template to access
     the specific account here and in the Views below"""
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], user=self.request.user)
+    
 
 
 class AccountCreateView(AccountBaseView, BSModalCreateView):
@@ -54,10 +65,18 @@ class AccountUpdateView(AccountBaseView, BSModalUpdateView):
     form_class = AccountForm
     success_message = "Success!"
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], user=self.request.user)
+    
 
 class AccountDeleteView(AccountBaseView, DeleteView):
     """View to delete a account"""
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], user=self.request.user)
+    
 
 class CategoryBaseView(LoginRequiredMixin, View):
     model = Category
@@ -71,12 +90,21 @@ class CategoryListView(CategoryBaseView, ListView):
     Use the 'category_list' variable in the template
     to access all Category objects"""
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(user=self.request.user)
+    
+
 
 class CategoryDetailView(CategoryBaseView, DetailView):
     """View to list the details from one category.
     Use the 'category' variable in the template to access
     the specific category here and in the Views below"""
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], user=self.request.user)
+    
 
 class CategoryCreateView(CategoryBaseView, BSModalCreateView):
     """View to create a new category"""
@@ -114,10 +142,19 @@ class CategoryUpdateView(CategoryBaseView, BSModalUpdateView):
         self.initial["type"] = self.object.type
         self.initial["id"] = self.object.id
         return self.initial
+    
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], user=self.request.user)
+    
 
 
 class CategoryDeleteView(CategoryBaseView, DeleteView):
     """View to delete a category"""
+    
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], user=self.request.user)
 
 
 class TransactionBaseView(LoginRequiredMixin, View):
@@ -132,8 +169,9 @@ class TransactionListView(TransactionBaseView, ListView):
 
     def get_queryset(self, *args, **kwargs):
         qs = super(TransactionListView, self).get_queryset(*args, **kwargs)
+        
         qs = (
-            qs.filter(merged_to=None)
+            qs.filter(merged_to=None, account__user = self.request.user)
             .annotate(
                 balance=models.Window(
                     models.Sum("value"), order_by=models.F("date").asc()
@@ -141,6 +179,7 @@ class TransactionListView(TransactionBaseView, ListView):
             )
             .order_by("date")
         )
+        
         return qs
 
     def get_context_data(self, **kwargs):
@@ -171,6 +210,10 @@ class TransactionDetailView(TransactionBaseView, DetailView):
     Use the 'transaction' variable in the template to access
     the specific transaction here and in the Views below"""
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], account__user=self.request.user)
+    
 
 class TransactionCreateView(TransactionBaseView, BSModalCreateView):
     """View to create a new Transaction"""
@@ -185,6 +228,10 @@ class TransactionUpdateView(TransactionBaseView, BSModalUpdateView):
     form_class = TransactionForm
     success_message = "Success!"
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], account__user=self.request.user)
+    
 
 class TransactionDeleteView(BSModalFormView):
     form_class = TransactionDeleteForm
@@ -195,9 +242,16 @@ class TransactionDeleteView(BSModalFormView):
         Transaction.objects.filter(id__in=form.cleaned_data['id']).delete()
         return super(TransactionDeleteView, self).form_valid(form)
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], user=self.request.user)
+
     def get_form_kwargs(self):
         form_kwargs = super(TransactionDeleteView, self).get_form_kwargs()
         query = self.request.resolver_match.kwargs["transaction_ids"].split(",")
+        qs = Transaction.objects.filter(id__in=query, account__user = self.request.user)
+        if qs.count() != len(query):
+            raise PermissionDenied()
         form_kwargs['transaction_ids'] = [(transaction_id, transaction_id) for transaction_id in query]
         form_kwargs['initial_transaction_ids'] = query
         return form_kwargs
@@ -215,6 +269,9 @@ class TransactionInternalTransferView(BSModalFormView):
     def get_form_kwargs(self):
         form_kwargs = super(TransactionInternalTransferView, self).get_form_kwargs()
         query = self.request.resolver_match.kwargs["transaction_ids"].split(",")
+        qs = Transaction.objects.filter(id__in=query, account__user = self.request.user)
+        if qs.count() != len(query):
+            raise PermissionDenied()
         form_kwargs['transaction_ids'] = [(transaction_id, transaction_id) for transaction_id in query]
         form_kwargs['initial_transaction_ids'] = query
         return form_kwargs
@@ -232,6 +289,9 @@ class TransactionCategorizeView(BSModalFormView):
     def get_form_kwargs(self):
         form_kwargs = super(TransactionCategorizeView, self).get_form_kwargs()
         query = self.request.resolver_match.kwargs["transaction_ids"].split(",")
+        qs = Transaction.objects.filter(id__in=query, account__user = self.request.user)
+        if qs.count() != len(query):
+            raise PermissionDenied()
         form_kwargs['transaction_ids'] = [(transaction_id, transaction_id) for transaction_id in query]
         form_kwargs['initial_transaction_ids'] = query
         return form_kwargs
