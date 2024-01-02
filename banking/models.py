@@ -105,14 +105,123 @@ class Category(models.Model):
         return transactions
 
     def getSubcategories(self):
-        categories = Category.objects.filter(nested_to=self)
+        categories = Category.objects.filter(nested_to=self).order_by("type","sorting")
         return categories
+
+    def getUserGroupedAndSortedCategories(user: User):
+        listOfUserCreditCategories = list()
+        listOfUserDebitCategories = list()
+        qs = Category.objects.filter(user=user, nested_to=None).order_by(
+            "type", "sorting"
+        )
+        for item in qs.iterator():
+            if item.type == "C":
+                listOfUserCreditCategories.append(
+                    (
+                        item.id,
+                        {
+                            "id": item.id,
+                            "name": item.name,
+                            "type": item.type,
+                            "sorting": item.sorting,
+                            "nested_to_id": item.nested_to.id
+                            if item.nested_to != None
+                            else None,
+                            "level": "1",
+                        },
+                    )
+                )
+                for item2 in item.getSubcategories():
+                    listOfUserCreditCategories.append(
+                        (
+                            item2.id,
+                            {
+                                "id": item2.id,
+                                "name": item2.name,
+                                "type": item2.type,
+                                "sorting": item2.sorting,
+                                "nested_to_id": item2.nested_to.id
+                                if item2.nested_to != None
+                                else None,
+                                "level": "2",
+                            },
+                        )
+                    )
+                    for item3 in item2.getSubcategories():
+                        listOfUserCreditCategories.append(
+                            (
+                                item3.id,
+                                {
+                                    "id": item3.id,
+                                    "name": item3.name,
+                                    "type": item3.type,
+                                    "sorting": item3.sorting,
+                                    "nested_to_id": item3.nested_to.id
+                                    if item3.nested_to != None
+                                    else None,
+                                    "level": "3",
+                                },
+                            )
+                        )
+            else:
+                listOfUserDebitCategories.append(
+                    (
+                        item.id,
+                        {
+                            "id": item.id,
+                            "name": item.name,
+                            "type": item.type,
+                            "sorting": item.sorting,
+                            "nested_to_id": item.nested_to.id
+                            if item.nested_to != None
+                            else None,
+                            "level": "1",
+                        },
+                    )
+                )
+                for item2 in item.getSubcategories():
+                    listOfUserDebitCategories.append(
+                        (
+                            item2.id,
+                            {
+                                "id": item2.id,
+                                "name": item2.name,
+                                "type": item2.type,
+                                "sorting": item2.sorting,
+                                "nested_to_id": item2.nested_to.id
+                                if item2.nested_to != None
+                                else None,
+                                "level": "2",
+                            },
+                        )
+                    )
+                    for item3 in item2.getSubcategories():
+                        listOfUserDebitCategories.append(
+                            (
+                                item3.id,
+                                {
+                                    "id": item3.id,
+                                    "name": item3.name,
+                                    "type": item3.type,
+                                    "sorting": item3.sorting,
+                                    "nested_to_id": item3.nested_to.id
+                                    if item3.nested_to != None
+                                    else None,
+                                    "level": "3",
+                                },
+                            )
+                        )
+        listOfUserCategories = (
+            ("Credit Categories",
+            listOfUserCreditCategories),
+            ("Debit Categories",
+            listOfUserDebitCategories)
+        )
+        return listOfUserCategories
 
 
 class Transaction(models.Model):
-    account = models.ForeignKey(
-        Account, on_delete=models.CASCADE
-    )
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
     date = models.DateField()
     competency_date = models.DateField(blank=True, null=True)
     description = models.CharField(max_length=200)

@@ -347,7 +347,22 @@ $("#edit_button").hide()
 <script type="text/javascript">
   $('#modals-here').on('shown.bs.modal', function () {
     $('select').select2({
-      dropdownParent: $('#modals-here')
+      dropdownParent: $('#modals-here'),
+      templateResult: function (data) {    
+        // We only really care if there is an element to pull classes from
+        if (!data.element) {
+          return data.text;
+        }
+    
+        var $element = $(data.element);
+    
+        var $wrapper = $('<span></span>');
+        $wrapper.addClass($element[0].className);
+    
+        $wrapper.text(data.text);
+    
+        return $wrapper;
+      }    
   });
   })
 </script>  
