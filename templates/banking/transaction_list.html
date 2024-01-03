@@ -9,7 +9,20 @@
         <div class="col">
           <!-- Page pre-title -->
           <div class="page-pretitle">Overview</div>
-          <h2 class="page-title">{% trans "Transactions" %}</h2>
+          <h2 class="page-title">
+            {% if account_id %}
+              {{ account.name }}{% trans ": account statement" %}
+            {% else %}
+              {% trans "Transactions" %}
+            {% endif %}
+            {% if from_date and until_date %}
+              {% trans " from " %} {{ from_date|date:"d/m/Y" }}  {% trans " until " %} {{ until_date|date:"d/m/Y" }}
+            {% elif from_date and until_date == None %}
+              {% trans " from " %} {{ from_date|date:"d/m/Y" }}  {% trans " onwards" %}
+            {% elif from_date == None and until_date %}
+              {% trans " since the beginning until " %} {{ until_date|date:"d/m/Y" }}
+            {% endif %}
+          </h2>
         </div>
         <div class="col-auto ms-auto d-print-none">
           <div class="btn-list">

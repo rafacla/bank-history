@@ -170,6 +170,13 @@ class TransactionListView(TransactionBaseView, ListView):
     def get_queryset(self, *args, **kwargs):
         qs = super(TransactionListView, self).get_queryset(*args, **kwargs)
         
+        
+        if "account_id" in self.request.resolver_match.kwargs:
+            qs = qs.filter(account__id = self.request.resolver_match.kwargs["account_id"])
+        if "from_date" in self.request.resolver_match.kwargs:
+            qs = qs.filter(date__gte = self.request.resolver_match.kwargs["from_date"])
+        if "until_date" in self.request.resolver_match.kwargs:
+            qs = qs.filter(date__lte = self.request.resolver_match.kwargs["until_date"])
         qs = (
             qs.filter(merged_to=None, account__user = self.request.user)
             .annotate(
@@ -178,8 +185,7 @@ class TransactionListView(TransactionBaseView, ListView):
                 )
             )
             .order_by("date")
-        )
-        
+        )        
         return qs
 
     def get_context_data(self, **kwargs):
@@ -202,6 +208,15 @@ class TransactionListView(TransactionBaseView, ListView):
             ).aggregate(balance=models.Sum("value"))["balance"]
             or 0
         )
+
+        if "account_id" in self.request.resolver_match.kwargs:
+            data["account_id"] = self.request.resolver_match.kwargs["account_id"]
+            data["account"] = Account.objects.filter(id=data["account_id"]).first()
+        if "from_date" in self.request.resolver_match.kwargs:
+            data["from_date"] = self.request.resolver_match.kwargs["from_date"]
+        if "until_date" in self.request.resolver_match.kwargs:
+            data["until_date"] = self.request.resolver_match.kwargs["until_date"]
+
         return data
 
 
