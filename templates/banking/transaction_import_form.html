@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% block content %}
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <!-- Page pre-title -->
+                    <div class="page-pretitle">Overview</div>
+                    <h2 class="page-title">{% trans "Import Transactions from file" %}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            {% if formset %}
+                                <form method="post" enctype="multipart/form-data">
+                                    <div>
+                                        {{ formset.management_form }}
+                                        {% csrf_token %}
+                                        {% load crispy_forms_tags %}
+                                        {% crispy formset helper %}
+                                        <a class="btn btn-danger d-none d-sm-inline-block modal-button"
+                                           href="{% url "banking:import_csv" %}">{% trans "Cancel" %}</a>
+                                        <button type="submit" class="btn btn-primary">{% trans "Import" %}</button>
+                                    </div>
+                                </form>
+                            {% else %}
+                                <div class="table-responsive">
+                                    <form method="post" enctype="multipart/form-data">
+                                        <div>
+                                            {% csrf_token %}
+                                            {% load crispy_forms_tags %}
+                                            {% crispy form %}
+                                            <a class="btn btn-danger d-none d-sm-inline-block modal-button"
+                                               href="{% url "banking:import_csv" %}">{% trans "Cancel" %}</a>
+                                            <button class="btn btn-primary" type="submit">{% trans "Open" %}</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

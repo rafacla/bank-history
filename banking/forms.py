@@ -1,7 +1,10 @@
+from bootstrap_modal_forms.forms import BSModalForm, BSModalModelForm
 from django import forms
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
+
 from banking.models import Account, Category, Transaction
 from banking.widgets import CategorySelect
-from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
 
 
 class AccountForm(BSModalModelForm):
@@ -32,12 +35,15 @@ class CategoryForm(BSModalModelForm):
                 type=kwargs["initial"]["type"], nested_to=None
             )
             if "id" in kwargs["initial"]:
-                self.fields["nested_to"].queryset = self.fields["nested_to"].queryset.exclude(id=kwargs["initial"]["id"])
-        self.fields["nested_to"].queryset = self.fields["nested_to"].queryset.filter(user=self.request.user)
+                self.fields["nested_to"].queryset = self.fields[
+                    "nested_to"
+                ].queryset.exclude(id=kwargs["initial"]["id"])
+        self.fields["nested_to"].queryset = self.fields["nested_to"].queryset.filter(
+            user=self.request.user
+        )
 
 
 class TransactionForm(BSModalModelForm):
-    
     class Meta:
         model = Transaction
         fields = [
@@ -55,33 +61,35 @@ class TransactionForm(BSModalModelForm):
     def __init__(self, *args, **kwargs):
         super(TransactionForm, self).__init__(*args, **kwargs)
         self.fields["account"].queryset = Account.objects.filter(user=self.request.user)
-        self.fields["category"].choices = Category.getUserGroupedAndSortedCategories(self.request.user)
-        
+        self.fields["category"].choices = Category.getUserGroupedAndSortedCategories(
+            self.request.user
+        )
+
 
 class TransactionDeleteForm(BSModalForm):
     id = forms.MultipleChoiceField()
 
     class Meta:
-        fields = ['id']
+        fields = ["id"]
 
     def __init__(self, transaction_ids, initial_transaction_ids, *args, **kwargs):
         super(TransactionDeleteForm, self).__init__(*args, **kwargs)
-        self.fields['id'].choices = transaction_ids
-        self.initial['id'] = list(initial_transaction_ids)
-        self.fields['id'].widget = forms.MultipleHiddenInput()
+        self.fields["id"].choices = transaction_ids
+        self.initial["id"] = list(initial_transaction_ids)
+        self.fields["id"].widget = forms.MultipleHiddenInput()
 
 
 class TransactionInternalTransferForm(BSModalForm):
     id = forms.MultipleChoiceField()
 
     class Meta:
-        fields = ['id']
+        fields = ["id"]
 
     def __init__(self, transaction_ids, initial_transaction_ids, *args, **kwargs):
         super(TransactionInternalTransferForm, self).__init__(*args, **kwargs)
-        self.fields['id'].choices = transaction_ids
-        self.initial['id'] = list(initial_transaction_ids)
-        self.fields['id'].widget = forms.MultipleHiddenInput()
+        self.fields["id"].choices = transaction_ids
+        self.initial["id"] = list(initial_transaction_ids)
+        self.fields["id"].widget = forms.MultipleHiddenInput()
 
 
 class TransactionCategorizeForm(BSModalForm):
@@ -89,12 +97,51 @@ class TransactionCategorizeForm(BSModalForm):
     category = forms.ChoiceField(choices=[], required=False, widget=CategorySelect)
 
     class Meta:
-        fields = ['id', 'category']
+        fields = ["id", "category"]
         widgets = {"category": CategorySelect}
 
     def __init__(self, transaction_ids, initial_transaction_ids, *args, **kwargs):
         super(TransactionCategorizeForm, self).__init__(*args, **kwargs)
-        self.fields['id'].choices = transaction_ids
-        self.initial['id'] = list(initial_transaction_ids)
-        self.fields['id'].widget = forms.MultipleHiddenInput()
-        self.fields['category'].choices = Category.getUserGroupedAndSortedCategories(self.request.user)
+        self.fields["id"].choices = transaction_ids
+        self.initial["id"] = list(initial_transaction_ids)
+        self.fields["id"].widget = forms.MultipleHiddenInput()
+        self.fields["category"].choices = Category.getUserGroupedAndSortedCategories(
+            self.request.user
+        )
+
+
+class CSVImportForm(forms.Form):
+    csv_file = forms.FileField(label="File to Import:")
+
+
+class CSVConfirmImport(forms.Form):
+    account = forms.ModelChoiceField(queryset=Account.objects.none())
+    date = forms.DateField()
+    competency_date = forms.DateField(required=False)
+    description = forms.CharField()
+    is_transfer = forms.BooleanField(required=False)
+    category = forms.ChoiceField(required=False, widget=CategorySelect)
+    concilied = forms.BooleanField(required=False)
+    value = forms.DecimalField(decimal_places=2)
+    decision = forms.ChoiceField(
+        choices=[("import", "Import"), ("do_not_import", "Do not Import")]
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(CSVConfirmImport, self).__init__(*args, **kwargs)
+        if "user" in self.initial:
+            self.fields[
+                "category"
+            ].choices = Category.getUserGroupedAndSortedCategories(self.initial["user"])
+            self.fields["account"].queryset = Account.objects.filter(
+                user=self.initial["user"]
+            )
+
+
+class CSVConfirmImportFormSetHelper(FormHelper):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.form_method = "post"
+        self.render_required_fields = (True,)
+        self.template = "bootstrap5/table_inline_formset.html"
+        

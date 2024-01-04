@@ -1,23 +1,36 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
-from django.views import View
-from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormView
-from django.views.generic.list import ListView
-from django.db import models
-from django.core.exceptions import PermissionDenied
-
+import csv
 
 from bootstrap_modal_forms.generic import (
     BSModalCreateView,
-    BSModalUpdateView,
-    BSModalReadView,
     BSModalDeleteView,
     BSModalFormView,
+    BSModalReadView,
+    BSModalUpdateView,
 )
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
+from django.db import models
+from django.forms import formset_factory
+from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.views import View
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
+from django.views.generic.list import ListView
 
+from .forms import (
+    AccountForm,
+    CategoryForm,
+    CSVImportForm,
+    CSVConfirmImport,
+    TransactionCategorizeForm,
+    TransactionDeleteForm,
+    TransactionForm,
+    TransactionInternalTransferForm,
+    CSVConfirmImportFormSetHelper,
+)
 from .models import Account, Category, Transaction
-from .forms import AccountForm, CategoryForm, TransactionForm, TransactionDeleteForm, TransactionInternalTransferForm, TransactionCategorizeForm
+from django.shortcuts import redirect
 
 
 class AccountBaseView(LoginRequiredMixin, View):
@@ -31,7 +44,7 @@ class AccountListView(AccountBaseView, ListView):
     """View to list all accounts.
     Use the 'account_list' variable in the template
     to access all Account objects"""
-    
+
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.filter(user=self.request.user)
@@ -44,12 +57,14 @@ class AccountDetailView(AccountBaseView, DetailView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], user=self.request.user)
-    
+        return qs.filter(
+            pk=self.request.resolver_match.kwargs["pk"], user=self.request.user
+        )
 
 
 class AccountCreateView(AccountBaseView, BSModalCreateView):
     """View to create a new account"""
+
     form_class = AccountForm
     success_message = "Success!"
 
@@ -67,16 +82,20 @@ class AccountUpdateView(AccountBaseView, BSModalUpdateView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], user=self.request.user)
-    
+        return qs.filter(
+            pk=self.request.resolver_match.kwargs["pk"], user=self.request.user
+        )
+
 
 class AccountDeleteView(AccountBaseView, DeleteView):
     """View to delete a account"""
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], user=self.request.user)
-    
+        return qs.filter(
+            pk=self.request.resolver_match.kwargs["pk"], user=self.request.user
+        )
+
 
 class CategoryBaseView(LoginRequiredMixin, View):
     model = Category
@@ -93,7 +112,6 @@ class CategoryListView(CategoryBaseView, ListView):
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.filter(user=self.request.user)
-    
 
 
 class CategoryDetailView(CategoryBaseView, DetailView):
@@ -103,8 +121,10 @@ class CategoryDetailView(CategoryBaseView, DetailView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], user=self.request.user)
-    
+        return qs.filter(
+            pk=self.request.resolver_match.kwargs["pk"], user=self.request.user
+        )
+
 
 class CategoryCreateView(CategoryBaseView, BSModalCreateView):
     """View to create a new category"""
@@ -142,19 +162,22 @@ class CategoryUpdateView(CategoryBaseView, BSModalUpdateView):
         self.initial["type"] = self.object.type
         self.initial["id"] = self.object.id
         return self.initial
-    
+
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], user=self.request.user)
-    
+        return qs.filter(
+            pk=self.request.resolver_match.kwargs["pk"], user=self.request.user
+        )
 
 
 class CategoryDeleteView(CategoryBaseView, DeleteView):
     """View to delete a category"""
-    
+
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], user=self.request.user)
+        return qs.filter(
+            pk=self.request.resolver_match.kwargs["pk"], user=self.request.user
+        )
 
 
 class TransactionBaseView(LoginRequiredMixin, View):
@@ -169,23 +192,22 @@ class TransactionListView(TransactionBaseView, ListView):
 
     def get_queryset(self, *args, **kwargs):
         qs = super(TransactionListView, self).get_queryset(*args, **kwargs)
-        
-        
+
         if "account_id" in self.request.resolver_match.kwargs:
-            qs = qs.filter(account__id = self.request.resolver_match.kwargs["account_id"])
+            qs = qs.filter(account__id=self.request.resolver_match.kwargs["account_id"])
         if "from_date" in self.request.resolver_match.kwargs:
-            qs = qs.filter(date__gte = self.request.resolver_match.kwargs["from_date"])
+            qs = qs.filter(date__gte=self.request.resolver_match.kwargs["from_date"])
         if "until_date" in self.request.resolver_match.kwargs:
-            qs = qs.filter(date__lte = self.request.resolver_match.kwargs["until_date"])
+            qs = qs.filter(date__lte=self.request.resolver_match.kwargs["until_date"])
         qs = (
-            qs.filter(merged_to=None, account__user = self.request.user)
+            qs.filter(merged_to=None, account__user=self.request.user)
             .annotate(
                 balance=models.Window(
                     models.Sum("value"), order_by=models.F("date").asc()
                 )
             )
             .order_by("date")
-        )        
+        )
         return qs
 
     def get_context_data(self, **kwargs):
@@ -227,8 +249,10 @@ class TransactionDetailView(TransactionBaseView, DetailView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], account__user=self.request.user)
-    
+        return qs.filter(
+            pk=self.request.resolver_match.kwargs["pk"], account__user=self.request.user
+        )
+
 
 class TransactionCreateView(TransactionBaseView, BSModalCreateView):
     """View to create a new Transaction"""
@@ -245,68 +269,163 @@ class TransactionUpdateView(TransactionBaseView, BSModalUpdateView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], account__user=self.request.user)
-    
+        return qs.filter(
+            pk=self.request.resolver_match.kwargs["pk"], account__user=self.request.user
+        )
+
 
 class TransactionDeleteView(BSModalFormView):
     form_class = TransactionDeleteForm
-    template_name = 'banking/transaction_confirm_delete.html'
+    template_name = "banking/transaction_confirm_delete.html"
     success_url = reverse_lazy("banking:transaction_list")
 
     def form_valid(self, form):
-        Transaction.objects.filter(id__in=form.cleaned_data['id']).delete()
+        Transaction.objects.filter(id__in=form.cleaned_data["id"]).delete()
         return super(TransactionDeleteView, self).form_valid(form)
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(pk=self.request.resolver_match.kwargs["pk"], user=self.request.user)
+        return qs.filter(
+            pk=self.request.resolver_match.kwargs["pk"], user=self.request.user
+        )
 
     def get_form_kwargs(self):
         form_kwargs = super(TransactionDeleteView, self).get_form_kwargs()
         query = self.request.resolver_match.kwargs["transaction_ids"].split(",")
-        qs = Transaction.objects.filter(id__in=query, account__user = self.request.user)
+        qs = Transaction.objects.filter(id__in=query, account__user=self.request.user)
         if qs.count() != len(query):
             raise PermissionDenied()
-        form_kwargs['transaction_ids'] = [(transaction_id, transaction_id) for transaction_id in query]
-        form_kwargs['initial_transaction_ids'] = query
+        form_kwargs["transaction_ids"] = [
+            (transaction_id, transaction_id) for transaction_id in query
+        ]
+        form_kwargs["initial_transaction_ids"] = query
         return form_kwargs
 
 
 class TransactionInternalTransferView(BSModalFormView):
     form_class = TransactionInternalTransferForm
-    template_name = 'banking/transaction_confirm_internal_transfer.html'
+    template_name = "banking/transaction_confirm_internal_transfer.html"
     success_url = reverse_lazy("banking:transaction_list")
 
     def form_valid(self, form):
-        Transaction.objects.filter(id__in=form.cleaned_data['id']).update(is_transfer=True, category=None)
+        Transaction.objects.filter(id__in=form.cleaned_data["id"]).update(
+            is_transfer=True, category=None
+        )
         return super(TransactionInternalTransferView, self).form_valid(form)
 
     def get_form_kwargs(self):
         form_kwargs = super(TransactionInternalTransferView, self).get_form_kwargs()
         query = self.request.resolver_match.kwargs["transaction_ids"].split(",")
-        qs = Transaction.objects.filter(id__in=query, account__user = self.request.user)
+        qs = Transaction.objects.filter(id__in=query, account__user=self.request.user)
         if qs.count() != len(query):
             raise PermissionDenied()
-        form_kwargs['transaction_ids'] = [(transaction_id, transaction_id) for transaction_id in query]
-        form_kwargs['initial_transaction_ids'] = query
+        form_kwargs["transaction_ids"] = [
+            (transaction_id, transaction_id) for transaction_id in query
+        ]
+        form_kwargs["initial_transaction_ids"] = query
         return form_kwargs
 
 
 class TransactionCategorizeView(BSModalFormView):
     form_class = TransactionCategorizeForm
-    template_name = 'banking/transaction_categorize.html'
+    template_name = "banking/transaction_categorize.html"
     success_url = reverse_lazy("banking:transaction_list")
 
     def form_valid(self, form):
-        Transaction.objects.filter(id__in=form.cleaned_data['id']).update(is_transfer=False, category=form.cleaned_data['category'])
+        Transaction.objects.filter(id__in=form.cleaned_data["id"]).update(
+            is_transfer=False, category=form.cleaned_data["category"]
+        )
         return super(TransactionCategorizeView, self).form_valid(form)
 
     def get_form_kwargs(self):
         form_kwargs = super(TransactionCategorizeView, self).get_form_kwargs()
         query = self.request.resolver_match.kwargs["transaction_ids"].split(",")
-        qs = Transaction.objects.filter(id__in=query, account__user = self.request.user)
+        qs = Transaction.objects.filter(id__in=query, account__user=self.request.user)
         if qs.count() != len(query):
             raise PermissionDenied()
-        form_kwargs['transaction_ids'] = [(transaction_id, transaction_id) for transaction_id in query]
-        form_kwargs['initial_transaction_ids'] = query
+        form_kwargs["transaction_ids"] = [
+            (transaction_id, transaction_id) for transaction_id in query
+        ]
+        form_kwargs["initial_transaction_ids"] = query
         return form_kwargs
+
+
+def import_csv(request):
+    TransactionFormSet = formset_factory(CSVConfirmImport, extra=0)
+    formset = TransactionFormSet()
+    helper = CSVConfirmImportFormSetHelper()
+    if request.method == "POST":
+        form_csv = CSVImportForm(request.POST, request.FILES)
+        formset = TransactionFormSet(request.POST)
+        for form in formset.forms:
+            form.fields[
+                "category"
+            ].choices = Category.getUserGroupedAndSortedCategories(request.user)
+            form.fields["account"].queryset = Account.objects.filter(user=request.user)
+        if formset.is_valid():
+            for form in formset:
+                form_data = form.cleaned_data
+                if form_data and form_data["decision"] == "import":
+                    Transaction.objects.create(
+                        value=form_data["value"],
+                        account=form_data["account"],
+                        category=Category.objects.filter(
+                            id=form_data["category"], user=request.user
+                        ).first(),
+                        is_transfer=form_data["is_transfer"],
+                        concilied=form_data["concilied"],
+                        date=form_data["date"],
+                        competency_date=form_data["competency_date"],
+                        description=form_data["description"],
+                        merged_to=None,
+                    )
+                return redirect("banking:transaction_list")
+        elif form_csv.is_valid():
+            csv_file = request.FILES["csv_file"].read().decode("utf-8-sig").splitlines()
+            csv_reader = csv.DictReader(csv_file)
+
+            listOfTransactions = []
+            for row in csv_reader:
+                listOfTransactions.append(
+                    {
+                        "value": row["value"] if "value" in row else None,
+                        "date": row["date"] if "date" in row else None,
+                        "competency_date": row["competency_date"]
+                        if "competency_date" in row
+                        else None,
+                        "description": row["description"]
+                        if "description" in row
+                        else None,
+                        "account": Account.objects.filter(id=row["account_id"]).first()
+                        if "account_id" in row
+                        else None,
+                        "category": Category.objects.filter(id=row["category_id"])
+                        if "category_id" in row
+                        else None,
+                        "is_transfer": row["is_transfer"]
+                        if "transfer" in row
+                        else None,
+                        "concilied": row["concilied"] if "concilied" in row else None,
+                        "user": request.user,
+                    }
+                )
+            TransactionFormSet = formset_factory(
+                CSVConfirmImport, extra=(len(listOfTransactions) - 1)
+            )
+            formset = TransactionFormSet(initial=listOfTransactions)
+
+            return render(
+                request,
+                "banking/transaction_import_form.html",
+                {"formset": formset, "helper": helper},
+            )
+        else:
+            return render(
+                request,
+                "banking/transaction_import_form.html",
+                {"formset": formset, "helper": helper},
+            )
+    else:
+        form_csv = CSVImportForm()
+
+    return render(request, "banking/transaction_import_form.html", {"form": form_csv})
