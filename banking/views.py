@@ -193,12 +193,23 @@ class TransactionListView(TransactionBaseView, ListView):
     def get_queryset(self, *args, **kwargs):
         qs = super(TransactionListView, self).get_queryset(*args, **kwargs)
 
-        if "account_id" in self.request.resolver_match.kwargs:
-            qs = qs.filter(account__id=self.request.resolver_match.kwargs["account_id"])
-        if "from_date" in self.request.resolver_match.kwargs:
-            qs = qs.filter(date__gte=self.request.resolver_match.kwargs["from_date"])
-        if "until_date" in self.request.resolver_match.kwargs:
-            qs = qs.filter(date__lte=self.request.resolver_match.kwargs["until_date"])
+        account_id = self.request.GET.get('account_id', None)
+        account_name = self.request.GET.get('account_name', None)
+        if account_name:
+            account_id = Account.objects.filter(user=self.request.user, name__icontains=account_name).first().id if Account.objects.filter(user=self.request.user, name__icontains=account_name).first() else -1
+        transaction_description = self.request.GET.get('transaction_description', None)
+        from_date = self.request.GET.get('from_date', None)
+        until_date = self.request.GET.get('from_date', None)
+
+        if account_id:
+            qs = qs.filter(account__id=account_id)
+        if from_date:
+            qs = qs.filter(date__gte=from_date)
+        if until_date:
+            qs = qs.filter(date__lte=until_date)
+        if transaction_description:
+            qs = qs.filter(description__icontains=transaction_description)
+            
         qs = (
             qs.filter(merged_to=None, account__user=self.request.user)
             .annotate(
@@ -212,33 +223,47 @@ class TransactionListView(TransactionBaseView, ListView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
+        
+        account_id = self.request.GET.get('account_id', None)
+        account_name = self.request.GET.get('account_name', None)
+        if account_name:
+            account_id = Account.objects.filter(user=self.request.user, name__icontains=account_name).first().id if Account.objects.filter(user=self.request.user, name__icontains=account_name).first() else -1
+        transaction_description = self.request.GET.get('transaction_description', None)
+        from_date = self.request.GET.get('from_date', None)
+        until_date = self.request.GET.get('from_date', None)
+
         user = self.request.user
         qs = self.object_list.aggregate(
             first_date=models.Min("date"), last_date=models.Max("date")
         )
         data["first_date"] = qs["first_date"]
         data["last_date"] = qs["last_date"]
-        data["balance_first_date"] = (
-            Transaction.objects.filter(
-                account__user=user, date__lt=data["first_date"], merged_to=None
-            ).aggregate(balance=models.Sum("value"))["balance"]
-            or 0
-        )
-        data["balance_last_date"] = (
-            Transaction.objects.filter(
-                account__user=user, date__lte=data["last_date"], merged_to=None
-            ).aggregate(balance=models.Sum("value"))["balance"]
-            or 0
-        )
+        
+        if (data["first_date"] and data["last_date"]):
+            data["balance_first_date"] = (
+                Transaction.objects.filter(
+                    account__user=user, date__lt=data["first_date"], merged_to=None
+                ).aggregate(balance=models.Sum("value"))["balance"]
+                or 0
+            )
+            data["balance_last_date"] = (
+                Transaction.objects.filter(
+                    account__user=user, date__lte=data["last_date"], merged_to=None
+                ).aggregate(balance=models.Sum("value"))["balance"]
+                or 0
+            )
 
-        if "account_id" in self.request.resolver_match.kwargs:
-            data["account_id"] = self.request.resolver_match.kwargs["account_id"]
+    
+        if account_id:
+            data["account_id"] = account_id
             data["account"] = Account.objects.filter(id=data["account_id"]).first()
-        if "from_date" in self.request.resolver_match.kwargs:
-            data["from_date"] = self.request.resolver_match.kwargs["from_date"]
-        if "until_date" in self.request.resolver_match.kwargs:
-            data["until_date"] = self.request.resolver_match.kwargs["until_date"]
-
+        if from_date:
+            data["from_date"] = from_date
+        if until_date:
+            data["until_date"] = until_date
+        if transaction_description:
+            data["transaction_description"] = transaction_description
+            
         return data
 
 

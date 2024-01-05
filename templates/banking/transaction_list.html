@@ -10,7 +10,7 @@
           <!-- Page pre-title -->
           <div class="page-pretitle">Overview</div>
           <h2 class="page-title">
-            {% if account_id %}
+            {% if account %}
               {{ account.name }}{% trans ": account statement" %}
             {% else %}
               {% trans "Transactions" %}
@@ -155,12 +155,14 @@
                       <td colspan="9">{% trans "No transactions yet for the given filter" %} 😐</td>
                     </tr>
                   {% else %}
+                    {% if not transaction_description %}
                     <tr>
                       <td colspan="8" class="text-end">
                         {% trans "Account balance for current filter before" %} {{ first_date|date:"d/m/Y" }}
                       </td>
                       <td class="text-end">{{ balance_first_date|floatformat:2 }}</td>
                     </tr>
+                    {% endif %}
                     {% for item in transaction_list %}
                       {% if item.merged_to == None %}
                         <tr>
@@ -190,11 +192,12 @@
                           </td>
                           <td>{{ item.date|date:"d/m/Y" }}</td>
                           <td>
-                            {{ item.description }} <a href="#"
-    data-form-url="{% url 'banking:transaction_update' item.id %}"
-    class="modal-button on-hover-link"
-    data-bs-toggle="modal"
-    data-bs-target="#modals-here">
+                            {{ item.description }} 
+                            <a href="#"
+                              data-form-url="{% url 'banking:transaction_update' item.id %}"
+                              class="modal-button on-hover-link"
+                              data-bs-toggle="modal"
+                              data-bs-target="#modals-here">
                             <svg xmlns="http://www.w3.org/2000/svg"
                                  class="icon icon-tabler icon-tabler-edit"
                                  width="24"
@@ -280,7 +283,14 @@
                     {% endif %}
                   {% endfor %}
                   <tr>
-                    <td colspan="8" class="text-end">{% trans "Account balance for current filter on" %} {{ last_date|date:"d/m/Y" }}</td>
+                    <td colspan="8" class="text-end">
+                      {% if not transaction_description %}
+                        {% trans "Account balance for current filter on" %}
+                      {% else %}
+                      {% trans "Sum of current filter on" %}
+                      {% endif %}
+                      {{ last_date|date:"d/m/Y" }}
+                    </td>
                     <td class="text-end">{{ balance_last_date|floatformat:2 }}</td>
                   </tr>
                 {% endif %}
