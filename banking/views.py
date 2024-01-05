@@ -435,8 +435,9 @@ def import_csv(request):
                     }
                 )
             TransactionFormSet = formset_factory(
-                CSVConfirmImport, extra=(len(listOfTransactions) - 1)
+                CSVConfirmImport, extra=0
             )
+            
             formset = TransactionFormSet(initial=listOfTransactions)
 
             return render(
