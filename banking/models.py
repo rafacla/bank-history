@@ -212,6 +212,7 @@ class Category(models.Model):
                             )
                         )
         listOfUserCategories = (
+            ("","No category"),
             ("Credit Categories",
             listOfUserCreditCategories),
             ("Debit Categories",

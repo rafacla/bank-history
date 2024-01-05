@@ -111,10 +111,11 @@ class TransactionCategorizeForm(BSModalForm):
 
 
 class CSVImportForm(forms.Form):
+    csv_account = forms.ModelChoiceField(queryset=Account.objects.none(), label="Select account to import to:")
     csv_file = forms.FileField(label="File to Import:")
 
-
 class CSVConfirmImport(forms.Form):
+    select_row = forms.CheckboxInput()
     account = forms.ModelChoiceField(queryset=Account.objects.none())
     date = forms.DateField()
     competency_date = forms.DateField(required=False)
@@ -144,4 +145,3 @@ class CSVConfirmImportFormSetHelper(FormHelper):
         self.form_method = "post"
         self.render_required_fields = (True,)
         self.template = "bootstrap5/table_inline_formset.html"
-        

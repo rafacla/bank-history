@@ -193,13 +193,23 @@ class TransactionListView(TransactionBaseView, ListView):
     def get_queryset(self, *args, **kwargs):
         qs = super(TransactionListView, self).get_queryset(*args, **kwargs)
 
-        account_id = self.request.GET.get('account_id', None)
-        account_name = self.request.GET.get('account_name', None)
+        account_id = self.request.GET.get("account_id", None)
+        account_name = self.request.GET.get("account_name", None)
         if account_name:
-            account_id = Account.objects.filter(user=self.request.user, name__icontains=account_name).first().id if Account.objects.filter(user=self.request.user, name__icontains=account_name).first() else -1
-        transaction_description = self.request.GET.get('transaction_description', None)
-        from_date = self.request.GET.get('from_date', None)
-        until_date = self.request.GET.get('from_date', None)
+            account_id = (
+                Account.objects.filter(
+                    user=self.request.user, name__icontains=account_name
+                )
+                .first()
+                .id
+                if Account.objects.filter(
+                    user=self.request.user, name__icontains=account_name
+                ).first()
+                else -1
+            )
+        transaction_description = self.request.GET.get("transaction_description", None)
+        from_date = self.request.GET.get("from_date", None)
+        until_date = self.request.GET.get("from_date", None)
 
         if account_id:
             qs = qs.filter(account__id=account_id)
@@ -209,7 +219,7 @@ class TransactionListView(TransactionBaseView, ListView):
             qs = qs.filter(date__lte=until_date)
         if transaction_description:
             qs = qs.filter(description__icontains=transaction_description)
-            
+
         qs = (
             qs.filter(merged_to=None, account__user=self.request.user)
             .annotate(
@@ -223,14 +233,24 @@ class TransactionListView(TransactionBaseView, ListView):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        
-        account_id = self.request.GET.get('account_id', None)
-        account_name = self.request.GET.get('account_name', None)
+
+        account_id = self.request.GET.get("account_id", None)
+        account_name = self.request.GET.get("account_name", None)
         if account_name:
-            account_id = Account.objects.filter(user=self.request.user, name__icontains=account_name).first().id if Account.objects.filter(user=self.request.user, name__icontains=account_name).first() else -1
-        transaction_description = self.request.GET.get('transaction_description', None)
-        from_date = self.request.GET.get('from_date', None)
-        until_date = self.request.GET.get('from_date', None)
+            account_id = (
+                Account.objects.filter(
+                    user=self.request.user, name__icontains=account_name
+                )
+                .first()
+                .id
+                if Account.objects.filter(
+                    user=self.request.user, name__icontains=account_name
+                ).first()
+                else -1
+            )
+        transaction_description = self.request.GET.get("transaction_description", None)
+        from_date = self.request.GET.get("from_date", None)
+        until_date = self.request.GET.get("from_date", None)
 
         user = self.request.user
         qs = self.object_list.aggregate(
@@ -238,8 +258,8 @@ class TransactionListView(TransactionBaseView, ListView):
         )
         data["first_date"] = qs["first_date"]
         data["last_date"] = qs["last_date"]
-        
-        if (data["first_date"] and data["last_date"]):
+
+        if data["first_date"] and data["last_date"]:
             data["balance_first_date"] = (
                 Transaction.objects.filter(
                     account__user=user, date__lt=data["first_date"], merged_to=None
@@ -253,7 +273,6 @@ class TransactionListView(TransactionBaseView, ListView):
                 or 0
             )
 
-    
         if account_id:
             data["account_id"] = account_id
             data["account"] = Account.objects.filter(id=data["account_id"]).first()
@@ -263,7 +282,7 @@ class TransactionListView(TransactionBaseView, ListView):
             data["until_date"] = until_date
         if transaction_description:
             data["transaction_description"] = transaction_description
-            
+
         return data
 
 
@@ -382,6 +401,11 @@ def import_csv(request):
     if request.method == "POST":
         form_csv = CSVImportForm(request.POST, request.FILES)
         formset = TransactionFormSet(request.POST)
+
+        # Before we validating our forms, we need to reinitiate all ChoiceFields choices, otherwite validation is going to fail...
+        # form_csv account field:
+        form_csv.fields["csv_account"].queryset = Account.objects.filter(user=request.user)
+        # formset account and category fields:
         for form in formset.forms:
             form.fields[
                 "category"
@@ -396,7 +420,7 @@ def import_csv(request):
                         account=form_data["account"],
                         category=Category.objects.filter(
                             id=form_data["category"], user=request.user
-                        ).first(),
+                        ).first() if form_data["category"].isnumeric() else None,
                         is_transfer=form_data["is_transfer"],
                         concilied=form_data["concilied"],
                         date=form_data["date"],
@@ -404,7 +428,7 @@ def import_csv(request):
                         description=form_data["description"],
                         merged_to=None,
                     )
-                return redirect("banking:transaction_list")
+            return redirect("banking:transaction_list")
         elif form_csv.is_valid():
             csv_file = request.FILES["csv_file"].read().decode("utf-8-sig").splitlines()
             csv_reader = csv.DictReader(csv_file)
@@ -413,6 +437,7 @@ def import_csv(request):
             for row in csv_reader:
                 listOfTransactions.append(
                     {
+                        "select_row": False,
                         "value": row["value"] if "value" in row else None,
                         "date": row["date"] if "date" in row else None,
                         "competency_date": row["competency_date"]
@@ -421,9 +446,9 @@ def import_csv(request):
                         "description": row["description"]
                         if "description" in row
                         else None,
-                        "account": Account.objects.filter(id=row["account_id"]).first()
+                        "account": Account.objects.filter(user=request.user, id=row["account_id"]).first()
                         if "account_id" in row
-                        else None,
+                        else form_csv.cleaned_data["csv_account"],
                         "category": Category.objects.filter(id=row["category_id"])
                         if "category_id" in row
                         else None,
@@ -434,10 +459,8 @@ def import_csv(request):
                         "user": request.user,
                     }
                 )
-            TransactionFormSet = formset_factory(
-                CSVConfirmImport, extra=0
-            )
-            
+            TransactionFormSet = formset_factory(CSVConfirmImport, extra=0)
+
             formset = TransactionFormSet(initial=listOfTransactions)
 
             return render(
@@ -453,5 +476,6 @@ def import_csv(request):
             )
     else:
         form_csv = CSVImportForm()
+        form_csv.fields["csv_account"].queryset = Account.objects.filter(user=request.user)
 
     return render(request, "banking/transaction_import_form.html", {"form": form_csv})
