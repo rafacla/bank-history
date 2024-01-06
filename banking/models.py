@@ -56,7 +56,7 @@ class Account(models.Model):
         unique_together = ("user", "name")
 
     def __str__(self):
-        return f"{self.name} ({self.type} - {self.currency.name})"
+        return f"{self.name} ({dict(self.ACCOUNT_TYPES)[self.type]})"
 
     def getBalance(self):
         return sum([item.value for item in Transaction.objects.filter(account=self)])
