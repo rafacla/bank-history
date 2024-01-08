@@ -193,7 +193,7 @@
                           </td>
                           <td>{{ item.date|date:"d/m/Y" }}</td>
                           <td>
-                            {{ item.description }} 
+                            <span {% if item.description|length > 50 %}data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{{ item.description }}"{% endif %}>{{ item.description|truncatechars:50 }} </span>
                             <a href="#"
                               data-form-url="{% url 'banking:transaction_update' item.id %}"
                               class="modal-button on-hover-link"
@@ -216,7 +216,7 @@
                             </svg>
                           </a>
                         </td>
-                        <td>{% if item.notes %}{{ item.notes|truncatechars:15 }}{% endif %}</td>
+                        <td>{% if item.notes %}<span {% if item.notes|length > 15 %}data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{{ item.notes }}"{% endif %}>{{ item.notes|truncatechars:15 }}</span>{% endif %}</td>
                         <td>
                           {% if item.is_transfer %}
                             <span data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "This is a Transfer! It doesn't need a Category, because this is only internal money moving from your own account and not actual spending!" %}">
