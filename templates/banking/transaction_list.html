@@ -307,6 +307,8 @@
 {% endblock content %}
 {% block extrascripts %}
 <script>
+  var listOfSelectedLinks = [];
+
   document.addEventListener('DOMContentLoaded', (e) => {
     var modalButtons = document.getElementsByClassName("modal-button");
     for (var index=0; index < modalButtons.length; index++) {
@@ -351,6 +353,7 @@
     let url_string = "{% url 'banking:transaction_delete' 0 %}"
     url_string = url_string.slice(0, -2) + checked_ids.slice(0, -1) + "/"
     
+    document.getElementById('deleteTransactions').removeEventListener("click", document.getElementById('deleteTransactions').clickHandler, false);
     modalForm(document.getElementById('deleteTransactions'), {
       formURL: url_string,
       modalID: "#modals-here",
@@ -360,6 +363,7 @@
     url_string = "{% url 'banking:transaction_internal_transfer' 0 %}"
     url_string = url_string.slice(0, -2) + checked_ids.slice(0, -1) + "/"
 
+    document.getElementById('setInternalTransfer').removeEventListener("click", document.getElementById('setInternalTransfer').clickHandler, false);
     modalForm(document.getElementById('setInternalTransfer'), {
       formURL: url_string,
       modalID: "#modals-here",
@@ -369,6 +373,7 @@
     url_string = "{% url 'banking:transaction_categorize' 0 %}"
     url_string = url_string.slice(0, -2) + checked_ids.slice(0, -1) + "/"
 
+    document.getElementById('categorizeTransactions').removeEventListener("click", document.getElementById('categorizeTransactions').clickHandler, false);
     modalForm(document.getElementById('categorizeTransactions'), {
       formURL: url_string,
       modalID: "#modals-here",
