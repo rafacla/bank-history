@@ -322,7 +322,9 @@ class TransactionUpdateView(TransactionBaseView, BSModalUpdateView):
 class TransactionDeleteView(BSModalFormView):
     form_class = TransactionDeleteForm
     template_name = "banking/transaction_confirm_delete.html"
-    success_url = reverse_lazy("banking:transaction_list")
+
+    def get_success_url(self):
+        return reverse_lazy('banking:transaction_list') + "?" + self.request.GET.urlencode()
 
     def form_valid(self, form):
         Transaction.objects.filter(id__in=form.cleaned_data["id"]).delete()
@@ -350,7 +352,9 @@ class TransactionDeleteView(BSModalFormView):
 class TransactionInternalTransferView(BSModalFormView):
     form_class = TransactionInternalTransferForm
     template_name = "banking/transaction_confirm_internal_transfer.html"
-    success_url = reverse_lazy("banking:transaction_list")
+    
+    def get_success_url(self):
+        return reverse_lazy('banking:transaction_list') + "?" + self.request.GET.urlencode()
 
     def form_valid(self, form):
         Transaction.objects.filter(id__in=form.cleaned_data["id"]).update(
@@ -374,7 +378,9 @@ class TransactionInternalTransferView(BSModalFormView):
 class TransactionCategorizeView(BSModalFormView):
     form_class = TransactionCategorizeForm
     template_name = "banking/transaction_categorize.html"
-    success_url = reverse_lazy("banking:transaction_list")
+    
+    def get_success_url(self):
+        return reverse_lazy('banking:transaction_list') + "?" + self.request.GET.urlencode()
 
     def form_valid(self, form):
         Transaction.objects.filter(id__in=form.cleaned_data["id"]).update(
