@@ -225,7 +225,7 @@ class TransactionListView(TransactionBaseView, ListView):
             .annotate(
                 balance=models.Window(
                     models.Sum("value"), order_by=models.F("date").asc()
-                )
+                ),
             )
             .order_by("date")
         )

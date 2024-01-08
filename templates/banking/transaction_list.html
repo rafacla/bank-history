@@ -248,6 +248,8 @@
                             <span data-bs-toggle="popover"
                                   data-bs-trigger="hover focus"
                                   data-bs-content="{% trans "This is a categorized transaction, it means you are spending or receiving money!" %}">
+                              <!-- If a Category already has an Emoji in the beginning, we are going to stick to it, otherwise se show a std ico -->
+                              {% if not item.category.beginsWithEmoji %}
                               <svg xmlns="http://www.w3.org/2000/svg"
                                    class="icon icon-tabler icon-tabler-category-2"
                                    width="24"
@@ -264,6 +266,7 @@
                                 <path d="M17 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
                                 <path d="M7 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
                               </svg>
+                              {% endif %}
                               {{ item.category.name }}
                             </span>
                           {% else %}

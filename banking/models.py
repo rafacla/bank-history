@@ -3,6 +3,7 @@ import uuid
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from emoji import EMOJI_DATA 
 
 
 class Bank(models.Model):
@@ -89,6 +90,9 @@ class Category(models.Model):
 
     class Meta:
         verbose_name_plural = "categories"
+
+    def beginsWithEmoji(self):
+        return self.name[:1] in EMOJI_DATA
 
     def getLastSort(nested_to, user):
         last_sort = Category.objects.filter(nested_to=nested_to, user=user).aggregate(
