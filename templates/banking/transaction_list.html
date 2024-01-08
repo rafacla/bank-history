@@ -101,7 +101,14 @@
                 </svg>
                 {% trans "Create Transaction" %}
               </a>
-          </div>
+              <div class="input-icon">
+                <span class="input-icon-addon">
+                  <!-- Download SVG icon from http://tabler-icons.io/i/search -->
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path><path d="M21 21l-6 -6"></path></svg>
+                </span>
+                <input id="search" type="text" value="" class="form-control" placeholder="Search…" aria-label="Search in website">
+              </div>
+            </div>
         </div>
       </div>
     </div>
@@ -114,7 +121,7 @@
           <div class="card">
             <div class="card-head"></div>
             <div class="table-responsive">
-              <table class="table card-table table-vcenter text-nowrap datatable table-hover table-condensed">
+              <table class="table card-table table-vcenter text-nowrap datatable table-hover table-condensed" id="table-transactions-list">
                 <thead>
                   <tr>
                     <th>
@@ -154,16 +161,17 @@
                   {% if transaction_list.count == 0 %}
                     <tr>
                       <td colspan="10">{% trans "No transactions yet for the given filter" %} 😐</td>
+                      <td class="d-none"></td>
+                      <td class="d-none"></td>
+                      <td class="d-none"></td>
+                      <td class="d-none"></td>
+                      <td class="d-none"></td>
+                      <td class="d-none"></td>
+                      <td class="d-none"></td>
+                      <td class="d-none"></td>
+                      <td class="d-none"></td>
                     </tr>
                   {% else %}
-                    {% if not transaction_description %}
-                    <tr>
-                      <td colspan="9" class="text-end">
-                        {% trans "Account balance for current filter before" %} {{ first_date|date:"d/m/Y" }}
-                      </td>
-                      <td class="text-end">{{ balance_first_date|floatformat:2 }}</td>
-                    </tr>
-                    {% endif %}
                     {% for item in transaction_list %}
                       {% if item.merged_to == None %}
                         <tr>
@@ -284,17 +292,6 @@
                       </tr>
                     {% endif %}
                   {% endfor %}
-                  <tr>
-                    <td colspan="9" class="text-end">
-                      {% if not transaction_description %}
-                        {% trans "Account balance for current filter on" %}
-                      {% else %}
-                      {% trans "Sum of current filter on" %}
-                      {% endif %}
-                      {{ last_date|date:"d/m/Y" }}
-                    </td>
-                    <td class="text-end">{{ balance_last_date|floatformat:2 }}</td>
-                  </tr>
                 {% endif %}
               </tbody>
             </table>
@@ -399,4 +396,15 @@ $("#edit_button").hide()
   });
   })
 </script>  
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script>
+  new DataTable('#table-transactions-list', {
+    order: [[4, 'desc']],
+    paging: false,
+  });
+  $('#search').keyup(function() {
+    var table = $('#table-transactions-list').DataTable();
+    table.search($(this).val()).draw();
+  });
+</script>
 {% endblock extrascripts %}

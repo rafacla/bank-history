@@ -14,3 +14,11 @@ tr:hover > td > .on-hover-link {
 tr > td > .on-hover-link {
     display: none;
 }
+
+.dataTables_filter {
+    display: none!important;
+}
+
+.dataTables_info {
+    padding: 5px;
+}
