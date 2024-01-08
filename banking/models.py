@@ -235,6 +235,7 @@ class Transaction(models.Model):
     )
     concilied = models.BooleanField(default=False)
     value = models.DecimalField(max_digits=10, decimal_places=2)
+    notes = models.TextField(blank=True, null=True)
 
     def getMergedTransactions(self):
         mergedTransactions = Transaction.objects.filter(merged_to=self)

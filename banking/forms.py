@@ -55,6 +55,7 @@ class TransactionForm(BSModalModelForm):
             "category",
             "concilied",
             "value",
+            "notes",
         ]
         widgets = {"category": CategorySelect}
 

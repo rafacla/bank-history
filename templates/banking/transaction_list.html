@@ -144,6 +144,7 @@
                     <th>{% trans "Competency" %}</th>
                     <th>{% trans "Date" %}</th>
                     <th>{% trans "Description" %}</th>
+                    <th>{% trans "Notes" %}</th>
                     <th>{% trans "Category" %}</th>
                     <th class="text-end">{% trans "Value" %}</th>
                     <th class="text-end">{% trans "Balance" %}</th>
@@ -152,12 +153,12 @@
                 <tbody>
                   {% if transaction_list.count == 0 %}
                     <tr>
-                      <td colspan="9">{% trans "No transactions yet for the given filter" %} 😐</td>
+                      <td colspan="10">{% trans "No transactions yet for the given filter" %} 😐</td>
                     </tr>
                   {% else %}
                     {% if not transaction_description %}
                     <tr>
-                      <td colspan="8" class="text-end">
+                      <td colspan="9" class="text-end">
                         {% trans "Account balance for current filter before" %} {{ first_date|date:"d/m/Y" }}
                       </td>
                       <td class="text-end">{{ balance_first_date|floatformat:2 }}</td>
@@ -215,6 +216,7 @@
                             </svg>
                           </a>
                         </td>
+                        <td>{% if item.notes %}{{ item.notes }}{% endif %}</td>
                         <td>
                           {% if item.is_transfer %}
                             <span data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "This is a Transfer! It doesn't need a Category, because this is only internal money moving from your own account and not actual spending!" %}">
@@ -283,7 +285,7 @@
                     {% endif %}
                   {% endfor %}
                   <tr>
-                    <td colspan="8" class="text-end">
+                    <td colspan="9" class="text-end">
                       {% if not transaction_description %}
                         {% trans "Account balance for current filter on" %}
                       {% else %}
