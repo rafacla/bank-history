@@ -136,6 +136,7 @@ class CategoryCreateView(CategoryBaseView, BSModalCreateView):
         super().get_initial()
         if "type" in self.request.resolver_match.kwargs:
             self.initial["type"] = self.request.resolver_match.kwargs["type"]
+            self.initial["id"] = None
         return self.initial
 
     def form_valid(self, form):
