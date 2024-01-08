@@ -2,6 +2,8 @@
 {% load i18n %}
 {% load static %}
 {% block content %}
+{% load humanize %}
+
   <!-- Page header -->
   <div class="page-header d-print-none">
     <div class="container-xl">
@@ -121,7 +123,7 @@
           <div class="card">
             <div class="card-head"></div>
             <div class="table-responsive">
-              <table class="table card-table table-vcenter text-nowrap datatable table-hover table-condensed" id="table-transactions-list">
+              <table class="table card-table table-vcenter text-nowrap table-hover table-condensed" id="table-transactions-list">
                 <thead>
                   <tr>
                     <th>
@@ -290,8 +292,8 @@
                             </span>
                           {% endif %}
                         </td>
-                        <td class="text-end">{{ item.value|floatformat:2 }}</td>
-                        <td class="text-end">{{ item.balance|floatformat:2 }}</td>
+                        <td class="text-end">{{ item.account.currency.symbol }} {{ item.value|floatformat:2|intcomma }}</td>
+                        <td class="text-end">{{ item.account.currency.symbol }} {{ item.balance|floatformat:2|intcomma }}</td>
                       </tr>
                     {% endif %}
                   {% endfor %}
@@ -321,23 +323,27 @@
   });
   // Listen for click on toggle checkbox
   $('#select-all').click(function(event) {   
+    var table = $('#table-transactions-list').DataTable();
+    
     if(this.checked) {
-        // Iterate each checkbox
-        $(':checkbox').each(function() {
-            this.checked = true;                        
-        });
+      table.rows().select();
     } else {
+      table.rows().deselect();
         $(':checkbox').each(function() {
             this.checked = false;                       
         });
     }
   }); 
+
   $(':checkbox').change(function(){
     var checked = false;
+    var any_not_checked = false;
     var checked_ids = ""
     $(':checkbox').each(function() {
       if (checked != true && this.checked) {
         checked = true;
+      } else if (this.checked == false && this.id != "select-all" ) {
+        any_not_checked = true;
       }
       if (this.checked) {
         if (this.id != "select-all") {
@@ -349,6 +355,10 @@
        $("#edit_button").show()
     }else{
       $("#edit_button").hide()
+    }
+    if (any_not_checked) {
+      $('#select-all')[0].checked = false;
+      $('#select-all')[0].intermediate = true;
     }
     let query_parameters = "{{ request.GET.urlencode }}" 
     if (query_parameters.length > 0) {
@@ -409,15 +419,29 @@ $("#edit_button").hide()
   });
   })
 </script>  
+<link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet" />
+
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
 <script>
   new DataTable('#table-transactions-list', {
     order: [[4, 'desc']],
     paging: false,
+    ordering: true,
+    select: {
+      style: "multi"
+    }
   });
+  var table = $('#table-transactions-list').DataTable();
   $('#search').keyup(function() {
-    var table = $('#table-transactions-list').DataTable();
     table.search($(this).val()).draw();
   });
+  table.on('select', function (e) {
+    $('tr.selected input:checkbox').each(function( index ) {
+      $(this)[0].checked = true
+    })
+    $(':checkbox').change()
+  });
+
 </script>
 {% endblock extrascripts %}
