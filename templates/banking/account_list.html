@@ -65,12 +65,7 @@
                   {% for account in account_list %}
                     <tr>
                       <td>
-                        <a hx-target="#modals-here"
-                           hx-trigger="click"
-                           data-bs-toggle="modal"
-                           data-bs-target="#modals-here"
-                           hx-get="{% url 'banking:account_detail' account.id %}"
-                           href="#">
+                        <a href="{% url 'banking:transaction_list' %}?account_id={{ account.id }}">
                           <img src="{{ media_url }}{{ account.bank.logo.url }}"
                                width="32"
                                height="32"
@@ -78,16 +73,22 @@
                           <span class="px-2">{{ account.name }}</span>
                         </a>
                         {% if account.getNotClassifiedTransactions.count > 0 %}
-                          <span class="badge badge-pill bg-red text-white mb-3"
+                          <a href="{% url 'banking:transaction_list' %}?account_id={{ account.id }}&amp;not_classified=1">
+                            <span class="badge badge-pill bg-red text-white mb-3"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
-                                title="{% trans "Transactions not classified" %}">{{ account.getNotClassifiedTransactions.count }}</span>
+                                title="{% trans "Transactions not classified" %}">{{ account.getNotClassifiedTransactions.count }}
+                              </span>
+                            </a>
                         {% endif %}
                         {% if account.getNotConciliedTransactions.count > 0 %}
+                        <a href="{% url 'banking:transaction_list' %}?account_id={{ account.id }}&amp;not_concilied=1">
                           <span class="badge badge-pill bg-yellow text-white mb-3"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
-                                title="{% trans "Transactions not concilied" %}">{{ account.getNotConciliedTransactions.count }}</span>
+                                title="{% trans "Transactions not concilied" %}">{{ account.getNotConciliedTransactions.count }}
+                              </span>
+                            </a>
                         {% endif %}
                       </td>
                       <td>{% trans account.get_type_display %}</td>
