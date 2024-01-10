@@ -428,9 +428,13 @@ $("#edit_button").hide()
     order: [[4, 'desc']],
     paging: true,
     ordering: true,
+    pageLength: 100,
     select: {
       style: "multi"
-    }
+    },
+    columnDefs: [
+      { orderable: false, targets: [0,1] }
+    ],
   });
   var table = $('#table-transactions-list').DataTable();
   $('#search').keyup(function() {

@@ -57,7 +57,12 @@ class TransactionForm(BSModalModelForm):
             "value",
             "notes",
         ]
-        widgets = {"category": CategorySelect}
+        widgets = {
+            "category": CategorySelect,
+            "date": forms.NumberInput(attrs={"type": "date"}),
+            "competency_date": forms.NumberInput(attrs={"type": "date"}),
+            "notes": forms.Textarea(attrs={'rows':3})
+        }
 
     def __init__(self, *args, **kwargs):
         super(TransactionForm, self).__init__(*args, **kwargs)
@@ -112,8 +117,11 @@ class TransactionCategorizeForm(BSModalForm):
 
 
 class CSVImportForm(forms.Form):
-    csv_account = forms.ModelChoiceField(queryset=Account.objects.none(), label="Select account to import to:")
+    csv_account = forms.ModelChoiceField(
+        queryset=Account.objects.none(), label="Select account to import to:"
+    )
     csv_file = forms.FileField(label="File to Import:")
+
 
 class CSVConfirmImport(forms.Form):
     select_row = forms.CheckboxInput()

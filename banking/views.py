@@ -515,31 +515,83 @@ class DashboardView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         data = dict()
-        data["filtered_month"] = self.request.GET.get("month", date.today().strftime("%Y-%m"))
+        data["filtered_month"] = self.request.GET.get(
+            "month", date.today().strftime("%Y-%m")
+        )
 
-        date_from = datetime.strptime(data["filtered_month"] + '-01', "%Y-%m-%d").date()
-        date_to = datetime.strptime(data["filtered_month"]+'-'+str(calendar.monthrange(date_from.year, date_from.month)[1]),"%Y-%m-%d").date()
-        print(date_to)
-        userTransactions = Transaction.objects.filter(account__user=self.request.user).filter(competency_date__isnull=True,date__lte=date_to,date__gte=date_from)
+        date_from = datetime.strptime(data["filtered_month"] + "-01", "%Y-%m-%d").date()
+        date_to = datetime.strptime(
+            data["filtered_month"]
+            + "-"
+            + str(calendar.monthrange(date_from.year, date_from.month)[1]),
+            "%Y-%m-%d",
+        ).date()
+
+        userTransactions = Transaction.objects.filter(
+            account__user=self.request.user, is_transfer=False
+        ).filter(
+            (models.Q(competency_date__isnull=True)
+            & models.Q(date__lte=date_to)
+            & models.Q(date__gte=date_from))
+            | (models.Q(competency_date__isnull=False)
+            & models.Q(competency_date__lte=date_to)
+            & models.Q(competency_date__gte=date_from))
+        )
         userCreditTransactions = userTransactions.filter(value__gt=0)
         userDebitTransactions = userTransactions.filter(value__lt=0)
 
-        data["sumOfCreditTransactions"] = userCreditTransactions.aggregate(incurred = models.Sum("value"))["incurred"] or 0
-        data["sumOfDebitTransactions"] = userDebitTransactions.aggregate(incurred = -models.Sum("value"))["incurred"] or 0
+        data["sumOfCreditTransactions"] = (
+            userCreditTransactions.aggregate(incurred=models.Sum("value"))["incurred"]
+            or 0
+        )
+        data["sumOfDebitTransactions"] = (
+            userDebitTransactions.aggregate(incurred=-models.Sum("value"))["incurred"]
+            or 0
+        )
         data["topTenCreditCategories"] = (
-            userCreditTransactions.filter(category__isnull=False).values("category__name")
-            .annotate(incurred=models.Sum("value"), ratio=100*models.Sum("value")/data["sumOfCreditTransactions"])
+            userCreditTransactions.filter(category__isnull=False)
+            .values("category__name")
+            .annotate(
+                incurred=models.Sum("value"),
+                ratio=100 * models.Sum("value") / data["sumOfCreditTransactions"],
+            )
             .order_by("-incurred")
         )[:10]
         data["topTenDebitCategories"] = (
-            userDebitTransactions.filter(category__isnull=False).values("category__name")
-            .annotate(incurred=-models.Sum("value"), ratio=-100*models.Sum("value")/data["sumOfDebitTransactions"])
+            userDebitTransactions.filter(category__isnull=False)
+            .values("category__name")
+            .annotate(
+                incurred=-models.Sum("value"),
+                ratio=-100 * models.Sum("value") / data["sumOfDebitTransactions"],
+            )
             .order_by("-incurred")
         )[:10]
-        data["sumOfNotClassifiedCreditTransactions"] = userCreditTransactions.filter(category__isnull=True).aggregate(incurred = models.Sum("value"))["incurred"] or 0
-        data["sumOfNotClassifiedDebitTransactions"] = (userDebitTransactions.filter(category__isnull=True).aggregate(incurred = models.Sum("value"))["incurred"] or 0)*(-1)
-        data["ratioOfNotClassifiedCreditTransactions"] = 100*data["sumOfNotClassifiedCreditTransactions"] / data["sumOfCreditTransactions"] if data["sumOfCreditTransactions"] else 0
-        data["ratioOfNotClassifiedDebitTransactions"] = 100*data["sumOfNotClassifiedDebitTransactions"] / data["sumOfDebitTransactions"] if data["sumOfDebitTransactions"] else 0
+        data["sumOfNotClassifiedCreditTransactions"] = (
+            userCreditTransactions.filter(category__isnull=True).aggregate(
+                incurred=models.Sum("value")
+            )["incurred"]
+            or 0
+        )
+        data["sumOfNotClassifiedDebitTransactions"] = (
+            userDebitTransactions.filter(category__isnull=True).aggregate(
+                incurred=models.Sum("value")
+            )["incurred"]
+            or 0
+        ) * (-1)
+        data["ratioOfNotClassifiedCreditTransactions"] = (
+            100
+            * data["sumOfNotClassifiedCreditTransactions"]
+            / data["sumOfCreditTransactions"]
+            if data["sumOfCreditTransactions"]
+            else 0
+        )
+        data["ratioOfNotClassifiedDebitTransactions"] = (
+            100
+            * data["sumOfNotClassifiedDebitTransactions"]
+            / data["sumOfDebitTransactions"]
+            if data["sumOfDebitTransactions"]
+            else 0
+        )
         return render(
             request,
             self.template_name,
