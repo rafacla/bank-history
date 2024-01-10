@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load l10n %}
+{% load static %}
+{% block content %}
+    {% load humanize %}
+    {% localize %}
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <!-- Page pre-title -->
+                    <div class="page-pretitle">Overview</div>
+                    <h2 class="page-title">{% trans "Dashboard" %}</h2>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <div class="input-icon mb-3">
+                            <input type="text" class="form-control datepicker" data-date-format="yyyy-mm" value="{{ filtered_month }}">
+                            <div class="input-group-addon">
+                                <span class="input-icon-addon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-down" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5" /><path d="M19 16v6" /><path d="M22 19l-3 3l-3 -3" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M4 11h16" /></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">{% trans "Top 10 Credit Categories"%}</h3>
+                        </div>
+                        <table class="table card-table table-vcenter">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Category" %}</th>
+                                    <th class="text-end">{% trans "$ Incurred" %}</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in topTenCreditCategories %}
+                                    <tr>
+                                        <td>{{ item.category__name }}</td>
+                                        <td class="text-end">{{ item.incurred|floatformat:2|intcomma }}</td>
+                                        <td class="w-50">
+                                            <div class="progress progress-xs">
+                                                <div class="progress-bar bg-primary"
+                                                     style="width: {{ item.ratio|unlocalize }}%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td>{% trans "Not classified" %}</td>
+                                    <td class="text-end">{{ sumOfNotClassifiedCreditTransactions|floatformat:2|intcomma }}</td>
+                                    <td class="w-50">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-warning"
+                                                 style="width: {{ ratioOfNotClassifiedCreditTransactions|unlocalize }}%">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <th>{% trans "Total" %}</th>
+                                <th class="text-end">{{ sumOfCreditTransactions|floatformat:2|intcomma }}</th>
+                                <th></th>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">{% trans "Top 10 Debit Categories" %}</h3>
+                        </div>
+                        <table class="table card-table table-vcenter">
+                            <thead>
+                                <tr>
+                                    <th>{% trans "Category" %}</th>
+                                    <th class="text-end">{% trans "$ Incurred" %}</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in topTenDebitCategories %}
+                                    <tr>
+                                        <td>{{ item.category__name }}</td>
+                                        <td class="text-end">{{ item.incurred|floatformat:2|intcomma }}</td>
+                                        <td class="w-50">
+                                            <div class="progress progress-xs">
+                                                <div class="progress-bar bg-primary"
+                                                     style="width: {{ item.ratio|unlocalize }}%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td>{% trans "Not classified" %}</td>
+                                    <td class="text-end">{{ sumOfNotClassifiedDebitTransactions|floatformat:2|intcomma }}</td>
+                                    <td class="w-50">
+                                        <div class="progress progress-xs">
+                                            <div class="progress-bar bg-warning"
+                                                 style="width: {{ ratioOfNotClassifiedDebitTransactions|unlocalize }}%">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <th>{% trans "Total" %}</th>
+                                <th class="text-end">{{ sumOfDebitTransactions|floatformat:2|intcomma }}</th>
+                                <th></th>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endlocalize %}
+{% endblock content %}
+{% block extrascripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js" integrity="sha512-LsnSViqQyaXpD4mBBdRYeP6sRwJiJveh2ZIbW41EBrNmKxgr/LFZIiWT6yr+nycvhvauz8c2nYMhrP80YhG7Cw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script>
+        $('.datepicker').datepicker({
+            format: "yyyy-mm",
+            startView: 1,
+            minViewMode: "months",
+            autoclose: true
+        }).on("changeDate", function(e) {
+            const formatter = new Intl.DateTimeFormat('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const formattedDate = formatter.format(e.date);
+            let url_string = "{% url 'banking:dashboard' %}";
+            url_string = url_string + "?month=" + e.currentTarget.value;
+            window.location = url_string;
+        });
+    </script>
+{% endblock extrascripts %}

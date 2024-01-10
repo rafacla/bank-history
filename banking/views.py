@@ -1,5 +1,5 @@
 import csv
-
+import calendar
 from bootstrap_modal_forms.generic import (
     BSModalCreateView,
     BSModalDeleteView,
@@ -14,9 +14,11 @@ from django.forms import formset_factory
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import View
+from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
 from django.views.generic.list import ListView
+from datetime import date, datetime
 
 from .forms import (
     AccountForm,
@@ -324,7 +326,11 @@ class TransactionDeleteView(BSModalFormView):
     template_name = "banking/transaction_confirm_delete.html"
 
     def get_success_url(self):
-        return reverse_lazy('banking:transaction_list') + "?" + self.request.GET.urlencode()
+        return (
+            reverse_lazy("banking:transaction_list")
+            + "?"
+            + self.request.GET.urlencode()
+        )
 
     def form_valid(self, form):
         Transaction.objects.filter(id__in=form.cleaned_data["id"]).delete()
@@ -352,9 +358,13 @@ class TransactionDeleteView(BSModalFormView):
 class TransactionInternalTransferView(BSModalFormView):
     form_class = TransactionInternalTransferForm
     template_name = "banking/transaction_confirm_internal_transfer.html"
-    
+
     def get_success_url(self):
-        return reverse_lazy('banking:transaction_list') + "?" + self.request.GET.urlencode()
+        return (
+            reverse_lazy("banking:transaction_list")
+            + "?"
+            + self.request.GET.urlencode()
+        )
 
     def form_valid(self, form):
         Transaction.objects.filter(id__in=form.cleaned_data["id"]).update(
@@ -378,9 +388,13 @@ class TransactionInternalTransferView(BSModalFormView):
 class TransactionCategorizeView(BSModalFormView):
     form_class = TransactionCategorizeForm
     template_name = "banking/transaction_categorize.html"
-    
+
     def get_success_url(self):
-        return reverse_lazy('banking:transaction_list') + "?" + self.request.GET.urlencode()
+        return (
+            reverse_lazy("banking:transaction_list")
+            + "?"
+            + self.request.GET.urlencode()
+        )
 
     def form_valid(self, form):
         Transaction.objects.filter(id__in=form.cleaned_data["id"]).update(
@@ -411,7 +425,9 @@ def import_csv(request):
 
         # Before we validating our forms, we need to reinitiate all ChoiceFields choices, otherwite validation is going to fail...
         # form_csv account field:
-        form_csv.fields["csv_account"].queryset = Account.objects.filter(user=request.user)
+        form_csv.fields["csv_account"].queryset = Account.objects.filter(
+            user=request.user
+        )
         # formset account and category fields:
         for form in formset.forms:
             form.fields[
@@ -427,7 +443,9 @@ def import_csv(request):
                         account=form_data["account"],
                         category=Category.objects.filter(
                             id=form_data["category"], user=request.user
-                        ).first() if form_data["category"].isnumeric() else None,
+                        ).first()
+                        if form_data["category"].isnumeric()
+                        else None,
                         is_transfer=form_data["is_transfer"],
                         concilied=form_data["concilied"],
                         date=form_data["date"],
@@ -453,7 +471,9 @@ def import_csv(request):
                         "description": row["description"]
                         if "description" in row
                         else None,
-                        "account": Account.objects.filter(user=request.user, id=row["account_id"]).first()
+                        "account": Account.objects.filter(
+                            user=request.user, id=row["account_id"]
+                        ).first()
                         if "account_id" in row
                         else form_csv.cleaned_data["csv_account"],
                         "category": Category.objects.filter(id=row["category_id"])
@@ -483,6 +503,45 @@ def import_csv(request):
             )
     else:
         form_csv = CSVImportForm()
-        form_csv.fields["csv_account"].queryset = Account.objects.filter(user=request.user)
+        form_csv.fields["csv_account"].queryset = Account.objects.filter(
+            user=request.user
+        )
 
     return render(request, "banking/transaction_import_form.html", {"form": form_csv})
+
+
+class DashboardView(TemplateView):
+    template_name = "banking/dashboard.html"
+
+    def get(self, request, *args, **kwargs):
+        data = dict()
+        data["filtered_month"] = self.request.GET.get("month", date.today().strftime("%Y-%m"))
+
+        date_from = datetime.strptime(data["filtered_month"] + '-01', "%Y-%m-%d").date()
+        date_to = datetime.strptime(data["filtered_month"]+'-'+str(calendar.monthrange(date_from.year, date_from.month)[1]),"%Y-%m-%d").date()
+        print(date_to)
+        userTransactions = Transaction.objects.filter(account__user=self.request.user).filter(competency_date__isnull=True,date__lte=date_to,date__gte=date_from)
+        userCreditTransactions = userTransactions.filter(value__gt=0)
+        userDebitTransactions = userTransactions.filter(value__lt=0)
+
+        data["sumOfCreditTransactions"] = userCreditTransactions.aggregate(incurred = models.Sum("value"))["incurred"] or 0
+        data["sumOfDebitTransactions"] = userDebitTransactions.aggregate(incurred = -models.Sum("value"))["incurred"] or 0
+        data["topTenCreditCategories"] = (
+            userCreditTransactions.filter(category__isnull=False).values("category__name")
+            .annotate(incurred=models.Sum("value"), ratio=100*models.Sum("value")/data["sumOfCreditTransactions"])
+            .order_by("-incurred")
+        )[:10]
+        data["topTenDebitCategories"] = (
+            userDebitTransactions.filter(category__isnull=False).values("category__name")
+            .annotate(incurred=-models.Sum("value"), ratio=-100*models.Sum("value")/data["sumOfDebitTransactions"])
+            .order_by("-incurred")
+        )[:10]
+        data["sumOfNotClassifiedCreditTransactions"] = userCreditTransactions.filter(category__isnull=True).aggregate(incurred = models.Sum("value"))["incurred"] or 0
+        data["sumOfNotClassifiedDebitTransactions"] = (userDebitTransactions.filter(category__isnull=True).aggregate(incurred = models.Sum("value"))["incurred"] or 0)*(-1)
+        data["ratioOfNotClassifiedCreditTransactions"] = 100*data["sumOfNotClassifiedCreditTransactions"] / data["sumOfCreditTransactions"] if data["sumOfCreditTransactions"] else 0
+        data["ratioOfNotClassifiedDebitTransactions"] = 100*data["sumOfNotClassifiedDebitTransactions"] / data["sumOfDebitTransactions"] if data["sumOfDebitTransactions"] else 0
+        return render(
+            request,
+            self.template_name,
+            data,
+        )
