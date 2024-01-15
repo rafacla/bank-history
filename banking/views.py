@@ -82,8 +82,24 @@ class AccountListView(AccountBaseView, ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.filter(user=self.request.user)
+        return qs.filter(user=self.request.user).order_by("type", "name")
 
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+
+        accounts = Account.objects.filter(user=self.request.user)
+        data["total_balance"] = 0
+        data["accounts_balances"] = {}
+        data["accounts_types"] = Account.ACCOUNT_TYPES
+        
+        for account in accounts:
+            data["total_balance"] += account.getBalance()
+            if account.type in data["accounts_balances"]:
+                data["accounts_balances"][account.type] += account.getBalance()
+            else:
+                data["accounts_balances"][account.type] = account.getBalance()
+            
+        return data
 
 class AccountDetailView(AccountBaseView, DetailView):
     """View to list the details from one account.

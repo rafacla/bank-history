@@ -57,12 +57,14 @@
                     <th>{% trans "Currency" %}</th>
                     <th>{% trans "Closing Day" %}</th>
                     <th>{% trans "Due Day" %}</th>
-                    <th>{% trans "Balance" %}</th>
+                    <th class="text-end">{% trans "Balance" %}</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
+                  {% for account_type, account_balance in accounts_balances.items %}
                   {% for account in account_list %}
+                  {% if account.type == account_type %}
                     <tr>
                       <td>
                         <a href="{% url 'banking:transaction_list' %}?account_id={{ account.id }}">
@@ -96,9 +98,9 @@
                         <span class="flag flag-xs flag-country-{{ account.currency.code|slice:2|lower }} me-2"></span>
                         {{ account.currency }} ({{ account.currency.code }})
                       </td>
-                      <td>{{ account.closing_day }}</td>
-                      <td>{{ account.due_day }}</td>
-                      <td>{{ account.getBalance }}</td>
+                      <td class="text-center">{% if account.closing_day %}{{ account.closing_day }}{% else %}-{% endif %}</td>
+                      <td class="text-center">{% if account.due_day %}{{ account.due_day }}{% else %}-{% endif %}</td>
+                      <td class="text-end">{{ account.getBalance }}</td>
                       <td class="text-end">
                         <button class="btn align-text-top btn-danger modal-button"
                                 data-bs-toggle="modal"
@@ -147,8 +149,34 @@
                         </button>
                       </td>
                     </tr>
+                  {% endif %}
+                  {% endfor %}
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>
+                      {% for type_name, type_display_name in accounts_types %}
+                        {% if type_name == account_type %}
+                          {{ type_display_name }}
+                        {% endif %}
+                      {% endfor %}
+                    </th>
+                    <th class="text-end">{{ account_balance }}</th>
+                    <th></th>
+                  </tr>
                   {% endfor %}
                 </tbody>
+                <tfoot>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th>{% trans "Total" %}</th>
+                  <th class="text-end">{{ total_balance }}</th>
+                  <th></th>
+                </tfoot>
               </table>
             </div>
           </div>
