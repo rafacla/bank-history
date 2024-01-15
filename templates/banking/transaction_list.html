@@ -92,6 +92,24 @@
                   </svg>
                   {% trans "Mark as internal transfer" %}
                 </a>
+                <a class="dropdown-item disabled" id="mergeTransactions" href="#">
+                  <svg xmlns="http://www.w3.org/2000/svg"
+                       class="icon icon-tabler icon-tabler-link"
+                       width="24"
+                       height="24"
+                       viewBox="0 0 24 24"
+                       stroke-width="2"
+                       stroke="currentColor"
+                       fill="none"
+                       stroke-linecap="round"
+                       stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M9 15l6 -6" />
+                    <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" />
+                    <path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" />
+                  </svg>
+                  {% trans "Merge transactions" %}
+                </a>
                 <a class="dropdown-item" id="deleteTransactions" href="#">
                   <!-- Download SVG icon from http://tabler-icons.io/i/trash -->
                   <svg xmlns="http://www.w3.org/2000/svg"
@@ -271,23 +289,44 @@
                           </td>
                           <td>{{ item.account.name }}</td>
                           {% if item.competency_date != None %}
-                            <td data-sort="{{ item.competency_date|date:"U" }}">
-                              {{ item.competency_date|date:"b-y" }}
-                            </td>
-                            {% else %}
-                              <td data-sort="{{ item.date|date:"U" }}">
-                                {{ item.date|date:"b-y" }}
-                              </td>
-                              {% endif %}
-                            <td data-sort="{{ item.date|date:"U" }}">{{ item.date|date:"d/m/Y" }}</td>
-                            <td>
-                              <span {% if item.description|length > 50 %}data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{{ item.description }}"{% endif %}>{{ item.description|truncatechars:50 }} </span> <a href="#"
+                            <td data-sort="{{ item.competency_date|date:"U" }}">{{ item.competency_date|date:"b-y" }}</td>
+                          {% else %}
+                            <td data-sort="{{ item.date|date:"U" }}">{{ item.date|date:"b-y" }}</td>
+                          {% endif %}
+                          <td data-sort="{{ item.date|date:"U" }}">{{ item.date|date:"d/m/Y" }}</td>
+                          <td>
+                            <span {% if item.description|length > 50 %}data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{{ item.description }}"{% endif %}>{{ item.description|truncatechars:50 }} </span> <a href="#"
     data-form-url="{% url 'banking:transaction_update' item.id %}"
     class="modal-button on-hover-link"
     data-bs-toggle="modal"
     data-bs-target="#modals-here">
+                              <svg xmlns="http://www.w3.org/2000/svg"
+                                   class="icon icon-tabler icon-tabler-edit"
+                                   width="24"
+                                   height="24"
+                                   viewBox="0 0 24 24"
+                                   stroke-width="2"
+                                   stroke="currentColor"
+                                   fill="none"
+                                   stroke-linecap="round"
+                                   stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                                <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                                <path d="M16 5l3 3" />
+                              </svg>
+                            </a>
+                          </td>
+                          <td>
+                            {% if item.notes %}
+                              <span {% if item.notes|length > 15 %}data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{{ item.notes }}"{% endif %}>{{ item.notes|truncatechars:15 }}</span>
+                            {% endif %}
+                          </td>
+                          <td>
+                            {% if item.is_transfer %}
+                              <span data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "This is a Transfer! It doesn't need a Category, because this is only internal money moving from your own account and not actual spending!" %}">
                                 <svg xmlns="http://www.w3.org/2000/svg"
-                                     class="icon icon-tabler icon-tabler-edit"
+                                     class="icon icon-tabler icon-tabler-transfer"
                                      width="24"
                                      height="24"
                                      viewBox="0 0 24 24"
@@ -296,23 +335,20 @@
                                      fill="none"
                                      stroke-linecap="round"
                                      stroke-linejoin="round">
-                                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                  <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                  <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                  <path d="M16 5l3 3" />
+                                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                  <path d="M20 10h-16l5.5 -6" />
+                                  <path d="M4 14h16l-5.5 6" />
                                 </svg>
-                              </a>
-                            </td>
-                            <td>
-                              {% if item.notes %}
-                                <span {% if item.notes|length > 15 %}data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{{ item.notes }}"{% endif %}>{{ item.notes|truncatechars:15 }}</span>
-                              {% endif %}
-                            </td>
-                            <td>
-                              {% if item.is_transfer %}
-                                <span data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "This is a Transfer! It doesn't need a Category, because this is only internal money moving from your own account and not actual spending!" %}">
+                                Internal Transfer
+                              </span>
+                            {% elif item.category != None %}
+                              <span data-bs-toggle="popover"
+                                    data-bs-trigger="hover focus"
+                                    data-bs-content="{% trans "This is a categorized transaction, it means you are spending or receiving money!" %}">
+                                <!-- If a Category already has an Emoji in the beginning, we are going to stick to it, otherwise se show a std ico -->
+                                {% if not item.category.beginsWithEmoji %}
                                   <svg xmlns="http://www.w3.org/2000/svg"
-                                       class="icon icon-tabler icon-tabler-transfer"
+                                       class="icon icon-tabler icon-tabler-category-2"
                                        width="24"
                                        height="24"
                                        viewBox="0 0 24 24"
@@ -322,91 +358,178 @@
                                        stroke-linecap="round"
                                        stroke-linejoin="round">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M20 10h-16l5.5 -6" />
-                                    <path d="M4 14h16l-5.5 6" />
+                                    <path d="M14 4h6v6h-6z" />
+                                    <path d="M4 14h6v6h-6z" />
+                                    <path d="M17 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                                    <path d="M7 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
                                   </svg>
-                                  Internal Transfer
-                                </span>
-                              {% elif item.category != None %}
-                                <span data-bs-toggle="popover"
-                                      data-bs-trigger="hover focus"
-                                      data-bs-content="{% trans "This is a categorized transaction, it means you are spending or receiving money!" %}">
-                                  <!-- If a Category already has an Emoji in the beginning, we are going to stick to it, otherwise se show a std ico -->
-                                  {% if not item.category.beginsWithEmoji %}
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                         class="icon icon-tabler icon-tabler-category-2"
-                                         width="24"
-                                         height="24"
-                                         viewBox="0 0 24 24"
-                                         stroke-width="2"
-                                         stroke="currentColor"
-                                         fill="none"
-                                         stroke-linecap="round"
-                                         stroke-linejoin="round">
-                                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                      <path d="M14 4h6v6h-6z" />
-                                      <path d="M4 14h6v6h-6z" />
-                                      <path d="M17 17m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-                                      <path d="M7 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-                                    </svg>
-                                  {% endif %}
-                                  {{ item.category.name }}
-                                </span>
-                              {% else %}
-                                <span class="badge m-0 h6 text-bg-warning" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "You did not classified this transaction! It's always recommended that you classify every transaction to get control of your finances!" %}">
-                                  <svg xmlns="http://www.w3.org/2000/svg"
-                                       class="icon icon-tabler icon-tabler-alert-triangle"
-                                       width="24"
-                                       height="24"
-                                       viewBox="0 0 24 24"
-                                       stroke-width="2"
-                                       stroke="currentColor"
-                                       fill="none"
-                                       stroke-linecap="round"
-                                       stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M12 9v4" />
-                                    <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
-                                    <path d="M12 16h.01" />
-                                  </svg>
-                                {% trans "Not classified" %} </span>
-                              {% endif %}
-                            </td>
-                            <td class="text-end">
-                              {{ item.account.currency.symbol }} {{ item.value|floatformat:2|intcomma }}
-                            </td>
-                            <td class="text-end">
-                              {{ item.account.currency.symbol }} {{ item.balance|floatformat:2|intcomma }}
-                            </td>
-                          </tr>
-                        {% endif %}
-                      {% endfor %}
-                    {% endif %}
-                  </tbody>
-                </table>
-              </div>
+                                {% endif %}
+                                {{ item.category.name }}
+                              </span>
+                            {% else %}
+                              <span class="badge m-0 h6 text-bg-warning" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "You did not classified this transaction! It's always recommended that you classify every transaction to get control of your finances!" %}">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="icon icon-tabler icon-tabler-alert-triangle"
+                                     width="24"
+                                     height="24"
+                                     viewBox="0 0 24 24"
+                                     stroke-width="2"
+                                     stroke="currentColor"
+                                     fill="none"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                  <path d="M12 9v4" />
+                                  <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                                  <path d="M12 16h.01" />
+                                </svg>
+                              {% trans "Not classified" %} </span>
+                            {% endif %}
+                          </td>
+                          <td class="text-end">
+                            {{ item.account.currency.symbol }} {{ item.value|floatformat:2|intcomma }}
+                          </td>
+                          <td class="text-end">
+                            {{ item.account.currency.symbol }} {{ item.balance|floatformat:2|intcomma }}
+                          </td>
+                        </tr>
+                      {% endif %}
+                    {% endfor %}
+                  {% endif %}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </div>
     </div>
-  {% endblock content %}
-  {% block extrascripts %}
-    <script> var listOfSelectedLinks = [];  document.addEventListener('DOMContentLoaded', (e) => { var modalButtons = document.getElementsByClassName("modal-button"); for (var index=0; index < modalButtons.length; index++) { modalForm(modalButtons[index], { formURL: modalButtons[index]["dataset"]["formUrl"], modalID: "#modals-here", isDeleteForm: (modalButtons[index]["dataset"]["formDelete"] == true), }); } }); // Listen for click on toggle checkbox $('#select-all').click(function(event) { var table = $('#table-transactions-list').DataTable();  if(this.checked) { table.rows().select(); } else { table.rows().deselect(); $(':checkbox').each(function() { this.checked = false; }); } });  $(':checkbox').change(function(){ var checked = false; var any_not_checked = false; var checked_ids = "" $(':checkbox').each(function() { if (checked != true && this.checked) { checked = true; } else if (this.checked == false && this.id != "select-all" ) { any_not_checked = true; } if (this.checked) { if (this.id != "select-all") { checked_ids = checked_ids + this.id + ","; } } }); if (checked) { $("#edit_button").show() }else{ $("#edit_button").hide() } if (any_not_checked) { $('#select-all')[0].checked = false; $('#select-all')[0].intermediate = true; } let query_parameters = "{{ request.GET.urlencode }}" if (query_parameters.length > 0) { query_parameters = "?" + query_parameters; }  let url_string = "{% url 'banking:transaction_delete' 0 %}" url_string = url_string.slice(0, -2) + checked_ids.slice(0, -1) + "/"+ query_parameters  document.getElementById('deleteTransactions').removeEventListener("click", document.getElementById('deleteTransactions').clickHandler, false); modalForm(document.getElementById('deleteTransactions'), { formURL: url_string, modalID: "#modals-here", isDeleteForm: true, });  url_string = "{% url 'banking:transaction_internal_transfer' 0 %}" url_string = url_string.slice(0, -2) + checked_ids.slice(0, -1) + "/" + query_parameters  document.getElementById('setInternalTransfer').removeEventListener("click", document.getElementById('setInternalTransfer').clickHandler, false); modalForm(document.getElementById('setInternalTransfer'), { formURL: url_string, modalID: "#modals-here", isDeleteForm: true, });  url_string = "{% url 'banking:transaction_categorize' 0 %}" url_string = url_string.slice(0, -2) + checked_ids.slice(0, -1) + "/" + query_parameters  document.getElementById('categorizeTransactions').removeEventListener("click", document.getElementById('categorizeTransactions').clickHandler, false); modalForm(document.getElementById('categorizeTransactions'), { formURL: url_string, modalID: "#modals-here", isDeleteForm: true, }); }); $("#edit_button").hide() </script> <script type="text/javascript"> $('#modals-here').on('shown.bs.modal', function () { $('select').select2({ dropdownParent: $('#modals-here'), templateResult: function (data) { // We only really care if there is an element to pull classes from if (!data.element) { return data.text; }  var $element = $(data.element);  var $wrapper = $('<span></span>');
-        $wrapper.addClass($element[0].className);
-    
-        $wrapper.text(data.text);
-    
-        return $wrapper;
-      }    
-  });
-  })
-    </script>
-    <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css"
-          rel="stylesheet" />
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
-    <script>
+  </div>
+{% endblock content %}
+{% block extrascripts %}
+  <script> 
+    var listOfSelectedLinks = [];  
+    document.addEventListener('DOMContentLoaded', (e) => { 
+      var modalButtons = document.getElementsByClassName("modal-button"); 
+      for (var index=0; index < modalButtons.length; index++) { 
+        modalForm(modalButtons[index], { 
+          formURL: modalButtons[index]["dataset"]["formUrl"], 
+          modalID: "#modals-here", isDeleteForm: (modalButtons[index]["dataset"]["formDelete"] == true), 
+        }); 
+      } 
+    }); 
+    // Listen for click on toggle checkbox 
+    $('#select-all').click(function(event) { 
+      var table = $('#table-transactions-list').DataTable();  
+      if(this.checked) { 
+        table.rows().select(); 
+      } else { 
+        table.rows().deselect(); 
+        $(':checkbox').each(function() { 
+          this.checked = false; 
+        }); 
+      } 
+    });  
+    $(':checkbox').change(function(event){ 
+      var checked = false; 
+      var any_not_checked = false; 
+      var checked_ids = "";
+      var no_checked = 0;
+      
+      $(':checkbox').each(function() { 
+        if (checked != true && this.checked == true) { 
+          checked = true; 
+        } 
+        else if (this.checked == false && this.id != "select-all" ) { 
+          any_not_checked = true; 
+        } 
+        if (this.checked == true) { 
+          if (this.id != "select-all") { 
+            checked_ids = checked_ids + this.id + ",";
+            no_checked++;
+          } 
+        } 
+      }); 
+      if (checked) { 
+        $("#edit_button").show() 
+      }else{ 
+        $("#edit_button").hide() 
+      } 
+      if (any_not_checked) { 
+        $('#select-all')[0].checked = false; 
+        $('#select-all')[0].intermediate = true; 
+      } 
+
+
+
+      let query_parameters = "{{ request.GET.urlencode }}"; 
+      if (query_parameters.length > 0) { query_parameters = "?" + query_parameters; } 
+
+      let url_string = "{% url 'banking:transaction_delete' 0 %}";
+      url_string = url_string.slice(0, -2) + checked_ids.slice(0, -1) + "/"+ query_parameters;  
+      document.getElementById('deleteTransactions').removeEventListener("click", document.getElementById('deleteTransactions').clickHandler, false); 
+      modalForm(document.getElementById('deleteTransactions'), { 
+        formURL: url_string, 
+        modalID: "#modals-here", 
+        isDeleteForm: true, 
+      });  
+
+      if (no_checked > 1) {
+        $('#mergeTransactions').removeClass('disabled');
+        let url_string = "{% url 'banking:transaction_merge' 0 %}";
+        url_string = url_string.slice(0, -2) + checked_ids.slice(0, -1) + "/"+ query_parameters;  
+        document.getElementById('mergeTransactions').removeEventListener("click", document.getElementById('mergeTransactions').clickHandler, false); 
+        modalForm(document.getElementById('mergeTransactions'), { 
+          formURL: url_string, 
+          modalID: "#modals-here", 
+          isDeleteForm: true, 
+        });  
+
+      } else {
+        $('#mergeTransactions').addClass('disabled');
+      }
+      
+      url_string = "{% url 'banking:transaction_internal_transfer' 0 %}";
+      url_string = url_string.slice(0, -2) + checked_ids.slice(0, -1) + "/" + query_parameters;
+      document.getElementById('setInternalTransfer').removeEventListener("click", document.getElementById('setInternalTransfer').clickHandler, false); 
+      modalForm(document.getElementById('setInternalTransfer'), { 
+        formURL: url_string, 
+        modalID: "#modals-here", 
+        isDeleteForm: true, 
+      });  
+      
+      url_string = "{% url 'banking:transaction_categorize' 0 %}";
+      url_string = url_string.slice(0, -2) + checked_ids.slice(0, -1) + "/" + query_parameters;
+      
+      document.getElementById('categorizeTransactions').removeEventListener("click", document.getElementById('categorizeTransactions').clickHandler, false); 
+      modalForm(document.getElementById('categorizeTransactions'), { 
+        formURL: url_string, 
+        modalID: "#modals-here", 
+        isDeleteForm: true, 
+      }); 
+    }); 
+    $("#edit_button").hide() 
+  </script> 
+  <script type="text/javascript"> 
+    $('#modals-here').on('shown.bs.modal', function () { 
+      $('select').select2({ 
+        dropdownParent: $('#modals-here'), templateResult: function (data) { 
+          if (!data.element) { 
+            return data.text; 
+          }  
+          var $element = $(data.element);  
+          var $wrapper = $('<span></span>');
+          $wrapper.addClass($element[0].className);
+          $wrapper.text(data.text);
+          return $wrapper;
+        }    
+      });
+    });
+  </script>
+  <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css"
+        rel="stylesheet" />
+  <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
+  <script>
   new DataTable('#table-transactions-list', {
     order: [[4, 'desc']],
     paging: true,
@@ -425,10 +548,15 @@
   });
   table.on('select', function (e) {
     $('tr.selected input:checkbox').each(function( index ) {
-      $(this)[0].checked = true
+      $(this)[0].checked = true;
     })
-    $(':checkbox').change()
+    $("table :checkbox").eq(1).change();
   });
-
-    </script>
-  {% endblock extrascripts %}
+  table.on('deselect', function (e) {
+    $('tr:not(.selected) input:checkbox').each(function( index ) {
+      $(this)[0].checked = false;
+    })
+    $("table :checkbox").eq(1).change();
+  });
+  </script>
+{% endblock extrascripts %}

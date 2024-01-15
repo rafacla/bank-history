@@ -418,6 +418,37 @@ class TransactionInternalTransferView(BSModalFormView):
         return form_kwargs
 
 
+class TransactionMergeView(BSModalFormView):
+    form_class = TransactionInternalTransferForm
+    template_name = "banking/transaction_confirm_merge.html"
+
+    def get_success_url(self):
+        return (
+            reverse_lazy("banking:transaction_list")
+            + "?"
+            + self.request.GET.urlencode()
+        )
+
+    def form_valid(self, form):
+
+        Transaction.objects.filter(id__in=form.cleaned_data["id"]).exclude(id=min(form.cleaned_data["id"])).update(
+            merged_to=min(form.cleaned_data["id"])
+        )
+        return super(TransactionMergeView, self).form_valid(form)
+
+    def get_form_kwargs(self):
+        form_kwargs = super(TransactionMergeView, self).get_form_kwargs()
+        query = self.request.resolver_match.kwargs["transaction_ids"].split(",")
+        qs = Transaction.objects.filter(id__in=query, account__user=self.request.user)
+        if qs.count() != len(query):
+            raise PermissionDenied()
+        form_kwargs["transaction_ids"] = [
+            (transaction_id, transaction_id) for transaction_id in query
+        ]
+        form_kwargs["initial_transaction_ids"] = query
+        return form_kwargs
+
+
 class TransactionCategorizeView(BSModalFormView):
     form_class = TransactionCategorizeForm
     template_name = "banking/transaction_categorize.html"

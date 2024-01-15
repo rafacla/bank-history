@@ -27,6 +27,7 @@ urlpatterns = [
     path('transactions/delete/<str:transaction_ids>/', views.TransactionDeleteView.as_view(), name='transaction_delete'),
     path('transactions/internal_transfer/<str:transaction_ids>/', views.TransactionInternalTransferView.as_view(), name='transaction_internal_transfer'),
     path('transactions/categorize/<str:transaction_ids>/', views.TransactionCategorizeView.as_view(), name='transaction_categorize'),
+    path('transactions/merge/<str:transaction_ids>/', views.TransactionMergeView.as_view(), name='transaction_merge'),
     path('transactions/import/', views.import_csv, name='import_csv'),
 
 ]
