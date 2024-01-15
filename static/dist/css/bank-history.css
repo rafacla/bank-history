@@ -19,6 +19,6 @@ tr > td > .on-hover-link {
     display: none!important;
 }
 
-.dataTables_info {
+.dataTables_length, .dataTables_info {
     padding: 5px;
 }

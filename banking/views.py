@@ -1,5 +1,7 @@
 import csv
 import calendar
+import re
+
 from bootstrap_modal_forms.generic import (
     BSModalCreateView,
     BSModalDeleteView,
@@ -33,6 +35,18 @@ from .forms import (
 )
 from .models import Account, Category, Transaction
 from django.shortcuts import redirect
+
+def strToDate_anyformat(format_date):
+        numbers = ''.join(re.findall(r'\d+', format_date))
+        if len(numbers) == 8:
+            d = datetime(int(numbers[:4]), int(numbers[4:6]), int(numbers[6:8]))
+        elif len(numbers) == 14:
+            d = datetime(int(numbers[:4]), int(numbers[4:6]), int(numbers[6:8]), int(numbers[8:10]), int(numbers[10:12]), int(numbers[12:14]))
+        elif len(numbers) > 14:
+            d = datetime(int(numbers[:4]), int(numbers[4:6]), int(numbers[6:8]), int(numbers[8:10]), int(numbers[10:12]), int(numbers[12:14]), microsecond=1000*int(numbers[14:]))
+        else:
+            raise AssertionError(f'length not match:{format_date}')
+        return d
 
 
 class AccountBaseView(LoginRequiredMixin, View):
@@ -460,6 +474,11 @@ def import_csv(request):
 
             listOfTransactions = []
             for row in csv_reader:
+                # we try to convert the dates:
+                row["date"] = strToDate_anyformat(row["date"])
+                # here we work in a filter to detect possible duplicated transactions:
+                duplicated_transaction = Transaction.objects.filter(account__id=row["account_id"] if "account_id" in row
+                        else form_csv.cleaned_data["csv_account"].id,value=row["value"], date=row["date"], description=row["description"]).first()
                 listOfTransactions.append(
                     {
                         "select_row": False,
@@ -484,6 +503,8 @@ def import_csv(request):
                         else None,
                         "concilied": row["concilied"] if "concilied" in row else None,
                         "user": request.user,
+                        "decision": "do_not_import" if duplicated_transaction != None else "import",
+                        "duplicated_transaction": duplicated_transaction,
                     }
                 )
             TransactionFormSet = formset_factory(CSVConfirmImport, extra=0)
@@ -510,7 +531,7 @@ def import_csv(request):
     return render(request, "banking/transaction_import_form.html", {"form": form_csv})
 
 
-class DashboardView(TemplateView):
+class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "banking/dashboard.html"
 
     def get(self, request, *args, **kwargs):
