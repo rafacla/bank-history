@@ -250,7 +250,9 @@
                     <th>{% trans "Notes" %}</th>
                     <th>{% trans "Category" %}</th>
                     <th class="text-end">{% trans "Value" %}</th>
+                    {% if account %}
                     <th class="text-end">{% trans "Balance" %}</th>
+                    {% endif %}
                   </tr>
                 </thead>
                 <tbody>
@@ -265,7 +267,9 @@
                       <td class="d-none"></td>
                       <td class="d-none"></td>
                       <td class="d-none"></td>
+                      {% if account %}
                       <td class="d-none"></td>
+                      {% endif %}
                     </tr>
                   {% else %}
                     {% for item in transaction_list %}
@@ -389,9 +393,11 @@
                           <td class="text-end">
                             {{ item.account.currency.symbol }} {{ item.value|floatformat:2|intcomma }}
                           </td>
+                          {% if account %}
                           <td class="text-end">
                             {{ item.account.currency.symbol }} {{ item.balance|floatformat:2|intcomma }}
                           </td>
+                          {% endif %}
                         </tr>
                       {% endif %}
                     {% endfor %}
