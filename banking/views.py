@@ -33,7 +33,7 @@ from .forms import (
     TransactionInternalTransferForm,
     CSVConfirmImportFormSetHelper,
 )
-from .models import Account, Category, Transaction
+from .models import Account, Category, Transaction, Rule
 from django.shortcuts import redirect
 
 def strToDate_anyformat(format_date, expected_format = ""):
@@ -91,7 +91,7 @@ class AccountListView(AccountBaseView, ListView):
         data["total_balance"] = 0
         data["accounts_balances"] = {}
         data["accounts_types"] = Account.ACCOUNT_TYPES
-        
+
         for account in accounts:
             data["total_balance"] += account.getBalance()
             if account.type in data["accounts_balances"]:
@@ -100,6 +100,7 @@ class AccountListView(AccountBaseView, ListView):
                 data["accounts_balances"][account.type] = account.getBalance()
             
         return data
+
 
 class AccountDetailView(AccountBaseView, DetailView):
     """View to list the details from one account.
@@ -687,8 +688,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             if data["sumOfDebitTransactions"]
             else 0
         )
+
+        data["filteredRule"] = Rule.objects.filter(user=self.request.user).first().getApplicableTransactions()
+        Rule.objects.filter(user=self.request.user).first().applyRule()
         return render(
             request,
             self.template_name,
             data,
         )
+

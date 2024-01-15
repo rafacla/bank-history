@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from emoji import EMOJI_DATA 
-
+from datetime import datetime
 
 class Bank(models.Model):
     name = models.CharField(max_length=100)
@@ -265,3 +265,99 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"[{self.date}][{self.account.name}] - {self.description}"
+
+
+class Rule(models.Model):
+    description = models.CharField(max_length=200)
+    active = models.BooleanField(default=True)
+    created_when = models.DateTimeField()
+    modified_when = models.DateTimeField()
+    last_run = models.DateTimeField(null=True, blank=True)
+    runs_on_already_classified_transactions = models.BooleanField(default=False)
+    runs_on_imported_transactions = models.BooleanField(default=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    sorting = models.IntegerField()
+    apply_category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    set_as_transfer = models.BooleanField(default=False)
+
+    def getApplicableTransactions(self):
+        rulesItems = RulesItem.objects.filter(rule=self)
+        transactionsQueryBase = Transaction.objects.filter(account__user=self.user)
+        if self.runs_on_already_classified_transactions == False:
+            transactionsQueryBase = transactionsQueryBase.filter(category=None, is_transfer=False)
+        transactionsQuery = transactionsQueryBase
+        for rulesItem in rulesItems:
+            rule = {}
+            if (rulesItem.value_type != "na"):
+                if (rulesItem.value_type == "equal"):
+                    rule["value"] = rulesItem.value
+                else:
+                    rule["value__" + rulesItem.value_type] = rulesItem.value
+            if (rulesItem.description_type != "na"):
+                rule["description__" + rulesItem.description_type] = rulesItem.description
+            if (rulesItem.date_type != "na"):
+                if (rulesItem.date_type == "equal"):
+                    rule["date"] = rulesItem.date
+                else:
+                    rule["date__" + rulesItem.date_type] = rulesItem.date
+            if (rulesItem.competency_date_type != "na"):
+                if (rulesItem.competency_date_type == "equal"):
+                    rule["competency_date"] = rulesItem.competency_date
+                else:
+                    rule["competency_date__" + rulesItem.competency_date_type] = rulesItem.competency_date
+            if len(rule) > 0:
+                if rulesItem.boolean_type == "exclude_if":
+                    transactionsQuery = transactionsQuery.exclude(**rule)
+                elif rulesItem.boolean_type == "and":
+                    transactionsQuery = transactionsQuery.filter(**rule)
+                elif rulesItem.boolean_type == "or":
+                    transactionsQuery = (transactionsQuery | transactionsQueryBase.filter(**rule))
+            if rulesItem.account:
+                if rulesItem.boolean_type == "exclude_if":
+                    transactionsQuery = transactionsQuery.exclude(account=rulesItem.account)
+                elif rulesItem.boolean_type == "and":
+                    transactionsQuery = transactionsQuery.filter(account=rulesItem.account)
+                elif rulesItem.boolean_type == "or":
+                    transactionsQuery = (transactionsQuery | transactionsQueryBase.filter(account=rulesItem.account))
+        return transactionsQuery
+
+    def applyRule(self):
+        transactions = self.getApplicableTransactions()
+        if (self.set_as_transfer):
+            transactions.update(category=None, is_transfer=True)
+        elif (self.apply_category):
+            transactions.update(is_transfer=False, category=self.apply_category)
+        self.last_run =  datetime.now()
+
+class RulesItem(models.Model):
+    BOOLEAN_TYPES = (
+        ("or", "OR"),
+        ("and", "AND"),
+        ("exclude_if", "EXCLUDE IF"),
+    )
+    NUMBER_TYPES = (
+        ("na", "Not applicable"),
+        ("gt", "Greather than"),
+        ("gte", "Greather than or equal to"),
+        ("lt", "Less than"),
+        ("lte", "Greather than or equal to"),
+        ("equal", "Equal to"),
+    )
+    TEXT_TYPES = (
+        ("na", "Not applicable"),
+        ("iexact", "Exactly equal"),
+        ("icontains", "Matchs parts"),
+        ("istartswith", "Starts with"),
+        ("iendswith", "Ends with"),
+    )
+    rule = models.ForeignKey(Rule, on_delete=models.CASCADE)
+    boolean_type = models.CharField(max_length=20, choices=BOOLEAN_TYPES)
+    account = models.ForeignKey(Account, on_delete=models.SET_NULL, null=True, blank=True)
+    value_type = models.CharField(max_length=20, default="na", choices=NUMBER_TYPES)
+    value = models.FloatField(null=True, blank=True)
+    description = models.CharField(max_length=200, null=True, blank=True)
+    description_type = models.CharField(max_length=20, default="na", choices=TEXT_TYPES)
+    date = models.DateField(null=True, blank=True)
+    date_type = models.CharField(max_length=20, default="na", choices=NUMBER_TYPES)
+    competency_date = models.DateField(null=True, blank=True)
+    competency_date_type = models.CharField(max_length=20, default="na", choices=NUMBER_TYPES)
