@@ -498,7 +498,14 @@ def import_csv(request):
                 row["date"] = strToDate_anyformat(row["date"])
                 # here we work in a filter to detect possible duplicated transactions:
                 duplicated_transaction = Transaction.objects.filter(account__id=row["account_id"] if "account_id" in row
-                        else form_csv.cleaned_data["csv_account"].id,value=row["value"], date=row["date"], description=row["description"]).first()
+                        else form_csv.cleaned_data["csv_account"].id,value=row["value"], date=row["date"]).first()
+                
+                #now we are going to do a basic check, if the description is the same, we can be sure that this is probably a duplicated transaction
+                #users can make a purchase of same value twice (or more) in the same store and same day? they can, but this is not the case in 99% of times
+                #we also remove spaces to compare because sometimes the file can have trailing spaces between words that can vary (I'm talking about you Santander Brasil)
+                if duplicated_transaction:
+                    if duplicated_transaction.description.replace(" ","") != row["description"].replace(" ",""):
+                        duplicated_transaction = None
                 listOfTransactions.append(
                     {
                         "select_row": False,
