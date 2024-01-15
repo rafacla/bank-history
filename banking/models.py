@@ -244,3 +244,6 @@ class Transaction(models.Model):
     def getMergedTransactions(self):
         mergedTransactions = Transaction.objects.filter(merged_to=self)
         return mergedTransactions
+
+    def __str__(self):
+        return f"[{self.date}][{self.account.name}] - {self.description}"
