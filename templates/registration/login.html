@@ -1,36 +1,65 @@
-{% block content %}
-
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
-
-{% if next %}
-    {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
-    {% else %}
-    <p>Please login to see this page.</p>
-    {% endif %}
-{% endif %}
-
-<form method="post" action="{% url 'login' %}">
-{% csrf_token %}
-<table>
-<tr>
-    <td>{{ form.username.label_tag }}</td>
-    <td>{{ form.username }}</td>
-</tr>
-<tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td>{{ form.password }}</td>
-</tr>
-</table>
-
-<input type="submit" value="login">
-<input type="hidden" name="next" value="{{ next }}">
-</form>
-
-{# Assumes you set up the password_reset view in your URLconf #}
-<p><a href="{% url 'password_reset' %}">Lost password?</a></p>
-
-{% endblock %}
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<!--
+* Tabler - Premium and Open Source dashboard template with responsive and high quality UI.
+* @version 1.0.0-beta20
+* @link https://tabler.io
+* Copyright 2018-2023 The Tabler Authors
+* Copyright 2018-2023 codecalm.net Paweł Kuna
+* Licensed under MIT (https://github.com/tabler/tabler/blob/master/LICENSE)
+-->
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <meta name="description"
+              content="Your bank history begins here. A financial web app to store yours banks transactions for life.">
+        <meta name="keywords" content="Banking, Finance, Financial APP">
+        <title>Sign in - Bank History</title>
+        <!-- CSS files -->
+        <link href="{% static './dist/css/tabler.min.css' %}" rel="stylesheet" />
+    </head>
+    <body class=" d-flex flex-column">
+        <div class="page page-center">
+            <div class="container container-tight py-4">
+                <div class="text-center mb-4"></div>
+                <div class="card card-md">
+                    <form method="post" action="{% url 'login' %}">
+                        <div class="card-body">
+                            <h2 class="h2 text-center mb-4">Login to your account</h2>
+                            {% if form.errors %}<p>Your username and password didn't match. Please try again.</p>{% endif %}
+                            {% if next %}
+                                {% if user.is_authenticated %}
+                                    <p>
+                                        Your account doesn't have access to this page. To proceed,
+                                        please login with an account that has access.
+                                    </p>
+                                {% else %}
+                                    <p>Please login to see this page.</p>
+                                {% endif %}
+                            {% endif %}
+                            <div class"form-body">
+                                {% csrf_token %}
+                                {% load crispy_forms_tags %}
+                                {% crispy form %}
+                            </div>
+                            <div class="form-footer">
+                                <button type="submit" class="btn btn-primary w-100" value="login">Sign in</button>
+                            </div>
+                            {# Assumes you set up the password_reset view in your URLconf #}
+                            <p>
+                                <a href="{% url 'password_reset' %}">Lost password?</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+                <div class="text-center text-secondary mt-3">
+                    Don't have account yet? <a href="./sign-up.html" tabindex="-1">Sign up</a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
