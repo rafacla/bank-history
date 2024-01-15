@@ -90,6 +90,7 @@
                     <th>{% trans "Name" %}</th>
                     <th>{% trans "Type" %}</th>
                     <th>{% trans "No. of Transactions" %}</th>
+                    <th>{% trans "Incurred Value of Transactions" %}</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -138,6 +139,7 @@
                         </td>
                         <td>{% trans item.get_type_display %}</td>
                         <td>{{ item.getNumberOfTransactions }}</td>
+                        <td>{{ item.getIncurredValueOfTransactions }}</td>
                         <td class="text-end">
                           <button class="btn align-text-top btn-danger btn-sm modal-button"
                                   data-bs-toggle="modal"
@@ -191,7 +193,8 @@
                               </a>
                             </td>
                             <td>{% trans item2.get_type_display %}</td>
-                            <td>{{ item.getNumberOfTransactions }}</td>
+                            <td>{{ item2.getNumberOfTransactions }}</td>
+                            <td>{{ item2.getIncurredValueOfTransactions }}</td>
                             <td class="text-end">
                               <button class="btn align-text-top btn-danger btn-sm modal-button"
                                       data-form-delete="true"
@@ -245,7 +248,8 @@
                                   </a>
                                 </td>
                                 <td>{% trans item3.get_type_display %}</td>
-                                <td>{{ item.getNumberOfTransactions }}</td>
+                                <td>{{ item3.getNumberOfTransactions }}</td>
+                                <td>{{ item3.getIncurredValueOfTransactions }}</td>
                                 <td class="text-end">
                                   <button class="btn align-text-top btn-danger btn-sm modal-button"
                                           data-form-delete="true"
@@ -322,6 +326,7 @@
                         </td>
                         <td>{% trans item.get_type_display %}</td>
                         <td>{{ item.getNumberOfTransactions }}</td>
+                        <td>{{ item.getIncurredValueOfTransactions }}</td>
                         <td class="text-end">
                           <button class="btn align-text-top btn-danger btn-sm modal-button"
                                   data-form-delete="true"
@@ -375,7 +380,8 @@
                               </a>
                             </td>
                             <td>{% trans item2.get_type_display %}</td>
-                            <td>{{ item.getNumberOfTransactions }}</td>
+                            <td>{{ item2.getNumberOfTransactions }}</td>
+                            <td>{{ item2.getIncurredValueOfTransactions }}</td>
                             <td class="text-end">
                               <button class="btn align-text-top btn-danger btn-sm modal-button"
                                       data-form-delete="true"
@@ -429,7 +435,8 @@
                                   </a>
                                 </td>
                                 <td>{% trans item3.get_type_display %}</td>
-                                <td>{{ item.getNumberOfTransactions }}</td>
+                                <td>{{ item3.getNumberOfTransactions }}</td>
+                                <td>{{ item3.getIncurredValueOfTransactions }}</td>
                                 <td class="text-end">
                                   <button class="btn align-text-top btn-danger btn-sm modal-button"
                                           data-form-delete="true"

@@ -105,8 +105,26 @@ class Category(models.Model):
         return last_sort
 
     def getNumberOfTransactions(self):
-        transactions = Transaction.objects.filter(category=self).count()
+        category_and_parents_ids = [self.id]
+        for subcategory in Category.objects.filter(nested_to__id=self.id):
+            category_and_parents_ids.append(subcategory.id)
+            for subsubcategory in Category.objects.filter(nested_to__id=subcategory.id):
+                category_and_parents_ids.append(subsubcategory.id)
+        transactions = Transaction.objects.filter(category__id__in=category_and_parents_ids).count()
         return transactions
+
+    def getIncurredValueOfTransactions(self):
+        category_and_parents_ids = [self.id]
+        for subcategory in Category.objects.filter(nested_to__id=self.id):
+            category_and_parents_ids.append(subcategory.id)
+            for subsubcategory in Category.objects.filter(nested_to__id=subcategory.id):
+                category_and_parents_ids.append(subsubcategory.id)
+        transactions = Transaction.objects.filter(category__id__in=category_and_parents_ids)
+        value = 0
+        for transaction in transactions:
+            value += transaction.value.__abs__()
+        return value
+
 
     def getSubcategories(self):
         categories = Category.objects.filter(nested_to=self).order_by("type","sorting")
