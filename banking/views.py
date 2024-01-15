@@ -504,7 +504,7 @@ def import_csv(request):
                 #users can make a purchase of same value twice (or more) in the same store and same day? they can, but this is not the case in 99% of times
                 #we also remove spaces to compare because sometimes the file can have trailing spaces between words that can vary (I'm talking about you Santander Brasil)
                 if duplicated_transaction:
-                    if duplicated_transaction.description.replace(" ","") != row["description"].replace(" ",""):
+                    if duplicated_transaction.description.replace(" ","").upper() != row["description"].replace(" ","").upper():
                         duplicated_transaction = None
                 listOfTransactions.append(
                     {
