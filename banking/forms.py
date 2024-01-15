@@ -1,7 +1,10 @@
+import csv
+
 from bootstrap_modal_forms.forms import BSModalForm, BSModalModelForm
-from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
+from django import forms
+from django.core.exceptions import ValidationError
 
 from banking.models import Account, Category, Transaction
 from banking.widgets import CategorySelect
@@ -61,7 +64,7 @@ class TransactionForm(BSModalModelForm):
             "category": CategorySelect,
             "date": forms.NumberInput(attrs={"type": "date"}),
             "competency_date": forms.NumberInput(attrs={"type": "date"}),
-            "notes": forms.Textarea(attrs={'rows':3})
+            "notes": forms.Textarea(attrs={"rows": 3}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -121,6 +124,22 @@ class CSVImportForm(forms.Form):
         queryset=Account.objects.none(), label="Select account to import to:"
     )
     csv_file = forms.FileField(label="File to Import:")
+
+    def clean(self):
+        cd = self.cleaned_data
+
+        csv_file = cd["csv_file"].read().decode("utf-8-sig").splitlines()
+        csv_reader = csv.DictReader(csv_file)
+        
+        listOfTransactions = []
+        for row in csv_reader:
+            if not "value" in row or not "date" in row or not "description" in row:
+                raise ValidationError(
+                    "CSV file doesn't have all the columns needed: date, description and value"
+                )
+            break
+        cd["csv_file"] = csv_file
+        return cd
 
 
 class CSVConfirmImport(forms.Form):

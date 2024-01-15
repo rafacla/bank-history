@@ -488,7 +488,7 @@ def import_csv(request):
                     )
             return redirect("banking:transaction_list")
         elif form_csv.is_valid():
-            csv_file = request.FILES["csv_file"].read().decode("utf-8-sig").splitlines()
+            csv_file = form_csv.cleaned_data["csv_file"]
             csv_reader = csv.DictReader(csv_file)
 
             listOfTransactions = []
@@ -547,7 +547,7 @@ def import_csv(request):
             return render(
                 request,
                 "banking/transaction_import_form.html",
-                {"formset": formset, "helper": helper},
+                {"form": form_csv},
             )
     else:
         form_csv = CSVImportForm()
