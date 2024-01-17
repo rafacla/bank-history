@@ -509,10 +509,11 @@ def import_csv(request):
             ].choices = Category.getUserGroupedAndSortedCategories(request.user)
             form.fields["account"].queryset = Account.objects.filter(user=request.user)
         if formset.is_valid():
+            importedListIds = []
             for form in formset:
                 form_data = form.cleaned_data
                 if form_data and form_data["decision"] == "import":
-                    Transaction.objects.create(
+                    importedListIds.append(Transaction.objects.create(
                         value=form_data["value"],
                         account=form_data["account"],
                         category=Category.objects.filter(
@@ -526,9 +527,9 @@ def import_csv(request):
                         competency_date=form_data["competency_date"],
                         description=form_data["description"],
                         merged_to=None,
-                    )
+                    ).id)
             for rule in Rule.objects.filter(user=request.user,runs_on_imported_transactions=True):
-                rule.applyRule()
+                rule.applyRule(transactionsIds=importedListIds)
             return redirect("banking:transaction_list")
         elif form_csv.is_valid():
             csv_file = form_csv.cleaned_data["csv_file"]

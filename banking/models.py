@@ -321,8 +321,10 @@ class Rule(models.Model):
                     transactionsQuery = (transactionsQuery | transactionsQueryBase.filter(account=rulesItem.account))
         return transactionsQuery
 
-    def applyRule(self):
+    def applyRule(self, transactionsIds = None):
         transactions = self.getApplicableTransactions()
+        if transactions:
+            transactions = transactions.filter(id__in=transactionsIds)
         if (self.set_as_transfer):
             transactions.update(category=None, is_transfer=True)
         elif (self.apply_category):
