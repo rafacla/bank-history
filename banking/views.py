@@ -527,6 +527,8 @@ def import_csv(request):
                         description=form_data["description"],
                         merged_to=None,
                     )
+            for rule in Rule.objects.filter(user=request.user,runs_on_imported_transactions=True):
+                rule.applyRule()
             return redirect("banking:transaction_list")
         elif form_csv.is_valid():
             csv_file = form_csv.cleaned_data["csv_file"]
