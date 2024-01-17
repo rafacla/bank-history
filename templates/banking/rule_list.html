@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+{% block content %}
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <!-- Page pre-title -->
+          <div class="page-pretitle">Overview</div>
+          <h2 class="page-title">{% trans "Rules" %}</h2>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+          <div class="btn-list">
+            <a href="#"
+               class="btn btn-primary d-none d-sm-inline-block modal-button"
+               data-form-url="{% url 'banking:rule_create' %}"
+               data-bs-toggle="modal"
+               data-bs-target="#modals-here"
+               id="add_button">
+              <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+              <svg xmlns="http://www.w3.org/2000/svg"
+                   class="icon"
+                   width="24"
+                   height="24"
+                   viewBox="0 0 24 24"
+                   stroke-width="2"
+                   stroke="currentColor"
+                   fill="none"
+                   stroke-linecap="round"
+                   stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M12 5l0 14"></path>
+                <path d="M5 12l14 0"></path>
+              </svg>
+              {% trans "Create new rule" %}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="row row-deck row-cards">
+        <div class="col-12">
+          <div class="card">
+            <div class="table-responsive">
+              <table class="table card-table table-vcenter text-nowrap datatable">
+                <thead>
+                  <tr>
+                    <th class="col-1">
+                      <svg data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "Runs on every imported file" %}" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-import" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M5 13v-8a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2h-5.5m-9.5 -2h7m-3 -3l3 3l-3 3" /></svg>
+                    </th>
+                    <th>
+                      <svg data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "Runs even if transaction is already categorized" %}" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-3d" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M12 13.5l4 -1.5" /><path d="M8 11.846l4 1.654v4.5l4 -1.846v-4.308l-4 -1.846z" /><path d="M8 12v4.2l4 1.8" /></svg>
+                    </th>
+                    <th>{% trans "Description" %}</th>
+                    <th>{% trans "Apply category" %}</th>
+                    <th>{% trans "Mark as Transfer" %}</th>
+                    <th>{% trans "Last time run" %}</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in rule_list %}
+                    <tr>
+                      <td>{{ item.runs_on_imported_transactions }}</td>
+                      <td>{{ item.runs_on_already_classified_transactions }}</td>
+                      <td>{% trans item.description %}</td>
+                      <td>{{ item.apply_category }}</td>
+                      <td>{{ item.set_as_transfer }}</td>
+                      <td>{{ item.last_run }}</td>
+                      <td class="text-end">
+                        <button class="btn align-text-top btn-danger modal-button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modals-here"
+                                data-form-url="{% url 'banking:rule_delete' item.id %}"
+                                data-form-delete="True">
+                          <svg xmlns="http://www.w3.org/2000/svg"
+                               class="icon icon-tabler icon-tabler-trash"
+                               width="24"
+                               height="24"
+                               viewBox="0 0 24 24"
+                               stroke-width="2"
+                               stroke="currentColor"
+                               fill="none"
+                               stroke-linecap="round"
+                               stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M4 7l16 0" />
+                            <path d="M10 11l0 6" />
+                            <path d="M14 11l0 6" />
+                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                          </svg>
+                          {% trans "Delete" %}
+                        </button>
+                        <button class="btn align-text-top btn-success modal-button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modals-here"
+                                data-form-url="{% url 'banking:rule_update' item.id %}">
+                          <svg xmlns="http://www.w3.org/2000/svg"
+                               class="icon icon-tabler icon-tabler-edit"
+                               width="24"
+                               height="24"
+                               viewBox="0 0 24 24"
+                               stroke-width="2"
+                               stroke="currentColor"
+                               fill="none"
+                               stroke-linecap="round"
+                               stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                            <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                            <path d="M16 5l3 3" />
+                          </svg>
+                          {% trans "Edit" %}
+                        </button>
+                        <button class="btn align-text-top btn-primary modal-button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modals-here"
+                                data-form-url="{% url 'banking:rule_run' item.id %}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-play" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 4v16l13 -8z" /></svg>
+                          {% trans "Run rule" %}
+                        </button>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+{% block extrascripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', (e) => {
+    var modalButtons = document.getElementsByClassName("modal-button");
+    for (var index=0; index < modalButtons.length; index++) {
+      modalForm(modalButtons[index], {
+        formURL: modalButtons[index]["dataset"]["formUrl"],
+        modalID: "#modals-here",
+        isDeleteForm: (modalButtons[index]["dataset"]["formDelete"] == true),
+      });
+    }
+  });
+</script>
+{% endblock extrascripts %}

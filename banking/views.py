@@ -700,3 +700,16 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             data,
         )
 
+
+class RuleBaseView(LoginRequiredMixin, View):
+    model = Rule
+    success_url = reverse_lazy("banking:rule_list")
+
+
+class RuleListView(RuleBaseView, ListView):
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(user=self.request.user).order_by("sorting")
+            
+        return data

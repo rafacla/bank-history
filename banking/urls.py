@@ -29,5 +29,9 @@ urlpatterns = [
     path('transactions/categorize/<str:transaction_ids>/', views.TransactionCategorizeView.as_view(), name='transaction_categorize'),
     path('transactions/merge/<str:transaction_ids>/', views.TransactionMergeView.as_view(), name='transaction_merge'),
     path('transactions/import/', views.import_csv, name='import_csv'),
-
+    path('rules/', views.RuleListView.as_view(), name='rule_list'),
+    path('rules/create/', views.RuleListView.as_view(), name='rule_create'),
+    path('rules/<int:pk>/update/', views.CategoryUpdateView.as_view(), name='rule_update'),
+    path('rules/<int:pk>/delete/', views.CategoryDeleteView.as_view(), name='rule_delete'),
+    path('rules/<int:pk>/run/', views.CategoryDeleteView.as_view(), name='rule_run'),
 ]
