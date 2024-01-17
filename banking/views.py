@@ -497,6 +497,9 @@ class TransactionCategorizeView(BSModalFormView):
 
 
 def import_csv(request):
+    if request.user.is_authenticated == False:
+        return redirect("banking:home")
+    
     TransactionFormSet = formset_factory(CSVConfirmImport, extra=0)
     formset = TransactionFormSet()
     helper = CSVConfirmImportFormSetHelper()
