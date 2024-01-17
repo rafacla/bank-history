@@ -328,6 +328,7 @@ class Rule(models.Model):
         elif (self.apply_category):
             transactions.update(is_transfer=False, category=self.apply_category)
         self.last_run =  datetime.now()
+        self.save()
 
 class RulesItem(models.Model):
     BOOLEAN_TYPES = (

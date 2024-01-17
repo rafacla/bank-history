@@ -33,5 +33,5 @@ urlpatterns = [
     path('rules/create/', views.RuleListView.as_view(), name='rule_create'),
     path('rules/<int:pk>/update/', views.CategoryUpdateView.as_view(), name='rule_update'),
     path('rules/<int:pk>/delete/', views.CategoryDeleteView.as_view(), name='rule_delete'),
-    path('rules/<int:pk>/run/', views.CategoryDeleteView.as_view(), name='rule_run'),
+    path('rules/<str:ids>/run/', views.RuleRunView.as_view(), name='rule_run'),
 ]

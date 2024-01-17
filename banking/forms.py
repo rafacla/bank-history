@@ -173,3 +173,16 @@ class CSVConfirmImportFormSetHelper(FormHelper):
         self.form_method = "post"
         self.render_required_fields = (True,)
         self.template = "bootstrap5/table_inline_formset.html"
+
+
+class RuleRunForm(BSModalForm):
+    id = forms.MultipleChoiceField()
+
+    class Meta:
+        fields = ["id"]
+
+    def __init__(self, ids, initial_ids, *args, **kwargs):
+        super(RuleRunForm, self).__init__(*args, **kwargs)
+        self.fields["id"].choices = ids
+        self.initial["id"] = list(initial_ids)
+        self.fields["id"].widget = forms.MultipleHiddenInput()

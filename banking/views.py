@@ -1,40 +1,30 @@
-import csv
 import calendar
+import csv
 import re
+from datetime import date, datetime
 
-from bootstrap_modal_forms.generic import (
-    BSModalCreateView,
-    BSModalDeleteView,
-    BSModalFormView,
-    BSModalReadView,
-    BSModalUpdateView,
-)
+from bootstrap_modal_forms.generic import (BSModalCreateView,
+                                           BSModalDeleteView, BSModalFormView,
+                                           BSModalReadView, BSModalUpdateView)
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.forms import formset_factory
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, DeleteView, FormView, UpdateView
+from django.views.generic.edit import (CreateView, DeleteView, FormView,
+                                       UpdateView)
 from django.views.generic.list import ListView
-from datetime import date, datetime
 
-from .forms import (
-    AccountForm,
-    CategoryForm,
-    CSVImportForm,
-    CSVConfirmImport,
-    TransactionCategorizeForm,
-    TransactionDeleteForm,
-    TransactionForm,
-    TransactionInternalTransferForm,
-    CSVConfirmImportFormSetHelper,
-)
-from .models import Account, Category, Transaction, Rule
-from django.shortcuts import redirect
+from .forms import (AccountForm, CategoryForm, CSVConfirmImport,
+                    CSVConfirmImportFormSetHelper, CSVImportForm, RuleRunForm,
+                    TransactionCategorizeForm, TransactionDeleteForm,
+                    TransactionForm, TransactionInternalTransferForm)
+from .models import Account, Category, Rule, Transaction
+
 
 def strToDate_anyformat(format_date, expected_format = ""):
         numbers = ''.join(re.findall(r'\d+', format_date))
@@ -707,9 +697,35 @@ class RuleBaseView(LoginRequiredMixin, View):
 
 
 class RuleListView(RuleBaseView, ListView):
-
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.filter(user=self.request.user).order_by("sorting")
             
         return data
+
+class RuleRunView(BSModalFormView):
+    form_class = RuleRunForm
+    template_name = "banking/rule_run.html"
+
+    def get_success_url(self):
+        return (
+            reverse_lazy("banking:rule_list")
+        )
+
+    def form_valid(self, form):
+        # Run the Rules here:
+        for rule in Rule.objects.filter(id__in=form.cleaned_data["id"], user=self.request.user):
+            rule.applyRule()
+        return super(RuleRunView, self).form_valid(form)
+
+    def get_form_kwargs(self):
+        form_kwargs = super(RuleRunView, self).get_form_kwargs()
+        query = self.request.resolver_match.kwargs["ids"].split(",")
+        qs = Rule.objects.filter(id__in=query, user=self.request.user)
+        if qs.count() != len(query):
+            raise PermissionDenied()
+        form_kwargs["ids"] = [
+            (id, id) for id in query
+        ]
+        form_kwargs["initial_ids"] = query
+        return form_kwargs

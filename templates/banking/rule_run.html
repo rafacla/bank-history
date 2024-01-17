@@ -1,0 +1,45 @@
+{% load i18n %}
+<form method="post">
+    <div class="modal-header">
+        <h5 class="modal-title">{% trans "Run Rules?" %}</h5>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            {% csrf_token %}
+            {% load crispy_forms_tags %}
+            {{ form.as_p }}
+            <span>{% trans "This action is permanent and there's no coming back." %}</span>
+            <span>{% trans "It'll apply rule(s) to all applicable transactions according to each rule filter." %}</span>
+            <br />
+            <br />
+            <br />
+            <p>{% trans "Are you sure you want to continue?" %}</p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn btn-link btn-danger" data-bs-dismiss="modal">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="icon icon-tabler icon-tabler-arrow-back"
+                 width="24"
+                 height="24"
+                 viewBox="0 0 24 24"
+                 stroke-width="2"
+                 stroke="currentColor"
+                 fill="none"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M9 11l-4 4l4 4m-4 -4h11a4 4 0 0 0 0 -8h-1" />
+            </svg>
+            {% trans "Cancel" %}
+        </a>
+        <button class="btn btn-primary ms-auto" type="submit">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-play" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 4v16l13 -8z" /></svg>
+            {% trans "Run Rule(s)" %}
+        </button>
+    </div>
+</form>
