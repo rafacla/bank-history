@@ -687,9 +687,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             if data["sumOfDebitTransactions"]
             else 0
         )
-
-        data["filteredRule"] = Rule.objects.filter(user=self.request.user).first().getApplicableTransactions()
-        Rule.objects.filter(user=self.request.user).first().applyRule()
         return render(
             request,
             self.template_name,
