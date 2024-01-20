@@ -22,3 +22,8 @@ tr > td > .on-hover-link {
 .dataTables_length, .dataTables_info {
     padding: 5px;
 }
+
+.modal-xxl {
+    width: 90vw;
+    margin-left: 2vw;
+}

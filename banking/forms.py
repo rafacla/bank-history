@@ -5,7 +5,9 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 from django.core.exceptions import ValidationError
+from django.forms.models import inlineformset_factory
 
+from banking import models
 from banking.models import Account, Category, Transaction
 from banking.widgets import CategorySelect
 
@@ -75,16 +77,16 @@ class TransactionForm(BSModalModelForm):
         )
 
 
-class TransactionDeleteForm(BSModalForm):
+class ModalDeleteForm(BSModalForm):
     id = forms.MultipleChoiceField()
 
     class Meta:
         fields = ["id"]
 
-    def __init__(self, transaction_ids, initial_transaction_ids, *args, **kwargs):
-        super(TransactionDeleteForm, self).__init__(*args, **kwargs)
-        self.fields["id"].choices = transaction_ids
-        self.initial["id"] = list(initial_transaction_ids)
+    def __init__(self, ids, initial_ids, *args, **kwargs):
+        super(ModalDeleteForm, self).__init__(*args, **kwargs)
+        self.fields["id"].choices = ids
+        self.initial["id"] = list(initial_ids)
         self.fields["id"].widget = forms.MultipleHiddenInput()
 
 
@@ -130,7 +132,7 @@ class CSVImportForm(forms.Form):
 
         csv_file = cd["csv_file"].read().decode("utf-8-sig").splitlines()
         csv_reader = csv.DictReader(csv_file)
-        
+
         listOfTransactions = []
         for row in csv_reader:
             if not "value" in row or not "date" in row or not "description" in row:
@@ -167,12 +169,13 @@ class CSVConfirmImport(forms.Form):
             )
 
 
-class CSVConfirmImportFormSetHelper(FormHelper):
+class InlineFormSetHelper(FormHelper):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.form_method = "post"
+        self.form_tag = False
         self.render_required_fields = (True,)
-        self.template = "bootstrap5/table_inline_formset.html"
+        self.template = "form_helpers/table_inline_formset.html"
 
 
 class RuleRunForm(BSModalForm):
@@ -186,3 +189,34 @@ class RuleRunForm(BSModalForm):
         self.fields["id"].choices = ids
         self.initial["id"] = list(initial_ids)
         self.fields["id"].widget = forms.MultipleHiddenInput()
+
+
+class RuleForm(BSModalModelForm):
+    class Meta:
+        model = models.Rule
+        fields = [
+            "active",
+            "description",
+            "sorting",
+            "runs_on_already_classified_transactions",
+            "runs_on_imported_transactions",
+            "apply_category",
+            "set_as_transfer"
+        ]
+
+class RulesItemForm(BSModalModelForm):
+    class Meta:
+        fields=("boolean_type","account","value_type","value","description_type","description","date_type","date","competency_date_type","competency_date",)
+
+    def __init__(self, *args, user, **kwargs):
+        super(RulesItemForm, self).__init__(*args, **kwargs)
+        self.fields["account"].queryset = Account.objects.filter(user = user)
+
+
+
+RulesItemsFormsetCreate = inlineformset_factory(
+    models.Rule, models.RulesItem, RulesItemForm, extra=1
+)
+RulesItemsFormsetUpdate = inlineformset_factory(
+    models.Rule, models.RulesItem, RulesItemForm, extra=0
+)

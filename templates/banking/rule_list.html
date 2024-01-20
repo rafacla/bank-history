@@ -17,7 +17,7 @@
                class="btn btn-primary d-none d-sm-inline-block modal-button"
                data-form-url="{% url 'banking:rule_create' %}"
                data-bs-toggle="modal"
-               data-bs-target="#modals-here"
+               data-bs-target="#modals-rule"
                id="add_button">
               <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
               <svg xmlns="http://www.w3.org/2000/svg"
@@ -100,7 +100,7 @@
                         </button>
                         <button class="btn align-text-top btn-success modal-button"
                                 data-bs-toggle="modal"
-                                data-bs-target="#modals-here"
+                                data-bs-target="#modals-rule"
                                 data-form-url="{% url 'banking:rule_update' item.id %}">
                           <svg xmlns="http://www.w3.org/2000/svg"
                                class="icon icon-tabler icon-tabler-edit"
@@ -137,6 +137,11 @@
       </div>
     </div>
   </div>
+  <div class="modal modal-blur fade " tabindex="-1" role="dialog" id="modals-rule">
+    <div class="modal-dialog modal-xxl">
+      <div class="modal-content modal-xxl"></div>
+    </div>
+  </div>
 {% endblock content %}
 {% block extrascripts %}
 <script>
@@ -145,10 +150,34 @@
     for (var index=0; index < modalButtons.length; index++) {
       modalForm(modalButtons[index], {
         formURL: modalButtons[index]["dataset"]["formUrl"],
-        modalID: "#modals-here",
+        modalID: modalButtons[index]["dataset"]["bsTarget"],
         isDeleteForm: (modalButtons[index]["dataset"]["formDelete"] == true),
       });
     }
   });
+</script>
+<script>
+  
+  function addForm(){
+    let formFormset = document.querySelectorAll("form tbody tr")
+    let container = document.querySelector("form tbody")
+    let addButton = document.querySelector("#add-form")
+    let totalForms = document.querySelectorAll(`[id$="TOTAL_FORMS"]`)
+  
+    let formNum = formFormset.length-1
+    
+    let newForm = formFormset[0].cloneNode(true)
+    let formRegex = RegExp(`__prefix__`,'g')
+
+    newForm.removeAttribute("class");
+    newForm.innerHTML = newForm.innerHTML.replace(formRegex, `${formNum}`)
+    container.insertBefore(newForm, null)
+    
+    formNum++
+    totalForms.forEach(function(item) {
+      item.setAttribute('value', `${formNum}`);
+
+  });
+  }
 </script>
 {% endblock extrascripts %}

@@ -3,6 +3,7 @@ import csv
 import re
 from datetime import date, datetime
 
+from django.db import transaction
 from bootstrap_modal_forms.generic import (BSModalCreateView,
                                            BSModalDeleteView, BSModalFormView,
                                            BSModalReadView, BSModalUpdateView)
@@ -19,10 +20,12 @@ from django.views.generic.edit import (CreateView, DeleteView, FormView,
                                        UpdateView)
 from django.views.generic.list import ListView
 
-from .forms import (AccountForm, CategoryForm, CSVConfirmImport,
-                    CSVConfirmImportFormSetHelper, CSVImportForm, RuleRunForm,
-                    TransactionCategorizeForm, TransactionDeleteForm,
-                    TransactionForm, TransactionInternalTransferForm)
+from banking import forms, models
+
+from .forms import (AccountForm, CategoryForm, CSVConfirmImport, CSVImportForm,
+                    InlineFormSetHelper, ModalDeleteForm, RuleRunForm,
+                    TransactionCategorizeForm, TransactionForm,
+                    TransactionInternalTransferForm)
 from .models import Account, Category, Rule, Transaction
 
 
@@ -362,8 +365,8 @@ class TransactionUpdateView(TransactionBaseView, BSModalUpdateView):
 
 
 class TransactionDeleteView(BSModalFormView):
-    form_class = TransactionDeleteForm
-    template_name = "banking/transaction_confirm_delete.html"
+    form_class = ModalDeleteForm
+    template_name = "banking/modal_confirm_delete.html"
 
     def get_success_url(self):
         return (
@@ -384,14 +387,14 @@ class TransactionDeleteView(BSModalFormView):
 
     def get_form_kwargs(self):
         form_kwargs = super(TransactionDeleteView, self).get_form_kwargs()
-        query = self.request.resolver_match.kwargs["transaction_ids"].split(",")
+        query = self.request.resolver_match.kwargs["ids"].split(",")
         qs = Transaction.objects.filter(id__in=query, account__user=self.request.user)
         if qs.count() != len(query):
             raise PermissionDenied()
-        form_kwargs["transaction_ids"] = [
+        form_kwargs["ids"] = [
             (transaction_id, transaction_id) for transaction_id in query
         ]
-        form_kwargs["initial_transaction_ids"] = query
+        form_kwargs["initial_ids"] = query
         return form_kwargs
 
 
@@ -492,7 +495,7 @@ def import_csv(request):
     
     TransactionFormSet = formset_factory(CSVConfirmImport, extra=0)
     formset = TransactionFormSet()
-    helper = CSVConfirmImportFormSetHelper()
+    helper = InlineFormSetHelper()
     if request.method == "POST":
         form_csv = CSVImportForm(request.POST, request.FILES)
         formset = TransactionFormSet(request.POST)
@@ -706,6 +709,7 @@ class RuleListView(RuleBaseView, ListView):
             
         return data
 
+
 class RuleRunView(BSModalFormView):
     form_class = RuleRunForm
     template_name = "banking/rule_run.html"
@@ -732,3 +736,100 @@ class RuleRunView(BSModalFormView):
         ]
         form_kwargs["initial_ids"] = query
         return form_kwargs
+
+
+class RuleDeleteView(BSModalFormView):
+    form_class = ModalDeleteForm
+    template_name = "banking/modal_confirm_delete.html"
+    success_url = reverse_lazy("banking:rule_list")
+
+    def get_success_url(self):
+        return (
+            reverse_lazy("banking:rule_list")
+        )
+
+    def form_valid(self, form):   
+        qs = Rule.objects.filter(id__in=form.cleaned_data["id"], user=self.request.user)
+        if qs.count() != len(form.cleaned_data["id"]):
+            redirect("banking:rule_list") 
+        else:
+            Rule.objects.filter(id__in=form.cleaned_data["id"]).delete()
+        return super(RuleDeleteView, self).form_valid(form)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(
+            pk=self.request.resolver_match.kwargs["pk"], user=self.request.user
+        )
+
+    def get_form_kwargs(self):
+        form_kwargs = super(RuleDeleteView, self).get_form_kwargs()
+        query = self.request.resolver_match.kwargs["ids"].split(",")
+        form_kwargs["ids"] = [
+            (id, id) for id in query
+        ]
+        form_kwargs["initial_ids"] = query
+        return form_kwargs
+
+
+class RuleCreateView(RuleBaseView, BSModalCreateView):
+    """View to create a new account"""
+    extra_context = {"title": "Create Rule"}
+    form_class = forms.RuleForm
+    success_message = "Success!"
+    template_name = "banking/modal_form.html"
+    helper = InlineFormSetHelper()
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        inline_formset = context['inline_formset']
+        with transaction.atomic():
+            user = self.request.user
+            form.instance.user = user
+            form.instance.created_when = datetime.now()
+            form.instance.modified_when = datetime.now()
+            self.object = form.save()
+            if inline_formset.is_valid():
+                inline_formset.instance = self.object
+                inline_formset.save()
+        return super(RuleCreateView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(RuleCreateView, self).get_context_data(**kwargs)
+        context['helper'] = self.helper
+        context['inline_formset'] = forms.RulesItemsFormsetCreate(self.request.POST or None, instance=self.object, form_kwargs={"user": self.request.user, "request": self.request})
+        return context
+
+
+class RuleUpdateView(RuleBaseView, BSModalUpdateView):
+    """View to update a account"""
+    extra_context = {"title": "Modify Rule"}
+    form_class = forms.RuleForm
+    success_message = "Success!"
+    template_name = "banking/modal_form.html"
+    helper = InlineFormSetHelper()
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(
+            pk=self.request.resolver_match.kwargs["pk"], user=self.request.user
+        )
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        inline_formset = context['inline_formset']
+        with transaction.atomic():
+            form.instance.modified_when = datetime.now()
+            self.object = form.save()
+            if inline_formset.is_valid():
+                inline_formset.instance = self.object
+                inline_formset.save()
+        
+        return super(RuleUpdateView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(RuleUpdateView, self).get_context_data(**kwargs)
+        context['helper'] = self.helper
+        context['inline_formset'] = forms.RulesItemsFormsetUpdate(self.request.POST or None, instance=self.object, form_kwargs={"user": self.request.user, "request":self.request})
+        return context
+        
