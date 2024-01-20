@@ -323,7 +323,7 @@ class Rule(models.Model):
 
     def applyRule(self, transactionsIds = None):
         transactions = self.getApplicableTransactions()
-        if transactions:
+        if transactionsIds:
             transactions = transactions.filter(id__in=transactionsIds)
         if (self.set_as_transfer):
             transactions.update(category=None, is_transfer=True)

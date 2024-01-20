@@ -721,16 +721,24 @@ class RuleRunView(BSModalFormView):
 
     def form_valid(self, form):
         # Run the Rules here:
-        for rule in Rule.objects.filter(id__in=form.cleaned_data["id"], user=self.request.user):
+        if form.cleaned_data["id"][0] == 'all':
+            rules = Rule.objects.filter(user=self.request.user)
+        else:
+            rules = Rule.objects.filter(id__in=form.cleaned_data["id"], user=self.request.user)
+        for rule in rules:
             rule.applyRule()
         return super(RuleRunView, self).form_valid(form)
 
     def get_form_kwargs(self):
         form_kwargs = super(RuleRunView, self).get_form_kwargs()
         query = self.request.resolver_match.kwargs["ids"].split(",")
-        qs = Rule.objects.filter(id__in=query, user=self.request.user)
-        if qs.count() != len(query):
-            raise PermissionDenied()
+
+        if query[0] == "all":
+            qs = Rule.objects.filter(user=self.request.user)
+        else:
+            qs = Rule.objects.filter(id__in=query, user=self.request.user)
+            if qs.count() != len(query):
+                raise PermissionDenied()
         form_kwargs["ids"] = [
             (id, id) for id in query
         ]
