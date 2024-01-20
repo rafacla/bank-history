@@ -20,7 +20,7 @@ from django.views.generic.edit import (CreateView, DeleteView, FormView,
                                        UpdateView)
 from django.views.generic.list import ListView
 
-from banking import forms, models
+from banking import forms, models as bankingModels
 
 from .forms import (AccountForm, CategoryForm, CSVConfirmImport, CSVImportForm,
                     InlineFormSetHelper, ModalDeleteForm, RuleRunForm,
