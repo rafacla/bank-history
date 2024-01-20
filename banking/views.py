@@ -743,6 +743,55 @@ class RuleRunView(BSModalFormView):
         return form_kwargs
 
 
+class RuleTestView(BSModalFormView):
+    form_class = RuleRunForm
+    template_name = "banking/rule_test.html"
+
+    def get_success_url(self):
+        return (
+            reverse_lazy("banking:rule_list")
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super(RuleTestView, self).get_context_data(**kwargs)
+        query = self.request.resolver_match.kwargs["ids"].split(",")
+        rules = Rule.objects.filter(user=self.request.user, id__in=query)
+        transactions_ids = []
+        for rule in rules:
+            transactions_ids.extend(rule.getApplicableTransactions().values_list('id', flat=True))
+        
+        transactions = Transaction.objects.filter(id__in=transactions_ids)
+
+        context['transactions'] = transactions[:20]
+        return context
+
+    def form_valid(self, form):
+        # Run the Rules here:
+        if form.cleaned_data["id"][0] == 'all':
+            rules = Rule.objects.filter(user=self.request.user)
+        else:
+            rules = Rule.objects.filter(id__in=form.cleaned_data["id"], user=self.request.user)
+        for rule in rules:
+            rule.applyRule()
+        return super(RuleRunView, self).form_valid(form)
+
+    def get_form_kwargs(self):
+        form_kwargs = super(RuleTestView, self).get_form_kwargs()
+        query = self.request.resolver_match.kwargs["ids"].split(",")
+
+        if query[0] == "all":
+            qs = Rule.objects.filter(user=self.request.user)
+        else:
+            qs = Rule.objects.filter(id__in=query, user=self.request.user)
+            if qs.count() != len(query):
+                raise PermissionDenied()
+        form_kwargs["ids"] = [
+            (id, id) for id in query
+        ]
+        form_kwargs["initial_ids"] = query
+        return form_kwargs
+
+
 class RuleDeleteView(BSModalFormView):
     form_class = ModalDeleteForm
     template_name = "banking/modal_confirm_delete.html"

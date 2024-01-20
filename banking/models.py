@@ -286,6 +286,7 @@ class Rule(models.Model):
         if self.runs_on_already_classified_transactions == False:
             transactionsQueryBase = transactionsQueryBase.filter(category=None, is_transfer=False)
         transactionsQuery = transactionsQueryBase
+        countAppliedFilters = 0
         for rulesItem in rulesItems:
             rule = {}
             if (rulesItem.value_type != "na"):
@@ -311,14 +312,22 @@ class Rule(models.Model):
                 elif rulesItem.boolean_type == "and":
                     transactionsQuery = transactionsQuery.filter(**rule)
                 elif rulesItem.boolean_type == "or":
-                    transactionsQuery = (transactionsQuery | transactionsQueryBase.filter(**rule))
+                    if countAppliedFilters > 0:
+                        transactionsQuery = (transactionsQuery | transactionsQueryBase.filter(**rule))
+                    else:
+                        transactionsQuery = (transactionsQueryBase.filter(**rule))
+                countAppliedFilters += 1
             if rulesItem.account:
                 if rulesItem.boolean_type == "exclude_if":
                     transactionsQuery = transactionsQuery.exclude(account=rulesItem.account)
                 elif rulesItem.boolean_type == "and":
                     transactionsQuery = transactionsQuery.filter(account=rulesItem.account)
                 elif rulesItem.boolean_type == "or":
-                    transactionsQuery = (transactionsQuery | transactionsQueryBase.filter(account=rulesItem.account))
+                    if countAppliedFilters > 0:
+                        transactionsQuery = (transactionsQuery | transactionsQueryBase.filter(account=rulesItem.account))
+                    else:
+                        transactionsQuery = (transactionsQueryBase.filter(account=rulesItem.account))
+                countAppliedFilters += 1
         return transactionsQuery
 
     def applyRule(self, transactionsIds = None):
