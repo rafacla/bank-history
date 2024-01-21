@@ -181,7 +181,7 @@
 </script>
 <script>
   $('#modals-rule').on('shown.bs.modal', function () { 
-    $('select').select2({ 
+    $('#id_apply_category').select2({ 
       dropdownParent: $('#modals-rule'), templateResult: function (data) { 
         if (!data.element) { 
           return data.text; 
