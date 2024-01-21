@@ -180,7 +180,20 @@
   });
 </script>
 <script>
-  
+  $('#modals-rule').on('shown.bs.modal', function () { 
+    $('select').select2({ 
+      dropdownParent: $('#modals-rule'), templateResult: function (data) { 
+        if (!data.element) { 
+          return data.text; 
+        }  
+        var $element = $(data.element);  
+        var $wrapper = $('<span></span>');
+        $wrapper.addClass($element[0].className);
+        $wrapper.text(data.text);
+        return $wrapper;
+      }    
+    });
+  });
   function addForm(){
     let formFormset = document.querySelectorAll("form tbody tr")
     let container = document.querySelector("form tbody")
