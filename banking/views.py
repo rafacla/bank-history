@@ -773,7 +773,7 @@ class RuleTestView(BSModalFormView):
             rules = Rule.objects.filter(id__in=form.cleaned_data["id"], user=self.request.user)
         for rule in rules:
             rule.applyRule()
-        return super(RuleRunView, self).form_valid(form)
+        return super(RuleTestView, self).form_valid(form)
 
     def get_form_kwargs(self):
         form_kwargs = super(RuleTestView, self).get_form_kwargs()
