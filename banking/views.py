@@ -241,6 +241,8 @@ class TransactionListView(TransactionBaseView, ListView):
 
         account_id = self.request.GET.get("account_id", None)
         account_name = self.request.GET.get("account_name", None)
+        not_classified = self.request.GET.get("not_classified", None)
+        not_concilied = self.request.GET.get("not_concilied", None)
         if account_name:
             account_id = (
                 Account.objects.filter(
@@ -265,7 +267,10 @@ class TransactionListView(TransactionBaseView, ListView):
             qs = qs.filter(date__lte=until_date)
         if transaction_description:
             qs = qs.filter(description__icontains=transaction_description)
-
+        if not_classified == '1':
+            qs = qs.filter(category=None).filter(is_transfer=False)
+        if not_concilied == '1':
+            qs = qs.filter(concilied=False)
         qs = (
             qs.filter(merged_to=None, account__user=self.request.user)
             .annotate(
