@@ -273,7 +273,7 @@ class TransactionListView(TransactionBaseView, ListView):
                     models.Sum("value"), order_by=models.F("date").asc()
                 ),
             )
-            .order_by("date")
+            .order_by("-date")
         )
         return qs
 
