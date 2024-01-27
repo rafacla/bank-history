@@ -10,7 +10,7 @@ from django.forms.models import inlineformset_factory
 from banking import models
 from banking.models import Account, Category, Transaction
 from banking.widgets import CategorySelect
-from banking.utils import strToDate_anyformat
+from banking.utils import strToDate_anyformat, parseCSV
 
 
 class AccountForm(BSModalModelForm):
@@ -131,55 +131,43 @@ class FileImportForm(forms.Form):
     def clean(self):
         cd = self.cleaned_data
 
-        # Check file format, for now we consider only CSV:
+        # Check file format, and call the correct parser:
         if ("import_file" in cd):
-            import_file = cd["import_file"].read().decode("utf-8-sig").splitlines()
-            csv_reader = csv.DictReader(import_file)
-
             listOfTransactions = []
-            for row in csv_reader:
-                if not "value" in row or not "date" in row or not "description" in row:
-                    raise ValidationError(
-                        "CSV file doesn't have all the columns needed: date, description and value"
-                    )
-                    break
-                # we try to convert the dates:
-                row["value"] = row["value"].replace(" ","")
-                row["date"] = strToDate_anyformat(row["date"])
+            if cd["import_file"].name.endswith(".csv"):
+                listOfTransactions = parseCSV(cd["import_file"])
+            else:
+                raise ValidationError(
+                "File format not supported"
+            )
+            
+            # With list of transactions parsed from file, we procceed to find the account and check if duplicated:
+            for transaction in listOfTransactions:
+                # let's try to parse account from imported file, if not we use the import account:
+                if transaction["account_id"]:
+                    account = Account.objects.filter(user=user).filter(id=tansaction["account_id"]).first()
+                elif transaction["account_name"]:
+                    account = Account.objects.filter(user=user).filter(name__icontains=tansaction["account_name"]).first()
+                else:
+                    account = None
+                if account:
+                    transaction["account"] = account
+                else:
+                    transaction["account"] = cd["import_account"]
+
                 # here we work in a filter to detect possible duplicated transactions:
-                duplicated_transaction = Transaction.objects.filter(account__id=row["account_id"] if "account_id" in row
-                        else cd["import_account"].id,value=row["value"], date=row["date"]).first()
-                
+                duplicated_transaction = Transaction.objects.filter(account=transaction["account"], value=transaction["value"], date=transaction["date"]).first()
+            
                 #now we are going to do a basic check, if the description is the same, we can be sure that this is probably a duplicated transaction
                 #users can make a purchase of same value twice (or more) in the same store and same day? they can, but this is not the case in 99% of times
                 #we also remove spaces to compare because sometimes the file can have trailing spaces between words that can vary (I'm talking about you Santander Brasil)
                 if duplicated_transaction:
-                    if duplicated_transaction.description.replace(" ","").upper() != row["description"].replace(" ","").upper():
+                    if duplicated_transaction.description.replace(" ","").upper() != transaction["description"].replace(" ","").upper():
                         duplicated_transaction = None
-                listOfTransactions.append(
-                    {
-                        "select_row": False,
-                        "value": row["value"] if "value" in row else None,
-                        "date": row["date"] if "date" in row else None,
-                        "competency_date": row["competency_date"]
-                        if "competency_date" in row
-                        else None,
-                        "description": row["description"]
-                        if "description" in row
-                        else None,
-                        "account": cd["import_account"],
-                        "category": Category.objects.filter(id=row["category_id"])
-                        if "category_id" in row
-                        else None,
-                        "is_transfer": row["is_transfer"]
-                        if "transfer" in row
-                        else None,
-                        "concilied": row["concilied"] if "concilied" in row else None,
-                        "decision": "do_not_import" if duplicated_transaction != None else "import",
-                        "duplicated_transaction": duplicated_transaction,
-                    }
-                )
-            
+                    
+                transaction["decision"] = "do_not_import" if duplicated_transaction != None else "import"
+                transaction["duplicated_transaction"] = duplicated_transaction
+
             cd["listOfTransactions"] = listOfTransactions
         return cd
 
@@ -245,6 +233,7 @@ class RuleForm(BSModalModelForm):
             "set_as_transfer"
         ]
 
+
 class RulesItemForm(BSModalModelForm):
     class Meta:
         fields=("boolean_type","account","value_type","value","description_type","description","date_type","date","competency_date_type","competency_date",)
@@ -252,7 +241,6 @@ class RulesItemForm(BSModalModelForm):
     def __init__(self, *args, user, **kwargs):
         super(RulesItemForm, self).__init__(*args, **kwargs)
         self.fields["account"].queryset = Account.objects.filter(user = user)
-
 
 
 RulesItemsFormsetCreate = inlineformset_factory(
