@@ -1,5 +1,6 @@
 import csv
 import re
+from django.core.exceptions import ValidationError
 from datetime import date, datetime
 
 
@@ -70,7 +71,7 @@ def parseCSV(import_file):
     listOfTransactions = []
     for row in csv_reader:
         if not "value" in row or not "date" in row or not "description" in row:
-            return ValidationError(
+            raise ValidationError(
                 "CSV file doesn't have all the columns needed: date, description and value"
             )
             break
