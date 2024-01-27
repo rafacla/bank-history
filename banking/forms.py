@@ -10,6 +10,7 @@ from django.forms.models import inlineformset_factory
 from banking import models
 from banking.models import Account, Category, Transaction
 from banking.widgets import CategorySelect
+from banking.utils import strToDate_anyformat
 
 
 class AccountForm(BSModalModelForm):
@@ -130,17 +131,56 @@ class FileImportForm(forms.Form):
     def clean(self):
         cd = self.cleaned_data
 
-        import_file = cd["import_file"].read().decode("utf-8-sig").splitlines()
-        csv_reader = csv.DictReader(import_file)
+        # Check file format, for now we consider only CSV:
+        if ("import_file" in cd):
+            import_file = cd["import_file"].read().decode("utf-8-sig").splitlines()
+            csv_reader = csv.DictReader(import_file)
 
-        listOfTransactions = []
-        for row in csv_reader:
-            if not "value" in row or not "date" in row or not "description" in row:
-                raise ValidationError(
-                    "CSV file doesn't have all the columns needed: date, description and value"
+            listOfTransactions = []
+            for row in csv_reader:
+                if not "value" in row or not "date" in row or not "description" in row:
+                    raise ValidationError(
+                        "CSV file doesn't have all the columns needed: date, description and value"
+                    )
+                    break
+                # we try to convert the dates:
+                row["value"] = row["value"].replace(" ","")
+                row["date"] = strToDate_anyformat(row["date"])
+                # here we work in a filter to detect possible duplicated transactions:
+                duplicated_transaction = Transaction.objects.filter(account__id=row["account_id"] if "account_id" in row
+                        else cd["import_account"].id,value=row["value"], date=row["date"]).first()
+                
+                #now we are going to do a basic check, if the description is the same, we can be sure that this is probably a duplicated transaction
+                #users can make a purchase of same value twice (or more) in the same store and same day? they can, but this is not the case in 99% of times
+                #we also remove spaces to compare because sometimes the file can have trailing spaces between words that can vary (I'm talking about you Santander Brasil)
+                if duplicated_transaction:
+                    if duplicated_transaction.description.replace(" ","").upper() != row["description"].replace(" ","").upper():
+                        duplicated_transaction = None
+                listOfTransactions.append(
+                    {
+                        "select_row": False,
+                        "value": row["value"] if "value" in row else None,
+                        "date": row["date"] if "date" in row else None,
+                        "competency_date": row["competency_date"]
+                        if "competency_date" in row
+                        else None,
+                        "description": row["description"]
+                        if "description" in row
+                        else None,
+                        "account": cd["import_account"],
+                        "category": Category.objects.filter(id=row["category_id"])
+                        if "category_id" in row
+                        else None,
+                        "is_transfer": row["is_transfer"]
+                        if "transfer" in row
+                        else None,
+                        "concilied": row["concilied"] if "concilied" in row else None,
+                        "decision": "do_not_import" if duplicated_transaction != None else "import",
+                        "duplicated_transaction": duplicated_transaction,
+                    }
                 )
-            break
-        cd["import_file"] = import_file
+            
+            cd["listOfTransactions"] = listOfTransactions
         return cd
 
 
@@ -158,14 +198,15 @@ class FileConfirmImport(forms.Form):
         choices=[("import", "Import"), ("do_not_import", "Do not Import")]
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user=None, **kwargs):
         super(FileConfirmImport, self).__init__(*args, **kwargs)
-        if "user" in self.initial:
+        
+        if user:
             self.fields[
                 "category"
-            ].choices = Category.getUserGroupedAndSortedCategories(self.initial["user"])
+            ].choices = Category.getUserGroupedAndSortedCategories(user)
             self.fields["account"].queryset = Account.objects.filter(
-                user=self.initial["user"]
+                user=user
             )
 
 

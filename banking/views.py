@@ -1,6 +1,5 @@
 import calendar
-import csv
-import re
+
 from datetime import date, datetime
 
 from django.db import transaction
@@ -27,38 +26,6 @@ from .forms import (AccountForm, CategoryForm, FileConfirmImport, FileImportForm
                     TransactionCategorizeForm, TransactionForm,
                     TransactionInternalTransferForm)
 from .models import Account, Category, Rule, Transaction
-
-
-def strToDate_anyformat(format_date, expected_format = ""):
-        numbers = ''.join(re.findall(r'\d+', format_date))
-        if ("/" in format_date or expected_format.upper() == "%D/%M/%Y" or expected_format.upper() == "%M/%D/%Y"):
-            #in this case, we consider the date as short_date, defaulting to %d/%m/%Y
-            if (expected_format == "" or expected_format.upper() == "%D/%M/%Y"):
-                if len(numbers) == 8 and int(numbers[2:4]) <= 12:
-                    d = datetime(int(numbers[4:8]), int(numbers[2:4]), int(numbers[:2]))
-                elif len(numbers) == 6:
-                    d = datetime(int(numbers[4:6])+2000, int(numbers[2:4]), int(numbers[:2]))
-                else:
-                    raise AssertionError(f'length not match:{format_date} or doesn\'t fit the expected format: '+expected_format)
-            else:
-                #it's in american standard:
-                if len(numbers) == 8 and int(numbers[:2]) <= 12:
-                    d = datetime(int(numbers[4:8]), int(numbers[:2]), int(numbers[2:4]))
-                elif len(numbers) == 6:
-                    d = datetime(int(numbers[4:6])+2000, int(numbers[:2]), int(numbers[2:4]))
-                else:
-                    raise AssertionError(f'length not match:{format_date} or doesn\'t fit the expected format: '+expected_format)
-        else:
-            #else, it's a full date:
-            if len(numbers) == 8:
-                d = datetime(int(numbers[:4]), int(numbers[4:6]), int(numbers[6:8]))
-            elif len(numbers) == 14:
-                d = datetime(int(numbers[:4]), int(numbers[4:6]), int(numbers[6:8]), int(numbers[8:10]), int(numbers[10:12]), int(numbers[12:14]))
-            elif len(numbers) > 14:
-                d = datetime(int(numbers[:4]), int(numbers[4:6]), int(numbers[6:8]), int(numbers[8:10]), int(numbers[10:12]), int(numbers[12:14]), microsecond=1000*int(numbers[14:]))
-            else:
-                raise AssertionError(f'length not match:{format_date}')
-        return d
 
 
 class AccountBaseView(LoginRequiredMixin, View):
@@ -502,12 +469,12 @@ def import_file(request):
     formset = TransactionFormSet()
     helper = InlineFormSetHelper()
     if request.method == "POST":
-        form_csv = FileImportForm(request.POST, request.FILES)
+        fileImportForm = FileImportForm(request.POST, request.FILES)
         formset = TransactionFormSet(request.POST)
 
         # Before we validating our forms, we need to reinitiate all ChoiceFields choices, otherwite validation is going to fail...
-        # form_csv account field:
-        form_csv.fields["import_account"].queryset = Account.objects.filter(
+        # fileImportForm account field:
+        fileImportForm.fields["import_account"].queryset = Account.objects.filter(
             user=request.user
         )
         # formset account and category fields:
@@ -539,56 +506,17 @@ def import_file(request):
             for rule in Rule.objects.filter(user=request.user,runs_on_imported_transactions=True):
                 rule.applyRule(transactionsIds=importedListIds)
             return redirect("banking:transaction_list")
-        elif form_csv.is_valid():
-            import_file = form_csv.cleaned_data["import_file"]
-            csv_reader = csv.DictReader(import_file)
-
-            listOfTransactions = []
-            for row in csv_reader:
-                # we try to convert the dates:
-                row["value"] = row["value"].replace(" ","")
-                row["date"] = strToDate_anyformat(row["date"])
-                # here we work in a filter to detect possible duplicated transactions:
-                duplicated_transaction = Transaction.objects.filter(account__id=row["account_id"] if "account_id" in row
-                        else form_csv.cleaned_data["import_account"].id,value=row["value"], date=row["date"]).first()
-                
-                #now we are going to do a basic check, if the description is the same, we can be sure that this is probably a duplicated transaction
-                #users can make a purchase of same value twice (or more) in the same store and same day? they can, but this is not the case in 99% of times
-                #we also remove spaces to compare because sometimes the file can have trailing spaces between words that can vary (I'm talking about you Santander Brasil)
-                if duplicated_transaction:
-                    if duplicated_transaction.description.replace(" ","").upper() != row["description"].replace(" ","").upper():
-                        duplicated_transaction = None
-                listOfTransactions.append(
-                    {
-                        "select_row": False,
-                        "value": row["value"] if "value" in row else None,
-                        "date": row["date"] if "date" in row else None,
-                        "competency_date": row["competency_date"]
-                        if "competency_date" in row
-                        else None,
-                        "description": row["description"]
-                        if "description" in row
-                        else None,
-                        "account": Account.objects.filter(
-                            user=request.user, id=row["account_id"]
-                        ).first()
-                        if "account_id" in row
-                        else form_csv.cleaned_data["import_account"],
-                        "category": Category.objects.filter(id=row["category_id"])
-                        if "category_id" in row
-                        else None,
-                        "is_transfer": row["is_transfer"]
-                        if "transfer" in row
-                        else None,
-                        "concilied": row["concilied"] if "concilied" in row else None,
-                        "user": request.user,
-                        "decision": "do_not_import" if duplicated_transaction != None else "import",
-                        "duplicated_transaction": duplicated_transaction,
-                    }
-                )
+        elif "formset-submit" in request.POST:
+            return render(
+                request,
+                "banking/transaction_import_form.html",
+                {"formset": formset, "helper": helper},
+            )
+        elif fileImportForm.is_valid():
+            listOfTransactions = fileImportForm.cleaned_data["listOfTransactions"]
             TransactionFormSet = formset_factory(FileConfirmImport, extra=0)
 
-            formset = TransactionFormSet(initial=listOfTransactions)
+            formset = TransactionFormSet(initial=listOfTransactions, form_kwargs={'user': request.user})
 
             return render(
                 request,
@@ -599,15 +527,15 @@ def import_file(request):
             return render(
                 request,
                 "banking/transaction_import_form.html",
-                {"form": form_csv},
+                {"form": fileImportForm},
             )
     else:
-        form_csv = FileImportForm()
-        form_csv.fields["import_account"].queryset = Account.objects.filter(
+        fileImportForm = FileImportForm()
+        fileImportForm.fields["import_account"].queryset = Account.objects.filter(
             user=request.user
         )
 
-    return render(request, "banking/transaction_import_form.html", {"form": form_csv})
+    return render(request, "banking/transaction_import_form.html", {"form": fileImportForm})
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):

@@ -30,7 +30,7 @@
                                         {% crispy formset helper %}
                                         <a class="btn btn-danger d-none d-sm-inline-block modal-button"
                                            href="{% url "banking:import_csv" %}">{% trans "Cancel" %}</a>
-                                        <button type="submit" class="btn btn-primary">{% trans "Import" %}</button>
+                                        <button name="formset-submit" type="submit" class="btn btn-primary">{% trans "Import" %}</button>
                                     </div>
                                 </form>
                             {% else %}
