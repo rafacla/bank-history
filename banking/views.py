@@ -494,7 +494,7 @@ class TransactionCategorizeView(BSModalFormView):
         return form_kwargs
 
 
-def import_csv(request):
+def import_file(request):
     if request.user.is_authenticated == False:
         return redirect("banking:home")
     
@@ -507,7 +507,7 @@ def import_csv(request):
 
         # Before we validating our forms, we need to reinitiate all ChoiceFields choices, otherwite validation is going to fail...
         # form_csv account field:
-        form_csv.fields["csv_account"].queryset = Account.objects.filter(
+        form_csv.fields["import_account"].queryset = Account.objects.filter(
             user=request.user
         )
         # formset account and category fields:
@@ -540,8 +540,8 @@ def import_csv(request):
                 rule.applyRule(transactionsIds=importedListIds)
             return redirect("banking:transaction_list")
         elif form_csv.is_valid():
-            csv_file = form_csv.cleaned_data["csv_file"]
-            csv_reader = csv.DictReader(csv_file)
+            import_file = form_csv.cleaned_data["import_file"]
+            csv_reader = csv.DictReader(import_file)
 
             listOfTransactions = []
             for row in csv_reader:
@@ -550,7 +550,7 @@ def import_csv(request):
                 row["date"] = strToDate_anyformat(row["date"])
                 # here we work in a filter to detect possible duplicated transactions:
                 duplicated_transaction = Transaction.objects.filter(account__id=row["account_id"] if "account_id" in row
-                        else form_csv.cleaned_data["csv_account"].id,value=row["value"], date=row["date"]).first()
+                        else form_csv.cleaned_data["import_account"].id,value=row["value"], date=row["date"]).first()
                 
                 #now we are going to do a basic check, if the description is the same, we can be sure that this is probably a duplicated transaction
                 #users can make a purchase of same value twice (or more) in the same store and same day? they can, but this is not the case in 99% of times
@@ -573,7 +573,7 @@ def import_csv(request):
                             user=request.user, id=row["account_id"]
                         ).first()
                         if "account_id" in row
-                        else form_csv.cleaned_data["csv_account"],
+                        else form_csv.cleaned_data["import_account"],
                         "category": Category.objects.filter(id=row["category_id"])
                         if "category_id" in row
                         else None,
@@ -603,7 +603,7 @@ def import_csv(request):
             )
     else:
         form_csv = CSVImportForm()
-        form_csv.fields["csv_account"].queryset = Account.objects.filter(
+        form_csv.fields["import_account"].queryset = Account.objects.filter(
             user=request.user
         )
 

@@ -122,16 +122,16 @@ class TransactionCategorizeForm(BSModalForm):
 
 
 class CSVImportForm(forms.Form):
-    csv_account = forms.ModelChoiceField(
+    import_account = forms.ModelChoiceField(
         queryset=Account.objects.none(), label="Select account to import to:"
     )
-    csv_file = forms.FileField(label="File to Import:")
+    import_file = forms.FileField(label="File to Import:")
 
     def clean(self):
         cd = self.cleaned_data
 
-        csv_file = cd["csv_file"].read().decode("utf-8-sig").splitlines()
-        csv_reader = csv.DictReader(csv_file)
+        import_file = cd["import_file"].read().decode("utf-8-sig").splitlines()
+        csv_reader = csv.DictReader(import_file)
 
         listOfTransactions = []
         for row in csv_reader:
@@ -140,7 +140,7 @@ class CSVImportForm(forms.Form):
                     "CSV file doesn't have all the columns needed: date, description and value"
                 )
             break
-        cd["csv_file"] = csv_file
+        cd["import_file"] = import_file
         return cd
 
 
