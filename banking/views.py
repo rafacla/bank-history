@@ -22,7 +22,7 @@ from django.views.generic.list import ListView
 
 from banking import forms, models as bankingModels
 
-from .forms import (AccountForm, CategoryForm, CSVConfirmImport, CSVImportForm,
+from .forms import (AccountForm, CategoryForm, FileConfirmImport, FileImportForm,
                     InlineFormSetHelper, ModalDeleteForm, RuleRunForm,
                     TransactionCategorizeForm, TransactionForm,
                     TransactionInternalTransferForm)
@@ -498,11 +498,11 @@ def import_file(request):
     if request.user.is_authenticated == False:
         return redirect("banking:home")
     
-    TransactionFormSet = formset_factory(CSVConfirmImport, extra=0)
+    TransactionFormSet = formset_factory(FileConfirmImport, extra=0)
     formset = TransactionFormSet()
     helper = InlineFormSetHelper()
     if request.method == "POST":
-        form_csv = CSVImportForm(request.POST, request.FILES)
+        form_csv = FileImportForm(request.POST, request.FILES)
         formset = TransactionFormSet(request.POST)
 
         # Before we validating our forms, we need to reinitiate all ChoiceFields choices, otherwite validation is going to fail...
@@ -586,7 +586,7 @@ def import_file(request):
                         "duplicated_transaction": duplicated_transaction,
                     }
                 )
-            TransactionFormSet = formset_factory(CSVConfirmImport, extra=0)
+            TransactionFormSet = formset_factory(FileConfirmImport, extra=0)
 
             formset = TransactionFormSet(initial=listOfTransactions)
 
@@ -602,7 +602,7 @@ def import_file(request):
                 {"form": form_csv},
             )
     else:
-        form_csv = CSVImportForm()
+        form_csv = FileImportForm()
         form_csv.fields["import_account"].queryset = Account.objects.filter(
             user=request.user
         )

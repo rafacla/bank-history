@@ -121,7 +121,7 @@ class TransactionCategorizeForm(BSModalForm):
         )
 
 
-class CSVImportForm(forms.Form):
+class FileImportForm(forms.Form):
     import_account = forms.ModelChoiceField(
         queryset=Account.objects.none(), label="Select account to import to:"
     )
@@ -144,7 +144,7 @@ class CSVImportForm(forms.Form):
         return cd
 
 
-class CSVConfirmImport(forms.Form):
+class FileConfirmImport(forms.Form):
     select_row = forms.CheckboxInput()
     account = forms.ModelChoiceField(queryset=Account.objects.none())
     date = forms.DateField()
@@ -159,7 +159,7 @@ class CSVConfirmImport(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        super(CSVConfirmImport, self).__init__(*args, **kwargs)
+        super(FileConfirmImport, self).__init__(*args, **kwargs)
         if "user" in self.initial:
             self.fields[
                 "category"
