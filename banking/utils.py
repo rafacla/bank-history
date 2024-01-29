@@ -2,7 +2,6 @@ import csv
 import re
 from django.core.exceptions import ValidationError
 from datetime import date, datetime
-from pdfquery import PDFQuery
 import fitz
 
 
