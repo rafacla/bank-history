@@ -6,3 +6,4 @@ crispy-bootstrap5
 django-bootstrap-modal-forms
 django-environ
 emoji
+pymupdf

@@ -2,6 +2,8 @@ import csv
 import re
 from django.core.exceptions import ValidationError
 from datetime import date, datetime
+from pdfquery import PDFQuery
+import fitz
 
 
 def strToDate_anyformat(format_date, expected_format=""):
@@ -20,10 +22,7 @@ def strToDate_anyformat(format_date, expected_format=""):
                     int(numbers[4:6]) + 2000, int(numbers[2:4]), int(numbers[:2])
                 )
             else:
-                raise AssertionError(
-                    f"length not match:{format_date} or doesn't fit the expected format: "
-                    + expected_format
-                )
+                return None
         else:
             # it's in american standard:
             if len(numbers) == 8 and int(numbers[:2]) <= 12:
@@ -33,10 +32,7 @@ def strToDate_anyformat(format_date, expected_format=""):
                     int(numbers[4:6]) + 2000, int(numbers[:2]), int(numbers[2:4])
                 )
             else:
-                raise AssertionError(
-                    f"length not match:{format_date} or doesn't fit the expected format: "
-                    + expected_format
-                )
+                return None
     else:
         # else, it's a full date:
         if len(numbers) == 8:
@@ -61,7 +57,7 @@ def strToDate_anyformat(format_date, expected_format=""):
                 microsecond=1000 * int(numbers[14:]),
             )
         else:
-            raise AssertionError(f"length not match:{format_date}")
+            d = None
     return d
 
 
@@ -96,3 +92,73 @@ def parseCSV(import_file):
         )
 
     return listOfTransactions
+
+
+def parsePDF(import_file):
+    pdf = fitz.open(stream=import_file.read(), filetype="pdf")
+    
+    def getValuesFromKey(key, below=True, right=False):
+        list = []
+        for page in pdf:
+            rectsFound = page.search_for(key)
+            for rectFound in rectsFound:
+                x0 = rectFound[2] if right else rectFound[0]
+                y0 = rectFound[3] if below else rectFound[1]
+                x1 = rectFound[2]-rectFound[0]+x0 if right else rectFound[2]
+                y1 = rectFound[3]-rectFound[1]+y0 if below else rectFound[3]
+                rectExtract = fitz.Rect(x0, y0, x1, y1)
+                list.append(page.get_textbox(rectExtract))
+        return list
+
+
+    # Initialize list of Transactions 
+    listOfTransactions = []
+
+    ### For PDF files, there's no standard, so we need to use masks for each kind of statement...
+    # The following ifs are used to identify if the statement mask has been catalogued:
+
+    # Itau Credit Card as of January-24
+    if pdf[0].search_for("Com vencimento em:"):
+        # For credit cards, we match the competency date with the due date of the statement
+        competency_date = strToDate_anyformat(getValuesFromKey("Com vencimento em:")[0])
+        def getTables():
+            list = []
+            for page in pdf:
+                # Here we tell the script where to look in the statement:
+                vertical_lines_coordiantes =[
+                    [154, 177, 310, 345],
+                    [370, 392, 518, 560]
+                ]
+                for vlc in vertical_lines_coordiantes:
+                    tabs = page.find_tables(horizontal_strategy='lines_strict', vertical_lines=vlc)
+                    for table in tabs.tables:
+                        if table.col_count == 3:
+                            for row in table.extract():
+                                # as in itau CC statement transactions doesn't have the year, we need to consider that the year is the same of competency dates
+                                # except if the transaction date would result in a date greater then competency_date (due date of statement), in this case we should consider the past year
+                                rowDate = strToDate_anyformat(row[0]+'/'+str(competency_date.year))
+                                if isinstance(rowDate, date):
+                                    if rowDate > competency_date:
+                                        rowDate = strToDate_anyformat(row[0]+'/'+str(competency_date.year - 1))
+                                    listOfTransactions.append(
+                                        {
+                                            "select_row": False,
+                                            "value": float(str(row[2]).replace(",",".")),
+                                            "date": rowDate,
+                                            "competency_date": competency_date,
+                                            "description": str(row[1]).replace("\n"," (").replace(" .","/")+")",
+                                            "account_name": None,
+                                            "account_id": None,
+                                            "category_name": None,
+                                            "category_id": None,
+                                            "is_transfer": None,
+                                            "concilied": None,
+                                        }
+                                    )
+            return list
+
+        tableList = getTables()   
+
+    return listOfTransactions
+
+

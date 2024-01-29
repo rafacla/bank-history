@@ -10,7 +10,8 @@ from django.forms.models import inlineformset_factory
 from banking import models
 from banking.models import Account, Category, Transaction
 from banking.widgets import CategorySelect
-from banking.utils import strToDate_anyformat, parseCSV
+from banking.utils import parsePDF, parseCSV
+ 
 
 
 class AccountForm(BSModalModelForm):
@@ -136,6 +137,8 @@ class FileImportForm(forms.Form):
             listOfTransactions = []
             if cd["import_file"].name.endswith(".csv"):
                 listOfTransactions = parseCSV(cd["import_file"])
+            if cd["import_file"].name.endswith(".pdf"):
+                listOfTransactions = parsePDF(cd["import_file"])
             else:
                 raise ValidationError(
                 "File format not supported"
