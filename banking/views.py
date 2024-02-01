@@ -229,6 +229,8 @@ class TransactionListView(TransactionBaseView, ListView):
         if account_id:
             qs = qs.filter(account__id=account_id)
             account = Account.objects.filter(id = account_id).first()
+        else: 
+            account = None
         if from_date:
             qs = qs.filter(date__gte=from_date)
         if until_date:
