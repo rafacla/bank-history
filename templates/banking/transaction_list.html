@@ -197,6 +197,50 @@
     <div class="container-xl">
       <div class="row row-deck row-cards">
         <div class="col-12">
+          {% if account.type == 'creditCard' %}
+          <div class="card w-25">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-2">
+                <div class="subheader">{% trans "Statement summary" %}</div>
+                <div class="ms-auto lh-1">
+                  <div class="dropdown">
+                    <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ statement_date|date:"b-y" }}</a>
+                    <div class="dropdown-menu dropdown-menu-end">
+                      {% for month in months %}
+                      <a class="dropdown-item {% if statement_date|date:'Y-m' == month|date:'Y-m' %}active{% endif %}" href="{% url 'banking:transaction_list' %}?account_id={{ account.id }}&statement_date={{ month|date:"Y-m-d" }}">{{ month|date:"b-y" }}</a>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row row-deck ">
+                <div class="col-8">{% trans "Balance from last month:" %}</div>
+                <div class="col-4 "><span class="w-100 text-end">{{ account.currency.symbol }} {{ ccBalanceLastMonth|floatformat:2|intcomma }}</span></div>
+                <div class="col-8">{% trans "Debits of this competency" %}</div>
+                <div class="col-4 "><span class="w-100 text-end">{{ account.currency.symbol }} {{ ccCurrentDebits|floatformat:2|intcomma }}</span></div>
+                <div class="col-8">{% trans "Payments of this competency" %}</div>
+                <div class="col-4"><span class="w-100 text-end">{{ account.currency.symbol }} {{ ccCurrentPayments|floatformat:2|intcomma }}</span></div>
+                <div class="d-flex my-2">
+                  <div class="subheader">{% trans "Payment of Statement" %}</div>
+                  <div class="ms-auto">
+                    <span class="{% if ccPaymentRatio == 100 %} text-green {% else %} text-red {% endif %} d-inline-flex align-items-center lh-1">
+                      {{ ccPaymentRatio }}%
+                    </span>
+                  </div>
+                </div>
+                <div class="progress progress-sm p-0">
+                  <div class="progress-bar bg-primary" style="width:{{ ccPaymentRatio|floatformat:0 }}%" role="progressbar" aria-valuenow="{{ ccPaymentRatio }}" aria-valuemin="0" aria-valuemax="100" aria-label="{{ ccPaymentRatio }}% Complete">
+                    <span class="visually-hidden">{{ ccPaymentRatio }}% Complete</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="w-75">
+          </div>
+          {% endif %}
+        </div>
+        <div class="col-12">
           <div class="card">
             <div class="card-head"></div>
             <div class="table-responsive">
@@ -283,11 +327,14 @@
                           {% endif %}
                           <td data-sort="{{ item.date|date:"U" }}">{{ item.date|date:"d/m/Y" }}</td>
                           <td>
-                            <span {% if item.description|length > 50 %}data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{{ item.description }}"{% endif %}>{{ item.description|truncatechars:50 }} </span> <a href="#"
-    data-form-url="{% url 'banking:transaction_update' item.id %}"
-    class="modal-button on-hover-link"
-    data-bs-toggle="modal"
-    data-bs-target="#modals-here">
+                            <span {% if item.description|length > 50 %}data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{{ item.description }}"{% endif %}>
+                              {{ item.description|truncatechars:50 }}
+                            </span> 
+                              <a href="#"
+                                data-form-url="{% url 'banking:transaction_update' item.id %}"
+                                class="modal-button on-hover-link"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modals-here">
                               <svg xmlns="http://www.w3.org/2000/svg"
                                    class="icon icon-tabler icon-tabler-edit"
                                    width="24"

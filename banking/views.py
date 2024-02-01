@@ -26,7 +26,7 @@ from .forms import (AccountForm, CategoryForm, FileConfirmImport, FileImportForm
                     TransactionCategorizeForm, TransactionForm,
                     TransactionInternalTransferForm)
 from .models import Account, Category, Rule, Transaction
-
+from .utils import strToDate_anyformat, lastDayOfMonth
 
 class AccountBaseView(LoginRequiredMixin, View):
     model = Account
@@ -228,6 +228,7 @@ class TransactionListView(TransactionBaseView, ListView):
 
         if account_id:
             qs = qs.filter(account__id=account_id)
+            account = Account.objects.filter(id = account_id).first()
         if from_date:
             qs = qs.filter(date__gte=from_date)
         if until_date:
@@ -238,6 +239,15 @@ class TransactionListView(TransactionBaseView, ListView):
             qs = qs.filter(category=None).filter(is_transfer=False)
         if not_concilied == '1':
             qs = qs.filter(concilied=False)
+        
+        if account and account.type == "creditCard":
+            statement_date = strToDate_anyformat(self.request.GET.get("statement_date", None))
+            if (statement_date) == None:
+                statement_date = date.today()
+            statement_date = statement_date.replace(day=1)
+            
+            qs = qs.filter(models.Q(competency_date=None, date__lte=lastDayOfMonth(statement_date), date__gte=statement_date.replace(day=1)) | models.Q(competency_date__lte=lastDayOfMonth(statement_date), competency_date__gte=statement_date.replace(day=1)))
+            
         qs = (
             qs.filter(merged_to=None, account__user=self.request.user)
             .annotate(
@@ -269,6 +279,10 @@ class TransactionListView(TransactionBaseView, ListView):
         transaction_description = self.request.GET.get("transaction_description", None)
         from_date = self.request.GET.get("from_date", None)
         until_date = self.request.GET.get("from_date", None)
+        statement_date = strToDate_anyformat(self.request.GET.get("statement_date", None))
+        if (statement_date) == None:
+            statement_date = date.today()
+        statement_date = statement_date.replace(day=1)
 
         user = self.request.user
         qs = self.object_list.aggregate(
@@ -276,6 +290,7 @@ class TransactionListView(TransactionBaseView, ListView):
         )
         data["first_date"] = qs["first_date"]
         data["last_date"] = qs["last_date"]
+        data["statement_date"] = statement_date
 
         if data["first_date"] and data["last_date"]:
             data["balance_first_date"] = (
@@ -301,6 +316,19 @@ class TransactionListView(TransactionBaseView, ListView):
         if transaction_description:
             data["transaction_description"] = transaction_description
 
+
+        #if this is a CC Statement, we need to provide a few informations for the layout:
+        if "account" in data and data["account"].type == "creditCard":
+            data["months"] = Transaction.getMonthsWTransactions(account=data["account"])
+            transactionsQueryBase = Transaction.objects.filter(account = data["account"])
+            data["ccCurrentDebits"] = transactionsQueryBase.filter(value__lt=0).filter(models.Q(competency_date=None, date__lte=lastDayOfMonth(statement_date), date__gte=statement_date.replace(day=1)) | models.Q(competency_date__lte=lastDayOfMonth(statement_date), competency_date__gte=statement_date.replace(day=1))).aggregate(balance=models.Sum("value"))["balance"]
+            data["ccCurrentPayments"] = transactionsQueryBase.filter(value__gt=0).filter(models.Q(competency_date=None, date__lte=lastDayOfMonth(statement_date), date__gte=statement_date.replace(day=1)) | models.Q(competency_date__lte=lastDayOfMonth(statement_date), competency_date__gte=statement_date.replace(day=1))).aggregate(balance=models.Sum("value"))["balance"]
+            data["ccBalanceLastMonth"] = transactionsQueryBase.filter(models.Q(competency_date=None, date__lt=statement_date.replace(day=1)) | models.Q(competency_date__lt=statement_date.replace(day=1))).aggregate(balance=models.Sum("value"))["balance"]
+            data["ccCurrentDebits"] = data["ccCurrentDebits"]*(-1) if data["ccCurrentDebits"] else 0
+            data["ccCurrentPayments"] = data["ccCurrentPayments"]*(1) if data["ccCurrentPayments"] else 0
+            data["ccBalanceLastMonth"] = data["ccBalanceLastMonth"] if data["ccBalanceLastMonth"] else 0
+            data["ccDebits"] = data["ccCurrentDebits"] - data["ccBalanceLastMonth"]
+            data["ccPaymentRatio"] = abs(round((100*(data["ccCurrentPayments"] if data["ccCurrentPayments"] else 0)/(data["ccDebits"])) if data["ccDebits"] else 100,2))
         return data
 
 

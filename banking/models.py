@@ -266,6 +266,20 @@ class Transaction(models.Model):
     def __str__(self):
         return f"[{self.date}][{self.account.name}] - {self.description}"
 
+    def getMonthsWTransactions(account = None, user = None):
+        query = Transaction.objects
+        if user:
+            query = query.filter(account__user = user)
+        if account:
+            query = query.filter(account = account)
+        months = set()
+        for transaction in query:
+            if transaction.date:
+                months.add(transaction.date.replace(day=1))
+            if transaction.competency_date:
+                months.add(transaction.competency_date.replace(day=1))
+        return sorted(months)
+
 
 class Rule(models.Model):
     description = models.CharField(max_length=200)

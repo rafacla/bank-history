@@ -1,11 +1,13 @@
 import csv
 import re
 from django.core.exceptions import ValidationError
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import fitz
 
 
 def strToDate_anyformat(format_date, expected_format=""):
+    if format_date == None:
+        return None
     numbers = "".join(re.findall(r"\d+", format_date))
     if (
         "/" in format_date
@@ -59,6 +61,11 @@ def strToDate_anyformat(format_date, expected_format=""):
             d = None
     return d
 
+
+def lastDayOfMonth(date):
+    if date.month == 12:
+        return date.replace(day=31)
+    return date.replace(month=date.month+1, day=1) - timedelta(days=1)
 
 def parseCSV(import_file):
     csv_reader = csv.DictReader(import_file.read().decode("utf-8-sig").splitlines())
