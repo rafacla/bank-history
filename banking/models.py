@@ -296,52 +296,55 @@ class Rule(models.Model):
 
     def getApplicableTransactions(self):
         rulesItems = RulesItem.objects.filter(rule=self)
-        transactionsQueryBase = Transaction.objects.filter(account__user=self.user)
-        if self.runs_on_already_classified_transactions == False:
-            transactionsQueryBase = transactionsQueryBase.filter(category=None, is_transfer=False)
-        transactionsQuery = transactionsQueryBase
-        countAppliedFilters = 0
-        for rulesItem in rulesItems:
-            rule = {}
-            if (rulesItem.value_type != "na"):
-                if (rulesItem.value_type == "equal"):
-                    rule["value"] = rulesItem.value
-                else:
-                    rule["value__" + rulesItem.value_type] = rulesItem.value
-            if (rulesItem.description_type != "na"):
-                rule["description__" + rulesItem.description_type] = rulesItem.description
-            if (rulesItem.date_type != "na"):
-                if (rulesItem.date_type == "equal"):
-                    rule["date"] = rulesItem.date
-                else:
-                    rule["date__" + rulesItem.date_type] = rulesItem.date
-            if (rulesItem.competency_date_type != "na"):
-                if (rulesItem.competency_date_type == "equal"):
-                    rule["competency_date"] = rulesItem.competency_date
-                else:
-                    rule["competency_date__" + rulesItem.competency_date_type] = rulesItem.competency_date
-            if len(rule) > 0:
-                if rulesItem.boolean_type == "exclude_if":
-                    transactionsQuery = transactionsQuery.exclude(**rule)
-                elif rulesItem.boolean_type == "and":
-                    transactionsQuery = transactionsQuery.filter(**rule)
-                elif rulesItem.boolean_type == "or":
-                    if countAppliedFilters > 0:
-                        transactionsQuery = (transactionsQuery | transactionsQueryBase.filter(**rule))
+        if rulesItems.count() > 0:
+            transactionsQueryBase = Transaction.objects.filter(account__user=self.user)
+            if self.runs_on_already_classified_transactions == False:
+                transactionsQueryBase = transactionsQueryBase.filter(category=None, is_transfer=False)
+            transactionsQuery = transactionsQueryBase
+            countAppliedFilters = 0
+            for rulesItem in rulesItems:
+                rule = {}
+                if (rulesItem.value_type != "na"):
+                    if (rulesItem.value_type == "equal"):
+                        rule["value"] = rulesItem.value
                     else:
-                        transactionsQuery = (transactionsQueryBase.filter(**rule))
-                countAppliedFilters += 1
-            if rulesItem.account:
-                if rulesItem.boolean_type == "exclude_if":
-                    transactionsQuery = transactionsQuery.exclude(account=rulesItem.account)
-                elif rulesItem.boolean_type == "and":
-                    transactionsQuery = transactionsQuery.filter(account=rulesItem.account)
-                elif rulesItem.boolean_type == "or":
-                    if countAppliedFilters > 0:
-                        transactionsQuery = (transactionsQuery | transactionsQueryBase.filter(account=rulesItem.account))
+                        rule["value__" + rulesItem.value_type] = rulesItem.value
+                if (rulesItem.description_type != "na"):
+                    rule["description__" + rulesItem.description_type] = rulesItem.description
+                if (rulesItem.date_type != "na"):
+                    if (rulesItem.date_type == "equal"):
+                        rule["date"] = rulesItem.date
                     else:
-                        transactionsQuery = (transactionsQueryBase.filter(account=rulesItem.account))
-                countAppliedFilters += 1
+                        rule["date__" + rulesItem.date_type] = rulesItem.date
+                if (rulesItem.competency_date_type != "na"):
+                    if (rulesItem.competency_date_type == "equal"):
+                        rule["competency_date"] = rulesItem.competency_date
+                    else:
+                        rule["competency_date__" + rulesItem.competency_date_type] = rulesItem.competency_date
+                if len(rule) > 0:
+                    if rulesItem.boolean_type == "exclude_if":
+                        transactionsQuery = transactionsQuery.exclude(**rule)
+                    elif rulesItem.boolean_type == "and":
+                        transactionsQuery = transactionsQuery.filter(**rule)
+                    elif rulesItem.boolean_type == "or":
+                        if countAppliedFilters > 0:
+                            transactionsQuery = (transactionsQuery | transactionsQueryBase.filter(**rule))
+                        else:
+                            transactionsQuery = (transactionsQueryBase.filter(**rule))
+                    countAppliedFilters += 1
+                if rulesItem.account:
+                    if rulesItem.boolean_type == "exclude_if":
+                        transactionsQuery = transactionsQuery.exclude(account=rulesItem.account)
+                    elif rulesItem.boolean_type == "and":
+                        transactionsQuery = transactionsQuery.filter(account=rulesItem.account)
+                    elif rulesItem.boolean_type == "or":
+                        if countAppliedFilters > 0:
+                            transactionsQuery = (transactionsQuery | transactionsQueryBase.filter(account=rulesItem.account))
+                        else:
+                            transactionsQuery = (transactionsQueryBase.filter(account=rulesItem.account))
+                    countAppliedFilters += 1
+        else:
+            transactionsQuery = Transaction.objects.none()
         return transactionsQuery
 
     def applyRule(self, transactionsIds = None):

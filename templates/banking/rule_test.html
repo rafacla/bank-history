@@ -1,7 +1,7 @@
 {% load i18n %}
 <form method="post">
     <div class="modal-header">
-        <h5 class="modal-title">{% trans "Showing 20 transactions that were triggered by this rule:" %}</h5>
+        <h5 class="modal-title">{% trans "Showing transactions that were triggered by this rule (up to 20)" %}</h5>
         <button type="button"
                 class="btn-close"
                 data-bs-dismiss="modal"
@@ -13,10 +13,11 @@
             {% load crispy_forms_tags %}
             {{ form.as_p }}
             
+            {% if transactions.count > 0 %}
             <table class="table">
                 <thead>
                     <tr>
-                        <td>Description</td>
+                        <td><b>{% trans "Description" %}</b></td>
                     </tr>
                 </thead>
                 <tbody>
@@ -27,6 +28,9 @@
                     {% endfor %}
                 </tbody>
             </table>
+            {% else %}
+            <p>{% trans "No transaction has been triggered by this rule" %}</p>
+            {% endif %}
             <p>{% trans "Are you sure you want to continue?" %}</p>
         </div>
     </div>
