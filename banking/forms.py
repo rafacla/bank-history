@@ -137,7 +137,7 @@ class FileImportForm(forms.Form):
             listOfTransactions = []
             if cd["import_file"].name.endswith(".csv"):
                 listOfTransactions = parseCSV(cd["import_file"])
-            if cd["import_file"].name.endswith(".pdf"):
+            elif cd["import_file"].name.endswith(".pdf"):
                 listOfTransactions = parsePDF(cd["import_file"])
             else:
                 raise ValidationError(
