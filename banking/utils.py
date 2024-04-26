@@ -80,8 +80,10 @@ def parseCSV(import_file):
                 "CSV file doesn't have all the columns needed: date, description and value"
             )
             break
+        # we do a nasty conversion of decimals, if needed
+        row["value"] = row["value"].replace(" ", "").replace(",",".")
+        row["value"] = row["value"].replace(".", "", value.count(".") -1)
         # we try to convert the dates:
-        row["value"] = row["value"].replace(" ", "")
         row["date"] = strToDate_anyformat(row["date"])
 
         listOfTransactions.append(
