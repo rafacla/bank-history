@@ -82,7 +82,7 @@ def parseCSV(import_file):
             break
         # we do a nasty conversion of decimals, if needed
         row["value"] = row["value"].replace(" ", "").replace(",",".")
-        row["value"] = row["value"].replace(".", "", value.count(".") -1)
+        row["value"] = row["value"].replace(".", "", row["value"].count(".") -1)
         # we try to convert the dates:
         row["date"] = strToDate_anyformat(row["date"])
 
