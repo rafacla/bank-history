@@ -153,7 +153,7 @@ def parsePDF(import_file):
                                 listOfTransactions.append(
                                     {
                                         "select_row": False,
-                                        "value": float(str(row[2]).replace(",","."))*(-1),
+                                        "value": float(str(row[2]).replace(",",".").replace(" ",""))*(-1),
                                         "date": rowDate,
                                         "competency_date": competency_date,
                                         "description": str(row[1]).replace("\n"," (").replace(" .","/")+")",
