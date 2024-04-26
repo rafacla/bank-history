@@ -132,8 +132,6 @@ def parsePDF(import_file):
     if pdf[0].search_for("Com vencimento em:"):
         # For credit cards, we match the competency date with the due date of the statement
         competency_date = strToDate_anyformat(getValuesFromKey("Com vencimento em:")[0])
-        payment_last_statement_date = getValuesFromKey("Pagamento efetuado em ",below=False, right=True)[0]
-        payment_last_statement_value = float(getValuesFromKey("Pagamento efetuado em ",below=False, right=True, dx0=50, dx1=50)[0].replace(" ","").replace(".","").replace(",","."))*(-1)
         
         for page in pdf:
             # Here we tell the script where to look in the statement:
@@ -167,22 +165,26 @@ def parsePDF(import_file):
                                         "concilied": None,
                                     }
                                 )
-        if strToDate_anyformat(payment_last_statement_date):
-            listOfTransactions.append(
-                {
-                    "select_row": False,
-                    "value": payment_last_statement_value,
-                    "date": strToDate_anyformat(payment_last_statement_date),
-                    "competency_date": None,
-                    "description": "Pagamento efetuado em "+payment_last_statement_date,
-                    "account_name": None,
-                    "account_id": None,
-                    "category_name": None,
-                    "category_id": None,
-                    "is_transfer": True,
-                    "concilied": None,
-                }
-            )
+        
+        if getValuesFromKey("Pagamento efetuado em ",below=False, right=True):
+            payment_last_statement_date = getValuesFromKey("Pagamento efetuado em ",below=False, right=True)[0]
+            payment_last_statement_value = float(getValuesFromKey("Pagamento efetuado em ",below=False, right=True, dx0=50, dx1=50)[0].replace(" ","").replace(".","").replace(",","."))*(-1)
+            if strToDate_anyformat(payment_last_statement_date):
+                listOfTransactions.append(
+                    {
+                        "select_row": False,
+                        "value": payment_last_statement_value,
+                        "date": strToDate_anyformat(payment_last_statement_date),
+                        "competency_date": None,
+                        "description": "Pagamento efetuado em "+payment_last_statement_date,
+                        "account_name": None,
+                        "account_id": None,
+                        "category_name": None,
+                        "category_id": None,
+                        "is_transfer": True,
+                        "concilied": None,
+                    }
+                )
 
     return listOfTransactions
 
