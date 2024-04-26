@@ -68,7 +68,10 @@ def lastDayOfMonth(date):
     return date.replace(month=date.month+1, day=1) - timedelta(days=1)
 
 def parseCSV(import_file):
-    csv_reader = csv.DictReader(import_file.read().decode("utf-8-sig").splitlines())
+    rows = import_file.read().decode("utf-8-sig").splitlines()
+    dialect = csv.Sniffer().sniff(rows[0])
+    
+    csv_reader = csv.DictReader(rows, dialect=dialect)
 
     listOfTransactions = []
     for row in csv_reader:
