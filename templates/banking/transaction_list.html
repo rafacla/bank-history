@@ -307,7 +307,7 @@
                             <input class="form-check-input m-0 align-middle"
                                    type="checkbox"
                                    aria-label="Select transaction of {{ item.date }}"
-                                   id="{{ item.id }}">
+                                   id="{{ item.id|stringformat:"s" }}">
                           </td>
                           <td>
                             {% if item.getMergedTransactions.count > 0 %}
