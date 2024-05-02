@@ -1,0 +1,572 @@
+# Translation file for pt_BR
+# Para recuperar strings:
+# python manage.py makemessages -l 'pt_BR'
+# Para compilar a tradução:
+
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-05-01 22:37-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: templates/banking/account_confirm_delete.html:4
+msgid "Delete Account"
+msgstr "Apagar Conta"
+
+#: templates/banking/account_confirm_delete.html:13
+msgid "Deleting an account will erase all transactions from it."
+msgstr "Apagar uma conta irá apagar todas as transações dela."
+
+#: templates/banking/account_confirm_delete.html:14
+#: templates/banking/category_confirm_delete.html:14
+#: templates/banking/modal_confirm_delete.html:15
+#: templates/banking/rule_run.html:15
+#: templates/banking/transaction_categorize.html:15
+#: templates/banking/transaction_confirm_internal_transfer.html:15
+#: templates/banking/transaction_confirm_merge.html:15
+msgid "This action is permanent and there's no coming back."
+msgstr "Esta ação é permanente, não há volta."
+
+#: templates/banking/account_confirm_delete.html:17
+msgid "Are you sure you want to erase this Account and all related transactions?"
+msgstr "Tem certeza que deseja apagar esta Conta e todas as transações relacionadas?"
+
+#: templates/banking/account_confirm_delete.html:35
+#: templates/banking/account_form.html:30
+#: templates/banking/category_confirm_delete.html:35
+#: templates/banking/category_form.html:42
+#: templates/banking/modal_confirm_delete.html:36
+#: templates/banking/modal_form.html:45 templates/banking/rule_form.html:45
+#: templates/banking/rule_run.html:38 templates/banking/rule_test.html:52
+#: templates/banking/transaction_categorize.html:39
+#: templates/banking/transaction_confirm_internal_transfer.html:37
+#: templates/banking/transaction_confirm_merge.html:41
+#: templates/banking/transaction_form.html:45
+#: templates/banking/transaction_import_form.html:32
+#: templates/banking/transaction_import_form.html:44
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: templates/banking/account_confirm_delete.html:51
+#: templates/banking/category_confirm_delete.html:51
+msgid "Erase"
+msgstr "Apagar"
+
+#: templates/banking/account_detail.html:3
+#: templates/banking/transaction_detail.html:6
+msgid "Account Details"
+msgstr "Detalhes da Conta"
+
+#: templates/banking/account_detail.html:12
+#: templates/banking/transaction_detail.html:15
+msgid "Account Name"
+msgstr "Nome da Conta"
+
+#: templates/banking/account_detail.html:16
+#: templates/banking/transaction_detail.html:19
+msgid "Bank Name"
+msgstr "Nome do Banco"
+
+#: templates/banking/account_detail.html:26
+#: templates/banking/transaction_detail.html:29
+msgid "Account Type"
+msgstr "Tipo da Conta"
+
+#: templates/banking/account_detail.html:30
+#: templates/banking/account_list.html:57
+#: templates/banking/transaction_detail.html:33
+msgid "Currency"
+msgstr "Moeda"
+
+#: templates/banking/account_detail.html:37
+#: templates/banking/account_list.html:58
+#: templates/banking/transaction_detail.html:38
+msgid "Closing Day"
+msgstr "Dia de Fechamento"
+
+#: templates/banking/account_detail.html:41
+#: templates/banking/account_list.html:59
+#: templates/banking/transaction_detail.html:42
+msgid "Due Day"
+msgstr "Dia de Vencimento"
+
+#: templates/banking/account_detail.html:45
+#: templates/banking/transaction_detail.html:46
+msgid "Transactions without Classification"
+msgstr "Transações sem Classificação"
+
+#: templates/banking/account_detail.html:49
+#: templates/banking/transaction_detail.html:50
+msgid "Transactions not Concilied"
+msgstr "Transações não Conciliadas"
+
+#: templates/banking/account_detail.html:53
+#: templates/banking/transaction_detail.html:54
+msgid "Account Balance"
+msgstr "Saldo da Conta"
+
+#: templates/banking/account_detail.html:59
+#: templates/banking/category_detail.html:67
+#: templates/banking/transaction_detail.html:60
+msgid "Close"
+msgstr "Fechar"
+
+#: templates/banking/account_detail.html:78
+#: templates/banking/transaction_detail.html:77
+msgid "Open Statement"
+msgstr "Abrir Extrato"
+
+#: templates/banking/account_form.html:8
+msgid "Edit Account"
+msgstr "Editar Conta"
+
+#: templates/banking/account_form.html:10
+msgid "Create Account"
+msgstr "Criar Conta"
+
+#: templates/banking/account_form.html:35
+#: templates/banking/category_form.html:61
+#: templates/banking/transaction_form.html:64
+msgid "Submit"
+msgstr "Enviar"
+
+#: templates/banking/account_list.html:12 templates/base.html:168
+msgid "Accounts"
+msgstr "Contas"
+
+#: templates/banking/account_list.html:37
+msgid "Create new account"
+msgstr "Criar nova conta"
+
+#: templates/banking/account_list.html:50
+msgid "List of Accounts"
+msgstr "Lista de Contas"
+
+#: templates/banking/account_list.html:55
+#: templates/banking/category_list.html:90
+msgid "Name"
+msgstr "Nome"
+
+#: templates/banking/account_list.html:56
+#: templates/banking/category_list.html:91
+msgid "Type"
+msgstr "Tipo"
+
+#: templates/banking/account_list.html:60
+#: templates/banking/transaction_list.html:283
+msgid "Balance"
+msgstr "Saldo"
+
+#: templates/banking/account_list.html:82
+msgid "Transactions not classified"
+msgstr "Transações sem classificação"
+
+#: templates/banking/account_list.html:91
+msgid "Transactions not concilied"
+msgstr "Transações não conciliadas"
+
+#: templates/banking/account_list.html:127
+#: templates/banking/category_list.html:166
+#: templates/banking/category_list.html:221
+#: templates/banking/category_list.html:276
+#: templates/banking/category_list.html:353
+#: templates/banking/category_list.html:408
+#: templates/banking/category_list.html:463
+#: templates/banking/modal_confirm_delete.html:52
+#: templates/banking/rule_list.html:122
+#: templates/banking/transaction_list.html:132
+msgid "Delete"
+msgstr "Apagar"
+
+#: templates/banking/account_list.html:148 templates/banking/rule_list.html:143
+msgid "Edit"
+msgstr "Editar"
+
+#: templates/banking/account_list.html:176 templates/banking/dashboard.html:75
+#: templates/banking/dashboard.html:121
+msgid "Total"
+msgstr "Total"
+
+#: templates/banking/category_confirm_delete.html:4
+msgid "Delete Category"
+msgstr "Apagar Categoria"
+
+#: templates/banking/category_confirm_delete.html:13
+msgid ""
+"Deleting an category will erase the classification of all transactions with "
+"this category."
+msgstr ""
+"Deletar uma categoria irá apagar a classificação de todas as transações com"
+"esta categoria."
+
+#: templates/banking/category_confirm_delete.html:17
+msgid ""
+"Are you sure you want to erase this Category and lose all the "
+"classifications?"
+msgstr ""
+"Tem certeza que seja apagar esta Categoria e perder todas as"
+"classificações?"
+
+#: templates/banking/category_detail.html:5
+msgid "Category Details"
+msgstr "Detalhes da Categoria"
+
+#: templates/banking/category_detail.html:14
+msgid "Category Name"
+msgstr "Nome da Categoria"
+
+#: templates/banking/category_detail.html:18
+msgid "Category Path"
+msgstr "Caminho da Categoria"
+
+#: templates/banking/category_detail.html:32
+msgid "Subcategories"
+msgstr "Subcategorias"
+
+#: templates/banking/category_detail.html:90
+#: templates/banking/category_form.html:8
+msgid "Edit Category"
+msgstr "Editar Categoria"
+
+#: templates/banking/category_form.html:10
+msgid "Create Category"
+msgstr "Criar Categoria"
+
+#: templates/banking/category_list.html:12 templates/base.html:191
+msgid "Categories"
+msgstr "Categorias"
+
+#: templates/banking/category_list.html:92
+msgid "No. of Transactions"
+msgstr "Nº de Transações"
+
+#: templates/banking/category_list.html:93
+msgid "Incurred Value of Transactions"
+msgstr "Valor Incorrido"
+
+#: templates/banking/category_list.html:100
+msgid "Credit Categories"
+msgstr "Categorias de Crédito"
+
+#: templates/banking/category_list.html:124
+#: templates/banking/category_list.html:311
+msgid "New category"
+msgstr "Nova categoria"
+
+#: templates/banking/category_list.html:288
+msgid "Debit Categories"
+msgstr "Categorias de Débito"
+
+#: templates/banking/dashboard.html:15
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: templates/banking/dashboard.html:39
+msgid "Top 10 Credit Categories"
+msgstr "Top 10 de Categorias de Crédito"
+
+#: templates/banking/dashboard.html:44 templates/banking/dashboard.html:90
+#: templates/banking/transaction_list.html:280
+msgid "Category"
+msgstr "Categoria"
+
+#: templates/banking/dashboard.html:45 templates/banking/dashboard.html:91
+msgid "$ Incurred"
+msgstr "$ Incorrido"
+
+#: templates/banking/dashboard.html:63 templates/banking/dashboard.html:109
+#: templates/banking/transaction_list.html:422
+msgid "Not classified"
+msgstr "Sem classificação"
+
+#: templates/banking/dashboard.html:85
+msgid "Top 10 Debit Categories"
+msgstr "Top 10 de Categorias de Débito"
+
+#: templates/banking/modal_confirm_delete.html:4
+msgid "Delete items"
+msgstr "Apagar itens"
+
+#: templates/banking/modal_confirm_delete.html:18
+msgid "Are you sure you want to erase all selected items?"
+msgstr "Tem certeza que deseja apagar todos os itens selecionados?"
+
+#: templates/banking/modal_form.html:24 templates/banking/rule_form.html:24
+msgid "Add new item"
+msgstr "Adicionar novo item"
+
+#: templates/banking/modal_form.html:64 templates/banking/rule_form.html:64
+msgid "Save"
+msgstr "Salvar"
+
+#: templates/banking/rule_list.html:12 templates/base.html:224
+msgid "Rules"
+msgstr "Regras"
+
+#: templates/banking/rule_list.html:37
+msgid "Create new rule"
+msgstr "Criar nova regra"
+
+#: templates/banking/rule_list.html:60
+msgid "Run all rules"
+msgstr "Executar todas as regras"
+
+#: templates/banking/rule_list.html:78
+msgid "Runs on every imported file"
+msgstr "Executar a cada arquivo importado"
+
+#: templates/banking/rule_list.html:81
+msgid "Runs even if transaction is already categorized"
+msgstr "Executar mesmo se a transação já tiver classificação"
+
+#: templates/banking/rule_list.html:83 templates/banking/rule_test.html:20
+#: templates/banking/transaction_list.html:278
+msgid "Description"
+msgstr "Descrição"
+
+#: templates/banking/rule_list.html:84
+msgid "Apply category"
+msgstr "Aplicar categoria"
+
+#: templates/banking/rule_list.html:85
+msgid "Mark as Transfer"
+msgstr "Marcar como Transferência"
+
+#: templates/banking/rule_list.html:86
+msgid "Last time run"
+msgstr "Última execução em"
+
+#: templates/banking/rule_list.html:150
+msgid "Test and Run Rule"
+msgstr "Testar e Executar Regra"
+
+#: templates/banking/rule_run.html:4
+msgid "Run Rules?"
+msgstr "Executar Regras?"
+
+#: templates/banking/rule_run.html:16
+msgid ""
+"It'll apply rule(s) to all applicable transactions according to each rule "
+"filter."
+msgstr ""
+"Isto irá aplicar a(s) regra(s) para todas as transações aplicáveis de cada regra."
+""
+
+#: templates/banking/rule_run.html:20 templates/banking/rule_test.html:34
+#: templates/banking/transaction_categorize.html:21
+#: templates/banking/transaction_confirm_internal_transfer.html:19
+#: templates/banking/transaction_confirm_merge.html:23
+msgid "Are you sure you want to continue?"
+msgstr "Tem certeza que deseja continuar?"
+
+#: templates/banking/rule_run.html:42 templates/banking/rule_test.html:56
+msgid "Run Rule(s)"
+msgstr "Executar Regra(s)"
+
+#: templates/banking/rule_test.html:4
+msgid "Showing transactions that were triggered by this rule (up to 20)"
+msgstr "Exebindo transações filtradas por esta regra (até 20)"
+
+#: templates/banking/rule_test.html:32
+msgid "No transaction has been triggered by this rule"
+msgstr "Nenhuma transação foi filtrada por esta regra"
+
+#: templates/banking/transaction_categorize.html:6
+#: templates/banking/transaction_categorize.html:55
+msgid "Apply Categories"
+msgstr "Aplicar Categorias"
+
+#: templates/banking/transaction_categorize.html:16
+msgid "It'll classify the selected transactions as the picked category below:"
+msgstr "Isto irá classificar as transações selecionadas com a categoria abaixo:"
+
+#: templates/banking/transaction_confirm_internal_transfer.html:4
+msgid "Set Transaction(s) as internal Transfers?"
+msgstr "Marcar Transações como Transferência Interna?"
+
+#: templates/banking/transaction_confirm_internal_transfer.html:16
+msgid ""
+"It'll classify the selected transactions as internal transfer and erase its "
+"category if any."
+msgstr ""
+"Isto irá classificar as transações selecionadas como Transferência interna e apagar "
+"sua categoria, se existente."
+
+#: templates/banking/transaction_confirm_internal_transfer.html:53
+msgid "Set as Internal Transfer"
+msgstr "Marcar como Transferência Interna"
+
+#: templates/banking/transaction_confirm_merge.html:4
+msgid "Merge transactions?"
+msgstr "Mesclar transações?"
+
+#: templates/banking/transaction_confirm_merge.html:16
+msgid "It'll merge all selected transactions in the oldest one selected."
+msgstr "Isto irá mesclar todas as transações selecionadas na mais antiga."
+
+#: templates/banking/transaction_confirm_merge.html:19
+msgid ""
+"Merged transactions are kept in database to avoid duplication when importing "
+"files, but are ignored otherwise."
+msgstr ""
+"Transações mescladas são mantidas no banco de dados para evitar duplicação ao importar "
+"arquivos, mas são ignoradas de outra forma."
+
+#: templates/banking/transaction_confirm_merge.html:57
+#: templates/banking/transaction_list.html:111
+msgid "Merge transactions"
+msgstr "Mesclar transações"
+
+#: templates/banking/transaction_form.html:6
+msgid "Edit Transaction"
+msgstr "Editar Transação"
+
+#: templates/banking/transaction_form.html:8
+#: templates/banking/transaction_list.html:163
+msgid "Create Transaction"
+msgstr "Criar Transação"
+
+#: templates/banking/transaction_import_form.html:12
+msgid "Import Transactions from file"
+msgstr "Importar Transações do arquivo"
+
+#: templates/banking/transaction_import_form.html:33
+msgid "Import"
+msgstr "Importar"
+
+#: templates/banking/transaction_import_form.html:45
+msgid "Open"
+msgstr "Abrir"
+
+#: templates/banking/transaction_list.html:15
+msgid ": account statement"
+msgstr ": extrato da conta"
+
+#: templates/banking/transaction_list.html:17 templates/base.html:216
+msgid "Transactions"
+msgstr "Transações"
+
+#: templates/banking/transaction_list.html:20
+#: templates/banking/transaction_list.html:22
+msgid " from "
+msgstr " de "
+
+#: templates/banking/transaction_list.html:20
+msgid " until "
+msgstr " até "
+
+#: templates/banking/transaction_list.html:22
+msgid " onwards"
+msgstr " em diante"
+
+#: templates/banking/transaction_list.html:24
+msgid " since the beginning until "
+msgstr " desde o começo até "
+
+#: templates/banking/transaction_list.html:53
+msgid "Edit Transaction(s)"
+msgstr "Editar Transações"
+
+#: templates/banking/transaction_list.html:56
+msgid "Edit multiple transactions"
+msgstr "Editar múltiplas transações"
+
+#: templates/banking/transaction_list.html:75
+msgid "Set category"
+msgstr "Aplicar categoria"
+
+#: templates/banking/transaction_list.html:93
+msgid "Mark as internal transfer"
+msgstr "Marcar como Transferência interna"
+
+#: templates/banking/transaction_list.html:137
+msgid "Supported files: csv, pdf (selected banks, issue a request in Github)"
+msgstr "Arquivos suportados: csv, pdf (bancos selecionados, abra um Issue no Github)"
+
+#: templates/banking/transaction_list.html:140
+msgid "Import Transactions from File"
+msgstr "Importar Transações do Arquivo"
+
+#: templates/banking/transaction_list.html:205
+msgid "Statement summary"
+msgstr "Resumo da Fatura"
+
+#: templates/banking/transaction_list.html:218
+msgid "Balance from last month:"
+msgstr "Saldo do último mês:"
+
+#: templates/banking/transaction_list.html:220
+msgid "Debits of this competency"
+msgstr "Débitos desta competência"
+
+#: templates/banking/transaction_list.html:222
+msgid "Payments of this competency"
+msgstr "Pagamentos desta competência"
+
+#: templates/banking/transaction_list.html:225
+msgid "Payment of Statement"
+msgstr "Pagamento da Fatura"
+
+#: templates/banking/transaction_list.html:275
+msgid "Account"
+msgstr "Conta"
+
+#: templates/banking/transaction_list.html:276
+msgid "Competency"
+msgstr "Competência"
+
+#: templates/banking/transaction_list.html:277
+msgid "Date"
+msgstr "Data"
+
+#: templates/banking/transaction_list.html:279
+msgid "Notes"
+msgstr "Notas"
+
+#: templates/banking/transaction_list.html:281
+msgid "Value"
+msgstr "Valor"
+
+#: templates/banking/transaction_list.html:290
+msgid "No transactions yet for the given filter"
+msgstr "Nenhuma transação para este filtro"
+
+#: templates/banking/transaction_list.html:315
+msgid ""
+"There's one or more transactions merged to this one. Click at Transaction to "
+"show more details"
+msgstr ""
+"Há uma ou mais transações mescladas a esta. Clique na Transação para mostrar "
+"mais detalhes"
+
+#: templates/banking/transaction_list.html:363
+msgid ""
+"This is a Transfer! It doesn't need a Category, because this is only "
+"internal money moving from your own account and not actual spending!"
+msgstr ""
+"Isto é uma Transferência! Ela não precisa de Categoria, porque é apenas "
+"dinheiro se movendo de uma conta sua para outra e não um gasto real!"
+
+#: templates/banking/transaction_list.html:383
+msgid ""
+"This is a categorized transaction, it means you are spending or receiving "
+"money!"
+msgstr ""
+"Esta é uma transação classificada, significa que você gastou ou recebeu "
+"dinheiro!"
+
+#: templates/banking/transaction_list.html:406
+msgid ""
+"You did not classified this transaction! It's always recommended that you "
+"classify every transaction to get control of your finances!"
+msgstr ""
+"Você não classificou esta transação! Você sempre deve classificar cada "
+"transação para ter o controle de suas finanças!"
