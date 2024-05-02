@@ -352,6 +352,13 @@ class TransactionCreateView(TransactionBaseView, BSModalCreateView):
     form_class = TransactionForm
     success_message = "Success!"
 
+    def get_success_url(self):
+        return (
+            reverse_lazy("banking:transaction_list")
+            + "?"
+            + self.request.GET.urlencode(safe='&').replace('&amp%3B','&')
+        )
+
 
 class TransactionUpdateView(TransactionBaseView, BSModalUpdateView):
     """View to update a Transaction"""
@@ -359,11 +366,22 @@ class TransactionUpdateView(TransactionBaseView, BSModalUpdateView):
     form_class = TransactionForm
     success_message = "Success!"
 
+    def get_success_url(self):
+        return (
+            reverse_lazy("banking:transaction_list")
+            + "?"
+            + self.request.GET.urlencode(safe='&').replace('&amp%3B','&')
+        )
+
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.filter(
             pk=self.request.resolver_match.kwargs["pk"], account__user=self.request.user
         )
+    
+    def get_form_kwargs(self):
+        form_kwargs = super(TransactionUpdateView, self).get_form_kwargs()
+        return form_kwargs
 
 
 class TransactionDeleteView(BSModalFormView):
@@ -535,7 +553,9 @@ def import_file(request):
                     ).id)
             for rule in Rule.objects.filter(user=request.user,runs_on_imported_transactions=True):
                 rule.applyRule(transactionsIds=importedListIds)
-            return redirect("banking:transaction_list")
+            return redirect(reverse_lazy("banking:transaction_list")
+            + "?"
+            + request.GET.urlencode(safe='&').replace('&amp%3B','&'))
         elif "formset-submit" in request.POST:
             return render(
                 request,
