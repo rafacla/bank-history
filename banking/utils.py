@@ -1,5 +1,7 @@
 import csv
 import re
+import io as io
+import polars as pl
 from django.core.exceptions import ValidationError
 from datetime import date, datetime, timedelta
 import fitz
@@ -65,12 +67,13 @@ def strToDate_anyformat(format_date, expected_format=""):
 def lastDayOfMonth(date):
     if date.month == 12:
         return date.replace(day=31)
-    return date.replace(month=date.month+1, day=1) - timedelta(days=1)
+    return date.replace(month=date.month + 1, day=1) - timedelta(days=1)
+
 
 def parseCSV(import_file):
     rows = import_file.read().decode("utf-8-sig").splitlines()
     dialect = csv.Sniffer().sniff(rows[0])
-    
+
     csv_reader = csv.DictReader(rows, dialect=dialect)
 
     listOfTransactions = []
@@ -81,8 +84,8 @@ def parseCSV(import_file):
             )
             break
         # we do a nasty conversion of decimals, if needed
-        row["value"] = row["value"].replace(" ", "").replace(",",".")
-        row["value"] = row["value"].replace(".", "", row["value"].count(".") -1)
+        row["value"] = row["value"].replace(" ", "").replace(",", ".")
+        row["value"] = row["value"].replace(".", "", row["value"].count(".") - 1)
         # we try to convert the dates:
         row["date"] = strToDate_anyformat(row["date"])
 
@@ -91,11 +94,54 @@ def parseCSV(import_file):
                 "select_row": False,
                 "value": row["value"] if "value" in row else None,
                 "date": row["date"] if "date" in row else None,
-                "competency_date": row["competency_date"] if "competency_date" in row else None,
+                "competency_date": (
+                    row["competency_date"] if "competency_date" in row else None
+                ),
                 "description": row["description"] if "description" in row else None,
                 "account_name": row["account_name"] if "account_name" in row else None,
                 "account_id": row["account_id"] if "account_id" in row else None,
-                "category_name": row["category_name"] if "category_name" in row else None,
+                "category_name": (
+                    row["category_name"] if "category_name" in row else None
+                ),
+                "category_id": row["category_id"] if "category_id" in row else None,
+                "is_transfer": row["is_transfer"] if "transfer" in row else None,
+                "concilied": row["concilied"] if "concilied" in row else None,
+            }
+        )
+
+    return listOfTransactions
+
+
+def parseXLSX(import_file):
+    rows = pl.read_excel(
+        source=io.BytesIO(import_file.read())
+    ).rows(named=True)
+    
+
+    listOfTransactions = []
+    for row in rows:
+        if not "value" in row or not "date" in row or not "description" in row:
+            raise ValidationError(
+                "Excel file doesn't have all the columns needed: date, description and value"
+            )
+            break
+        # we try to convert the dates:
+        row["date"] = strToDate_anyformat(row["date"])
+
+        listOfTransactions.append(
+            {
+                "select_row": False,
+                "value": row["value"] if "value" in row else None,
+                "date": row["date"] if "date" in row else None,
+                "competency_date": (
+                    row["competency_date"] if "competency_date" in row else None
+                ),
+                "description": row["description"] if "description" in row else None,
+                "account_name": row["account_name"] if "account_name" in row else None,
+                "account_id": row["account_id"] if "account_id" in row else None,
+                "category_name": (
+                    row["category_name"] if "category_name" in row else None
+                ),
                 "category_id": row["category_id"] if "category_id" in row else None,
                 "is_transfer": row["is_transfer"] if "transfer" in row else None,
                 "concilied": row["concilied"] if "concilied" in row else None,
@@ -107,7 +153,7 @@ def parseCSV(import_file):
 
 def parsePDF(import_file):
     pdf = fitz.open(stream=import_file.read(), filetype="pdf")
-    
+
     def getValuesFromKey(key, below=True, right=False, dx0=0, dx1=0, dy0=0, dy1=0):
         list = []
         for page in pdf:
@@ -115,14 +161,13 @@ def parsePDF(import_file):
             for rectFound in rectsFound:
                 x0 = rectFound[2] if right else rectFound[0]
                 y0 = rectFound[3] if below else rectFound[1]
-                x1 = rectFound[2]-rectFound[0]+x0 if right else rectFound[2]
-                y1 = rectFound[3]-rectFound[1]+y0 if below else rectFound[3]
-                rectExtract = fitz.Rect(x0+dx0, y0+dy0, x1+dx1, y1+dy1)
+                x1 = rectFound[2] - rectFound[0] + x0 if right else rectFound[2]
+                y1 = rectFound[3] - rectFound[1] + y0 if below else rectFound[3]
+                rectExtract = fitz.Rect(x0 + dx0, y0 + dy0, x1 + dx1, y1 + dy1)
                 list.append(page.get_textbox(rectExtract))
         return list
 
-
-    # Initialize list of Transactions 
+    # Initialize list of Transactions
     listOfTransactions = []
 
     ### For PDF files, there's no standard, so we need to use masks for each kind of statement...
@@ -132,31 +177,42 @@ def parsePDF(import_file):
     if pdf[0].search_for("Com vencimento em:"):
         # For credit cards, we match the competency date with the due date of the statement
         competency_date = strToDate_anyformat(getValuesFromKey("Com vencimento em:")[0])
-        
+
         for page in pdf:
             # Here we tell the script where to look in the statement:
-            vertical_lines_coordiantes =[
-                [154, 177, 310, 345],
-                [370, 392, 518, 560]
-            ]
+            vertical_lines_coordiantes = [[154, 177, 310, 345], [370, 392, 518, 560]]
             for vlc in vertical_lines_coordiantes:
-                tabs = page.find_tables(horizontal_strategy='lines_strict', vertical_lines=vlc)
+                tabs = page.find_tables(
+                    horizontal_strategy="lines_strict", vertical_lines=vlc
+                )
                 for table in tabs.tables:
                     if table.col_count == 3:
                         for row in table.extract():
                             # as in itau CC statement transactions doesn't have the year, we need to consider that the year is the same of competency dates
                             # except if the transaction date would result in a date greater then competency_date (due date of statement), in this case we should consider the past year
-                            rowDate = strToDate_anyformat(row[0]+'/'+str(competency_date.year))
+                            rowDate = strToDate_anyformat(
+                                row[0] + "/" + str(competency_date.year)
+                            )
                             if isinstance(rowDate, date):
                                 if rowDate > competency_date:
-                                    rowDate = strToDate_anyformat(row[0]+'/'+str(competency_date.year - 1))
+                                    rowDate = strToDate_anyformat(
+                                        row[0] + "/" + str(competency_date.year - 1)
+                                    )
                                 listOfTransactions.append(
                                     {
                                         "select_row": False,
-                                        "value": float(str(row[2]).replace(",",".").replace(" ",""))*(-1),
+                                        "value": float(
+                                            str(row[2])
+                                            .replace(",", ".")
+                                            .replace(" ", "")
+                                        )
+                                        * (-1),
                                         "date": rowDate,
                                         "competency_date": competency_date,
-                                        "description": str(row[1]).replace("\n"," (").replace(" .","/")+")",
+                                        "description": str(row[1])
+                                        .replace("\n", " (")
+                                        .replace(" .", "/")
+                                        + ")",
                                         "account_name": None,
                                         "account_id": None,
                                         "category_name": None,
@@ -165,10 +221,19 @@ def parsePDF(import_file):
                                         "concilied": None,
                                     }
                                 )
-        
-        if getValuesFromKey("Pagamento efetuado em ",below=False, right=True):
-            payment_last_statement_date = getValuesFromKey("Pagamento efetuado em ",below=False, right=True)[0]
-            payment_last_statement_value = float(getValuesFromKey("Pagamento efetuado em ",below=False, right=True, dx0=50, dx1=50)[0].replace(" ","").replace(".","").replace(",","."))*(-1)
+
+        if getValuesFromKey("Pagamento efetuado em ", below=False, right=True):
+            payment_last_statement_date = getValuesFromKey(
+                "Pagamento efetuado em ", below=False, right=True
+            )[0]
+            payment_last_statement_value = float(
+                getValuesFromKey(
+                    "Pagamento efetuado em ", below=False, right=True, dx0=50, dx1=50
+                )[0]
+                .replace(" ", "")
+                .replace(".", "")
+                .replace(",", ".")
+            ) * (-1)
             if strToDate_anyformat(payment_last_statement_date):
                 listOfTransactions.append(
                     {
@@ -176,7 +241,8 @@ def parsePDF(import_file):
                         "value": payment_last_statement_value,
                         "date": strToDate_anyformat(payment_last_statement_date),
                         "competency_date": None,
-                        "description": "Pagamento efetuado em "+payment_last_statement_date,
+                        "description": "Pagamento efetuado em "
+                        + payment_last_statement_date,
                         "account_name": None,
                         "account_id": None,
                         "category_name": None,
@@ -187,5 +253,3 @@ def parsePDF(import_file):
                 )
 
     return listOfTransactions
-
-

@@ -7,3 +7,6 @@ django-bootstrap-modal-forms
 django-environ
 emoji
 pymupdf
+polars
+fastexcel
+xlsx2csv

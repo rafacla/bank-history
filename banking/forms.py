@@ -10,7 +10,7 @@ from django.forms.models import inlineformset_factory
 from banking import models
 from banking.models import Account, Category, Transaction
 from banking.widgets import CategorySelect
-from banking.utils import parsePDF, parseCSV
+from banking.utils import parsePDF, parseCSV, parseXLSX
  
 
 
@@ -139,6 +139,8 @@ class FileImportForm(forms.Form):
                 listOfTransactions = parseCSV(cd["import_file"])
             elif cd["import_file"].name.endswith(".pdf"):
                 listOfTransactions = parsePDF(cd["import_file"])
+            elif (cd["import_file"].name.endswith(".xlsx") or cd["import_file"].name.endswith(".xls")):
+                listOfTransactions = parseXLSX(cd["import_file"])
             else:
                 raise ValidationError(
                 "File format not supported"
