@@ -197,7 +197,8 @@
     <div class="container-xl">
       <div class="row row-deck row-cards">
         <div class="col-12">
-          {% if account.type == 'creditCard' %}
+          
+          {% if account.type == 'creditCard' and not_classified != '1' %}
           <div class="card w-25">
             <div class="card-body">
               <div class="d-flex align-items-center mb-2">

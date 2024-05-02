@@ -242,7 +242,7 @@ class TransactionListView(TransactionBaseView, ListView):
         if not_concilied == '1':
             qs = qs.filter(concilied=False)
         
-        if account and account.type == "creditCard":
+        if account and account.type == "creditCard" and not_classified != '1':
             statement_date = strToDate_anyformat(self.request.GET.get("statement_date", None))
             if (statement_date) == None:
                 statement_date = date.today()
@@ -266,6 +266,8 @@ class TransactionListView(TransactionBaseView, ListView):
 
         account_id = self.request.GET.get("account_id", None)
         account_name = self.request.GET.get("account_name", None)
+        not_classified = self.request.GET.get("not_classified", 0)
+
         if account_name:
             account_id = (
                 Account.objects.filter(
@@ -293,6 +295,7 @@ class TransactionListView(TransactionBaseView, ListView):
         data["first_date"] = qs["first_date"]
         data["last_date"] = qs["last_date"]
         data["statement_date"] = statement_date
+        data["not_classified"] = not_classified
 
         if data["first_date"] and data["last_date"]:
             data["balance_first_date"] = (
