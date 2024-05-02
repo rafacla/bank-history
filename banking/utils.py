@@ -78,6 +78,7 @@ def parseCSV(import_file):
 
     listOfTransactions = []
     for row in csv_reader:
+        row = dict((k.lower(), v) for k,v in row.items())
         if not "value" in row or not "date" in row or not "description" in row:
             raise ValidationError(
                 "CSV file doesn't have all the columns needed: date, description and value"
@@ -120,6 +121,7 @@ def parseXLSX(import_file):
 
     listOfTransactions = []
     for row in rows:
+        row = dict((k.lower(), v) for k,v in row.items())
         if not "value" in row or not "date" in row or not "description" in row:
             raise ValidationError(
                 "Excel file doesn't have all the columns needed: date, description and value"
