@@ -2,6 +2,7 @@
 # Para recuperar strings:
 # python manage.py makemessages -l 'pt_BR'
 # Para compilar a tradução:
+# python manage.py compilemessages --locale=pt_BR
 
 msgid ""
 msgstr ""
