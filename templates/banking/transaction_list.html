@@ -578,6 +578,20 @@
     ],
   });
   var table = $('#table-transactions-list').DataTable();
+  table.on('draw', function () {
+    let query_parameters = "{{ request.GET.urlencode }}"; 
+    if (query_parameters.length > 0) { query_parameters = "?" + query_parameters; } 
+
+    
+    var modalButtons = document.getElementsByClassName("modal-button"); 
+    for (var index=0; index < modalButtons.length; index++) { 
+      modalButtons[index].removeEventListener("click", document.getElementById('categorizeTransactions').clickHandler, false); 
+      modalForm(modalButtons[index], { 
+        formURL: modalButtons[index]["dataset"]["formUrl"] + query_parameters, 
+        modalID: "#modals-here", isDeleteForm: (modalButtons[index]["dataset"]["formDelete"] == true), 
+      }); 
+    } 
+  });
   $('#search').keyup(function() {
     table.search($(this).val()).draw();
   });
