@@ -31,3 +31,25 @@ tr > td > .on-hover-link {
 .dataTables_info .select-info {
     padding-left: 10px;
 }
+
+.select2-selection__rendered,
+.select2-selection,
+.select2-search,
+.select2-results__option, 
+.select2-results {
+    color: var(--tblr-body-color)!important;
+    background-color: var(--tblr-bg-forms)!important;
+}
+
+.select2-dropdown,
+.select2-selection,
+.select2-selection__rendered {
+    border: var(--tblr-border-width) solid var(--tblr-border-color)!important;
+    border-radius: var(--tblr-border-radius)!important;
+    box-shadow: var(--tblr-box-shadow-input)!important;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out!important;
+}
+
+.select2-results__option--highlighted {
+    background-color: var(--tblr-secondary)!important;
+}
