@@ -27,3 +27,7 @@ tr > td > .on-hover-link {
     width: 90vw;
     margin-left: 2vw;
 }
+
+.dataTables_info .select-info {
+    padding-left: 10px;
+}
