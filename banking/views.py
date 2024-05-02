@@ -374,7 +374,7 @@ class TransactionDeleteView(BSModalFormView):
         return (
             reverse_lazy("banking:transaction_list")
             + "?"
-            + self.request.GET.urlencode()
+            + self.request.GET.urlencode(safe='&').replace('&amp%3B','&')
         )
 
     def form_valid(self, form):
@@ -408,7 +408,7 @@ class TransactionInternalTransferView(BSModalFormView):
         return (
             reverse_lazy("banking:transaction_list")
             + "?"
-            + self.request.GET.urlencode()
+            + self.request.GET.urlencode(safe='&').replace('&amp%3B','&')
         )
 
     def form_valid(self, form):
@@ -438,7 +438,7 @@ class TransactionMergeView(BSModalFormView):
         return (
             reverse_lazy("banking:transaction_list")
             + "?"
-            + self.request.GET.urlencode()
+            + self.request.GET.urlencode(safe='&').replace('&amp%3B','&')
         )
 
     def form_valid(self, form):
@@ -469,7 +469,7 @@ class TransactionCategorizeView(BSModalFormView):
         return (
             reverse_lazy("banking:transaction_list")
             + "?"
-            + self.request.GET.urlencode()
+            + self.request.GET.urlencode(safe='&').replace('&amp%3B','&')
         )
 
     def form_valid(self, form):
