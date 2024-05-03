@@ -134,7 +134,7 @@
               </div>
             </div>
             <a class="btn btn-success d-none d-sm-inline-block modal-button" 
-              data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "Supported files: csv, pdf (selected banks, issue a request in Github)" %}"
+              data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="{% trans "Supported files: xls(x), csv, pdf (selected banks, issue a request in Github)" %}"
                href="{% url "banking:import_csv" %}?{{ request.GET.urlencode }}">
                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M12 17v-6" /><path d="M9.5 14.5l2.5 2.5l2.5 -2.5" /></svg>
               {% trans "Import Transactions from File" %}
@@ -144,23 +144,30 @@
                data-form-url="{% url "banking:transaction_create" %}"
                data-bs-toggle="modal"
                data-bs-target="#modals-here"
-               id="add_button">
-              <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
-              <svg xmlns="http://www.w3.org/2000/svg"
-                   class="icon"
-                   width="24"
-                   height="24"
-                   viewBox="0 0 24 24"
-                   stroke-width="2"
-                   stroke="currentColor"
-                   fill="none"
-                   stroke-linecap="round"
-                   stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M12 5l0 14"></path>
-                <path d="M5 12l14 0"></path>
-              </svg>
-              {% trans "Create Transaction" %}
+               id="add_button"
+               >
+              <span 
+                data-bs-toggle="popover" 
+                data-bs-trigger="hover focus" 
+                data-bs-content="{% trans "Create a new Transaction" %}"
+              >
+                <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    class="icon"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                    stroke="currentColor"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <path d="M12 5l0 14"></path>
+                  <path d="M5 12l14 0"></path>
+                </svg>
+                {% trans "Create Transaction" %}
+              </span>
             </a>
             <div class="input-icon">
               <span class="input-icon-addon">

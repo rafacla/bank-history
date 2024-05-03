@@ -3,12 +3,11 @@
 # python manage.py makemessages -l 'pt_BR'
 # Para compilar a tradução:
 # python manage.py compilemessages --locale=pt_BR
-
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-01 22:37-0300\n"
+"POT-Creation-Date: 2024-05-03 14:28-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,8 +36,10 @@ msgid "This action is permanent and there's no coming back."
 msgstr "Esta ação é permanente, não há volta."
 
 #: templates/banking/account_confirm_delete.html:17
-msgid "Are you sure you want to erase this Account and all related transactions?"
-msgstr "Tem certeza que deseja apagar esta Conta e todas as transações relacionadas?"
+msgid ""
+"Are you sure you want to erase this Account and all related transactions?"
+msgstr ""
+"Tem certeza que deseja apagar esta Conta e todas as transações relacionadas?"
 
 #: templates/banking/account_confirm_delete.html:35
 #: templates/banking/account_form.html:30
@@ -205,16 +206,15 @@ msgid ""
 "Deleting an category will erase the classification of all transactions with "
 "this category."
 msgstr ""
-"Deletar uma categoria irá apagar a classificação de todas as transações com"
-"esta categoria."
+"Deletar uma categoria irá apagar a classificação de todas as transações "
+"comesta categoria."
 
 #: templates/banking/category_confirm_delete.html:17
 msgid ""
 "Are you sure you want to erase this Category and lose all the "
 "classifications?"
 msgstr ""
-"Tem certeza que seja apagar esta Categoria e perder todas as"
-"classificações?"
+"Tem certeza que seja apagar esta Categoria e perder todas asclassificações?"
 
 #: templates/banking/category_detail.html:5
 msgid "Category Details"
@@ -358,8 +358,8 @@ msgid ""
 "It'll apply rule(s) to all applicable transactions according to each rule "
 "filter."
 msgstr ""
-"Isto irá aplicar a(s) regra(s) para todas as transações aplicáveis de cada regra."
-""
+"Isto irá aplicar a(s) regra(s) para todas as transações aplicáveis de cada "
+"regra."
 
 #: templates/banking/rule_run.html:20 templates/banking/rule_test.html:34
 #: templates/banking/transaction_categorize.html:21
@@ -387,7 +387,8 @@ msgstr "Aplicar Categorias"
 
 #: templates/banking/transaction_categorize.html:16
 msgid "It'll classify the selected transactions as the picked category below:"
-msgstr "Isto irá classificar as transações selecionadas com a categoria abaixo:"
+msgstr ""
+"Isto irá classificar as transações selecionadas com a categoria abaixo:"
 
 #: templates/banking/transaction_confirm_internal_transfer.html:4
 msgid "Set Transaction(s) as internal Transfers?"
@@ -398,8 +399,8 @@ msgid ""
 "It'll classify the selected transactions as internal transfer and erase its "
 "category if any."
 msgstr ""
-"Isto irá classificar as transações selecionadas como Transferência interna e apagar "
-"sua categoria, se existente."
+"Isto irá classificar as transações selecionadas como Transferência interna e "
+"apagar sua categoria, se existente."
 
 #: templates/banking/transaction_confirm_internal_transfer.html:53
 msgid "Set as Internal Transfer"
@@ -418,8 +419,8 @@ msgid ""
 "Merged transactions are kept in database to avoid duplication when importing "
 "files, but are ignored otherwise."
 msgstr ""
-"Transações mescladas são mantidas no banco de dados para evitar duplicação ao importar "
-"arquivos, mas são ignoradas de outra forma."
+"Transações mescladas são mantidas no banco de dados para evitar duplicação "
+"ao importar arquivos, mas são ignoradas de outra forma."
 
 #: templates/banking/transaction_confirm_merge.html:57
 #: templates/banking/transaction_list.html:111
@@ -489,8 +490,13 @@ msgid "Mark as internal transfer"
 msgstr "Marcar como Transferência interna"
 
 #: templates/banking/transaction_list.html:137
-msgid "Supported files: csv, pdf (selected banks, issue a request in Github)"
-msgstr "Arquivos suportados: csv, pdf (bancos selecionados, abra um Issue no Github)"
+#, fuzzy
+#| msgid ""
+#| "Supported files: csv, pdf (selected banks, issue a request in Github)"
+msgid ""
+"Supported files: xls(x), csv, pdf (selected banks, issue a request in Github)"
+msgstr ""
+"Arquivos suportados: xls(x), csv, pdf (bancos selecionados, abra um Issue no Github)"
 
 #: templates/banking/transaction_list.html:140
 msgid "Import Transactions from File"

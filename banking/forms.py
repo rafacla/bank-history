@@ -74,6 +74,7 @@ class TransactionForm(BSModalModelForm):
     def __init__(self, *args, **kwargs):
         super(TransactionForm, self).__init__(*args, **kwargs)
         self.fields["account"].queryset = Account.objects.filter(user=self.request.user)
+        self.fields["account"].initial = Account.objects.filter(user=self.request.user, pk=self.request.GET.get('account_id')).first()
         self.fields["category"].choices = Category.getUserGroupedAndSortedCategories(
             self.request.user
         )
