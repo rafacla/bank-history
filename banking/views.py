@@ -362,6 +362,24 @@ class TransactionCreateView(TransactionBaseView, BSModalCreateView):
             + self.request.GET.urlencode(safe='&').replace('&amp%3B','&')
         )
 
+    def form_valid(self, form):
+        match form.cleaned_data["type"]:
+            case "D":
+                form.instance.value = (-1)*abs(form.cleaned_data["value"])
+                form.instance.is_transfer = False
+            case "C":
+                form.instance.value = abs(form.cleaned_data["value"])
+                form.instance.is_transfer = False
+            case "IT":
+                form.instance.value = abs(form.cleaned_data["value"])
+                form.instance.is_transfer = True
+                form.instance.category = None
+            case "OT":
+                form.instance.value = (-1)*abs(form.cleaned_data["value"])
+                form.instance.is_transfer = True
+                form.instance.category = None
+        return super(TransactionCreateView, self).form_valid(form)
+
 
 class TransactionUpdateView(TransactionBaseView, BSModalUpdateView):
     """View to update a Transaction"""
@@ -385,6 +403,41 @@ class TransactionUpdateView(TransactionBaseView, BSModalUpdateView):
     def get_form_kwargs(self):
         form_kwargs = super(TransactionUpdateView, self).get_form_kwargs()
         return form_kwargs
+
+    def form_valid(self, form):
+        match form.cleaned_data["type"]:
+            case "D":
+                form.instance.value = (-1)*abs(form.cleaned_data["value"])
+                form.instance.is_transfer = False
+            case "C":
+                form.instance.value = abs(form.cleaned_data["value"])
+                form.instance.is_transfer = False
+            case "IT":
+                form.instance.value = abs(form.cleaned_data["value"])
+                form.instance.is_transfer = True
+                form.instance.category = None
+            case "OT":
+                form.instance.value = (-1)*abs(form.cleaned_data["value"])
+                form.instance.is_transfer = True
+                form.instance.category = None
+        return super(TransactionUpdateView, self).form_valid(form)
+
+    def get_initial(self):
+        initial_values = super().get_initial()
+        transaction = self.object
+        if transaction.is_transfer:
+            if transaction.value < 0:
+                initial_values["type"] = "OT"
+                initial_values["value"] = abs(transaction.value)
+            else:
+                initial_values["type"] = "IT"
+        else:
+            if transaction.value < 0:
+                initial_values["type"] = "D"
+                initial_values["value"] = abs(transaction.value)
+            else:
+                initial_values["type"] = "C"
+        return initial_values
 
 
 class TransactionDeleteView(BSModalFormView):

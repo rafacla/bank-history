@@ -1,0 +1,39 @@
+{% load crispy_forms_filters %}
+{% load l10n %}
+
+{% if field.is_hidden %}
+    {{ field }}
+{% else %}
+    <div id="div_{{ field.auto_id }}" class="mb-3{% if 'form-horizontal' in form_class %} row{% endif %}{% if wrapper_class %} {{ wrapper_class }}{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %}">
+
+        {% if field.label %}
+            <label for="{{ field.id_for_label }}"  class="{{ label_class }}{% if not inline_class %} col-form-label{% else %} form-label{% endif %}{% if field.field.required %} requiredField{% endif %}">
+                {{ field.label }}{% if field.field.required %}<span class="asteriskField">*</span>{% endif %}
+            </label>
+        {% endif %}
+
+        <div class="form-selectgroup{% if field_class %}{{ field_class }}{% endif %}"{% if flat_attrs %} {{ flat_attrs }}{% endif %}>
+            {% for group, options, index in field|optgroups %}
+            {% for option in options %}
+              <div class="form-selectgroup">
+                <label class="form-selectgroup-item">
+                    <input type="{{ option.type }}" class="form-selectgroup-input{% if field.errors %} is-invalid{% endif %}"  name="{{ field.html_name }}" value="{{ option.value|unlocalize }}" {% include "bootstrap5/layout/attrs.html" with widget=option %}>
+                    <span class="form-selectgroup-label">
+                        {{ option.label|unlocalize }}
+                    </span>                
+                </label>
+                {% if field.errors and forloop.last and not inline_class and forloop.parentloop.last %}
+                    {% include "bootstrap5/layout/field_errors_block.html" %}
+                {% endif %}
+             </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+        {% if field.errors and inline_class %}
+            {% for error in field.errors %}
+                <p id="error_{{ forloop.counter }}_{{ field.auto_id }}" class="text-danger mb-0"><small><strong>{{ error }}</strong></small></p>
+            {% endfor %}
+        {% endif %}
+        {% include "bootstrap5/layout/help_text.html" %}        
+    </div>
+{% endif %}

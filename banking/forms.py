@@ -2,7 +2,8 @@ import csv
 
 from bootstrap_modal_forms.forms import BSModalForm, BSModalModelForm
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from crispy_forms.layout import Layout, Fieldset, Div, Submit, Field
+from crispy_forms.bootstrap import InlineRadios
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.models import inlineformset_factory
@@ -11,7 +12,6 @@ from banking import models
 from banking.models import Account, Category, Transaction
 from banking.widgets import CategorySelect
 from banking.utils import parsePDF, parseCSV, parseXLSX
- 
 
 
 class AccountForm(BSModalModelForm):
@@ -71,12 +71,44 @@ class TransactionForm(BSModalModelForm):
             "notes": forms.Textarea(attrs={"rows": 3}),
         }
 
+    type = forms.ChoiceField(
+        choices=[
+            ("D", "Debit"),
+            ("C", "Credit"),
+            ("IT", "Inbound Transfer"),
+            ("OT", "Outbound Transfer"),
+        ],
+        widget=forms.RadioSelect,
+        required=True
+    )
+
     def __init__(self, *args, **kwargs):
         super(TransactionForm, self).__init__(*args, **kwargs)
         self.fields["account"].queryset = Account.objects.filter(user=self.request.user)
-        self.fields["account"].initial = Account.objects.filter(user=self.request.user, pk=self.request.GET.get('account_id')).first()
+        self.fields["account"].initial = Account.objects.filter(
+            user=self.request.user, pk=self.request.GET.get("account_id")
+        ).first()
         self.fields["category"].choices = Category.getUserGroupedAndSortedCategories(
             self.request.user
+        )
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Fieldset(
+                "",
+                "account",
+                Div(
+                    Field("date", wrapper_class="col-md-6"),
+                    Field("competency_date", wrapper_class="col-md-6"),
+                    css_class="row",
+                ),
+                "description",
+                Field("type", template="tabler_crispy/selectbox.html"),
+                "category",
+                "concilied",
+                "value",
+                "notes",
+            ),
         )
 
 
@@ -134,26 +166,34 @@ class FileImportForm(forms.Form):
         cd = self.cleaned_data
 
         # Check file format, and call the correct parser:
-        if ("import_file" in cd):
+        if "import_file" in cd:
             listOfTransactions = []
             if cd["import_file"].name.endswith(".csv"):
                 listOfTransactions = parseCSV(cd["import_file"])
             elif cd["import_file"].name.endswith(".pdf"):
                 listOfTransactions = parsePDF(cd["import_file"])
-            elif (cd["import_file"].name.endswith(".xlsx") or cd["import_file"].name.endswith(".xls")):
+            elif cd["import_file"].name.endswith(".xlsx") or cd[
+                "import_file"
+            ].name.endswith(".xls"):
                 listOfTransactions = parseXLSX(cd["import_file"])
             else:
-                raise ValidationError(
-                "File format not supported"
-            )
-            
+                raise ValidationError("File format not supported")
+
             # With list of transactions parsed from file, we procceed to find the account and check if duplicated:
             for transaction in listOfTransactions:
                 # let's try to parse account from imported file, if not we use the import account:
                 if transaction["account_id"]:
-                    account = Account.objects.filter(user=user).filter(id=tansaction["account_id"]).first()
+                    account = (
+                        Account.objects.filter(user=user)
+                        .filter(id=tansaction["account_id"])
+                        .first()
+                    )
                 elif transaction["account_name"]:
-                    account = Account.objects.filter(user=user).filter(name__icontains=tansaction["account_name"]).first()
+                    account = (
+                        Account.objects.filter(user=user)
+                        .filter(name__icontains=tansaction["account_name"])
+                        .first()
+                    )
                 else:
                     account = None
                 if account:
@@ -162,16 +202,25 @@ class FileImportForm(forms.Form):
                     transaction["account"] = cd["import_account"]
 
                 # here we work in a filter to detect possible duplicated transactions:
-                duplicated_transaction = Transaction.objects.filter(account=transaction["account"], value=transaction["value"], date=transaction["date"]).first()
-            
-                #now we are going to do a basic check, if the description is the same, we can be sure that this is probably a duplicated transaction
-                #users can make a purchase of same value twice (or more) in the same store and same day? they can, but this is not the case in 99% of times
-                #we also remove spaces to compare because sometimes the file can have trailing spaces between words that can vary (I'm talking about you Santander Brasil)
+                duplicated_transaction = Transaction.objects.filter(
+                    account=transaction["account"],
+                    value=transaction["value"],
+                    date=transaction["date"],
+                ).first()
+
+                # now we are going to do a basic check, if the description is the same, we can be sure that this is probably a duplicated transaction
+                # users can make a purchase of same value twice (or more) in the same store and same day? they can, but this is not the case in 99% of times
+                # we also remove spaces to compare because sometimes the file can have trailing spaces between words that can vary (I'm talking about you Santander Brasil)
                 if duplicated_transaction:
-                    if duplicated_transaction.description.replace(" ","").upper() != transaction["description"].replace(" ","").upper():
+                    if (
+                        duplicated_transaction.description.replace(" ", "").upper()
+                        != transaction["description"].replace(" ", "").upper()
+                    ):
                         duplicated_transaction = None
-                    
-                transaction["decision"] = "do_not_import" if duplicated_transaction != None else "import"
+
+                transaction["decision"] = (
+                    "do_not_import" if duplicated_transaction != None else "import"
+                )
                 transaction["duplicated_transaction"] = duplicated_transaction
 
             cd["listOfTransactions"] = listOfTransactions
@@ -194,14 +243,12 @@ class FileConfirmImport(forms.Form):
 
     def __init__(self, *args, user=None, **kwargs):
         super(FileConfirmImport, self).__init__(*args, **kwargs)
-        
+
         if user:
-            self.fields[
-                "category"
-            ].choices = Category.getUserGroupedAndSortedCategories(user)
-            self.fields["account"].queryset = Account.objects.filter(
-                user=user
+            self.fields["category"].choices = (
+                Category.getUserGroupedAndSortedCategories(user)
             )
+            self.fields["account"].queryset = Account.objects.filter(user=user)
 
 
 class InlineFormSetHelper(FormHelper):
@@ -236,17 +283,28 @@ class RuleForm(BSModalModelForm):
             "runs_on_already_classified_transactions",
             "runs_on_imported_transactions",
             "apply_category",
-            "set_as_transfer"
+            "set_as_transfer",
         ]
 
 
 class RulesItemForm(BSModalModelForm):
     class Meta:
-        fields=("boolean_type","account","value_type","value","description_type","description","date_type","date","competency_date_type","competency_date",)
+        fields = (
+            "boolean_type",
+            "account",
+            "value_type",
+            "value",
+            "description_type",
+            "description",
+            "date_type",
+            "date",
+            "competency_date_type",
+            "competency_date",
+        )
 
     def __init__(self, *args, user, **kwargs):
         super(RulesItemForm, self).__init__(*args, **kwargs)
-        self.fields["account"].queryset = Account.objects.filter(user = user)
+        self.fields["account"].queryset = Account.objects.filter(user=user)
 
 
 RulesItemsFormsetCreate = inlineformset_factory(
