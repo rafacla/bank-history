@@ -573,11 +573,16 @@
           $('#div_id_category').show();
         }
       });
-      if ($('input[type=radio][name=type]:checked')[0].value == 'OT' || $('input[type=radio][name=type]:checked')[0].value == 'IT') {
-        $('#div_id_category').hide();
-      } else {
-        $('#div_id_category').show();
+      if ($('input[type=radio][name=type]:checked').length > 0) {
+        if ($('input[type=radio][name=type]:checked')[0].value == 'OT' || $('input[type=radio][name=type]:checked')[0].value == 'IT') {
+          $('#div_id_category').hide();
+        } else {
+          $('#div_id_category').show();
+        }
       }
+      $('input[name=account]').change(function() {
+        alert(this.value);
+      });
     });
   </script>
   <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css"
