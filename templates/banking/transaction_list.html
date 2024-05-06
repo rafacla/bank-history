@@ -453,6 +453,7 @@
 {% block extrascripts %}
   <script> 
     let query_parameters = "{{ request.GET.urlencode }}"; 
+    query_parameters = query_parameters.replace("&amp;","&");
     if (query_parameters.length > 0) { query_parameters = "?" + query_parameters; } 
 
     var listOfSelectedLinks = [];  
@@ -602,6 +603,7 @@
   var table = $('#table-transactions-list').DataTable();
   table.on('draw', function () {
     let query_parameters = "{{ request.GET.urlencode }}"; 
+    query_parameters = query_parameters.replace("&amp;","&");
     if (query_parameters.length > 0) { query_parameters = "?" + query_parameters; } 
 
     

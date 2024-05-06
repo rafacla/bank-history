@@ -1,4 +1,5 @@
 import csv
+import datetime
 
 from bootstrap_modal_forms.forms import BSModalForm, BSModalModelForm
 from crispy_forms.helper import FormHelper
@@ -11,7 +12,7 @@ from django.forms.models import inlineformset_factory
 from banking import models
 from banking.models import Account, Category, Transaction
 from banking.widgets import CategorySelect
-from banking.utils import parsePDF, parseCSV, parseXLSX
+from banking.utils import parsePDF, parseCSV, parseXLSX, strToDate_anyformat
 
 
 class AccountForm(BSModalModelForm):
@@ -84,13 +85,31 @@ class TransactionForm(BSModalModelForm):
 
     def __init__(self, *args, **kwargs):
         super(TransactionForm, self).__init__(*args, **kwargs)
+        # Here we pull the user accounts to fill the select box with options
         self.fields["account"].queryset = Account.objects.filter(user=self.request.user)
-        self.fields["account"].initial = Account.objects.filter(
+        # If user has already filtered an account and is creating a transaction, odds are that user wants to add a transaction in this account
+        # So we take it from URL:
+        account = Account.objects.filter(
             user=self.request.user, pk=self.request.GET.get("account_id")
         ).first()
+        # Here we want to start the new transaction form with statement due date if user is creating transaction from statement view
+        # So we check if the account filtered is a credit card
+        if account:
+            self.fields["account"].initial = account
+            if account.type == 'creditCard':
+                diaVencimento = account.due_day if account.due_day else 1
+                # For the current month, URL won't have a query parameter named statement_date, so we need to figure it out
+                if self.request.GET.get("statement_date"):
+                    self.fields["competency_date"].initial = datetime.date(strToDate_anyformat(self.request.GET.get("statement_date")).year, strToDate_anyformat(self.request.GET.get("statement_date")).month, diaVencimento)
+                else:
+                    self.fields["competency_date"].initial = datetime.date(datetime.date.today().year, datetime.date.today().month, diaVencimento)
+
+        # Fill the select box of categories:
         self.fields["category"].choices = Category.getUserGroupedAndSortedCategories(
             self.request.user
         )
+
+        # Here we design the form layout using crispy forms:
         self.helper = FormHelper()
         self.helper.form_tag = False
         self.helper.layout = Layout(
