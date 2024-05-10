@@ -358,6 +358,7 @@ class Rule(models.Model):
         self.last_run =  datetime.now()
         self.save()
 
+
 class RulesItem(models.Model):
     BOOLEAN_TYPES = (
         ("or", "OR"),
