@@ -25,6 +25,7 @@ class AccountForm(BSModalModelForm):
             "due_day",
             "bank",
             "currency",
+            "incur_on_competency"
         ]
 
     def __init__(self, *args, **kwargs):
