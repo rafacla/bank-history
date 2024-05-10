@@ -52,6 +52,7 @@ class Account(models.Model):
     bank = models.ForeignKey(Bank, on_delete=models.RESTRICT)
     currency = models.ForeignKey(Currency, on_delete=models.RESTRICT)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    incur_on_competency = models.BooleanField(default=True)
 
     class Meta:
         unique_together = ("user", "name")
