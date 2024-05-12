@@ -1,4 +1,5 @@
 import uuid
+import banking.utils as utils 
 
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -280,6 +281,22 @@ class Transaction(models.Model):
             if transaction.competency_date:
                 months.add(transaction.competency_date.replace(day=1))
         return sorted(months)
+
+    def getCompetencyTransactions(date, user):
+        date_from = datetime(date.year, date.month, 1)
+        date_to = utils.lastDayOfMonth(date_from)
+        return Transaction.objects.filter(
+            account__user=user
+        ).filter(
+            ((models.Q(competency_date__isnull=True) 
+            | models.Q(account__incur_on_competency=False))
+            & models.Q(date__lte=date_to)
+            & models.Q(date__gte=date_from))
+            | ((models.Q(competency_date__isnull=False)
+            & models.Q(account__incur_on_competency=True))
+            & models.Q(competency_date__lte=date_to)
+            & models.Q(competency_date__gte=date_from))
+        )
 
 
 class Rule(models.Model):
