@@ -9,6 +9,7 @@ register_converter(DateConverter, 'date')
 urlpatterns = [
     path('', bankingViews.DashboardView.as_view(), name='home'),
     path('dashboard/', bankingViews.DashboardView.as_view(), name='dashboard'),
+    path('dashboard/transactions/<int:pk>/<str:month>/', bankingViews.DashboardTransactionsFilter.as_view(), name='dashboard_transactions'),
     path('accounts/', bankingViews.AccountListView.as_view(), name='account_list'),
     path('accounts/<int:pk>/detail', bankingViews.AccountDetailView.as_view(), name='account_detail'),
     path('accounts/create/', bankingViews.AccountCreateView.as_view(), name='account_create'),

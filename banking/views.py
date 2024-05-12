@@ -1,4 +1,5 @@
 import calendar
+import banking.utils as utils 
 
 from datetime import date, datetime
 
@@ -686,22 +687,26 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         )
         data["topTenCreditCategories"] = (
             userCreditTransactions.filter(category__isnull=False)
-            .values("category__name")
+            .values("category")
             .annotate(
                 incurred=models.Sum("value"),
                 ratio=100 * models.Sum("value") / data["sumOfCreditTransactions"],
             )
             .order_by("-incurred")
         )[:10]
+        for item in data["topTenCreditCategories"]:
+            item["category"] = Category.objects.get(pk=item["category"])
         data["topTenDebitCategories"] = (
             userDebitTransactions.filter(category__isnull=False)
-            .values("category__name")
+            .values("category")
             .annotate(
                 incurred=-models.Sum("value"),
                 ratio=-100 * models.Sum("value") / data["sumOfDebitTransactions"],
             )
             .order_by("-incurred")
         )[:10]
+        for item in data["topTenDebitCategories"]:
+            item["category"] = Category.objects.get(pk=item["category"])
         data["sumOfNotClassifiedCreditTransactions"] = (
             userCreditTransactions.filter(category__isnull=True).aggregate(
                 incurred=models.Sum("value")
@@ -733,6 +738,28 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             self.template_name,
             data,
         )
+
+
+class DashboardTransactionsFilter(LoginRequiredMixin, BSModalReadView):
+    model = Category
+    template_name = "banking/dashboard_transaction_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(DashboardTransactionsFilter, self).get_context_data(**kwargs)
+        
+        date = utils.strToDate_anyformat(self.kwargs["month"]+"-01")
+        transactions = Transaction.getCompetencyTransactions(date, self.request.user)
+        transactions = transactions.filter(category=self.get_object())
+        transactions = transactions.order_by("-value")
+        context["total_inflow"] = 0
+        context["total_outflow"] = 0
+        for transaction in transactions:
+            if transaction.value > 0:
+                context["total_inflow"] = context["total_inflow"] + transaction.value
+            else:
+                context["total_outflow"] = context["total_outflow"] - transaction.value
+        context['transactions'] = transactions
+        return context
 
 
 class RuleBaseView(LoginRequiredMixin, View):

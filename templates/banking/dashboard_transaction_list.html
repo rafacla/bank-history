@@ -1,0 +1,83 @@
+{% load i18n %}
+<div class="modal-header">
+    <h5 class="modal-title">{% trans "Showing transactions filtered by this month and category" %}</h5>
+    <button type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"></button>
+</div>
+<div class="card-table">
+    {% if transactions.count > 0 %}
+        <table class="table table-condensed table-hover">
+            <thead class="sticky-top">
+                <tr>
+                    <td>
+                        <b>{% trans "Description" %}</b>
+                    </td>
+                    <td>
+                        <b>{% trans "Category" %}</b>
+                    </td>
+                    {% if total_inflow > 0 %}
+                    <td>
+                        <b>{% trans "Inflow" %}</b>
+                    </td>
+                    {% endif %}
+                    {% if total_outflow > 0 %}
+                    <td>
+                        <b>{% trans "Outflow" %}</b>
+                    </td>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ transaction.description }}</td>
+                        <td>{{ transaction.category }}</td>
+                        {% if total_inflow > 0 %}
+                        <td class="text-end">
+                            {% if transaction.value >= 0 %}{{ transaction.value }}{% endif %}
+                        </td>
+                        {% endif %}
+                        {% if total_outflow > 0 %}
+                        <td class="text-end">
+                            {% if transaction.value < 0 %}{{ transaction.value }}{% endif %}
+                        </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2"></td>
+                    {% if total_inflow > 0 %}
+                    <td class="text-end">{{ total_inflow }}</td>
+                    {% endif %}
+                    {% if total_outflow > 0 %}
+                    <td class="text-end">{{ total_outflow }}</td>
+                    {% endif %}
+                </tr>
+            </tfoot>
+        </table>
+    {% else %}
+        <p>{% trans "No transaction has been found by this filter" %}</p>
+    {% endif %}
+</div>
+<div class="modal-footer">
+    <a href="#" class="btn btn-link btn-info" data-bs-dismiss="modal">
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="icon icon-tabler icon-tabler-arrow-back"
+             width="24"
+             height="24"
+             viewBox="0 0 24 24"
+             stroke-width="2"
+             stroke="currentColor"
+             fill="none"
+             stroke-linecap="round"
+             stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M9 11l-4 4l4 4m-4 -4h11a4 4 0 0 0 0 -8h-1" />
+        </svg>
+        {% trans "Close" %}
+    </a>
+</div>
