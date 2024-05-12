@@ -52,7 +52,7 @@
                                         <td><a class="modal-button" 
                                             href="#" 
                                             data-bs-toggle="modal"
-                                            data-bs-target="#modals-here"
+                                            data-bs-target="#modals-large"
                                             data-form-url="{% url 'banking:dashboard_transactions' pk=item.category.id month=filtered_month %}">{{ item.category }}</a></td>
                                         <td class="text-end">{{ item.incurred|floatformat:2|intcomma }}</td>
                                         <td class="w-50">
@@ -103,7 +103,7 @@
                                         <a class="modal-button" 
                                             href="#" 
                                             data-bs-toggle="modal"
-                                            data-bs-target="#modals-here"
+                                            data-bs-target="#modals-large"
                                             data-form-url="{% url 'banking:dashboard_transactions' pk=item.category.id month=filtered_month %}">{{ item.category }}</a>
                                         </td>
                                         <td class="text-end">{{ item.incurred|floatformat:2|intcomma }}</td>
@@ -139,6 +139,11 @@
         </div>
     </div>
 {% endlocalize %}
+<div class="modal modal-blur fade " tabindex="-1" role="dialog" id="modals-large">
+    <div class="modal-dialog modal-xxl">
+      <div class="modal-content modal-xxl"></div>
+    </div>
+  </div>
 {% endblock content %}
 {% block extrascripts %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js" integrity="sha512-LsnSViqQyaXpD4mBBdRYeP6sRwJiJveh2ZIbW41EBrNmKxgr/LFZIiWT6yr+nycvhvauz8c2nYMhrP80YhG7Cw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -149,7 +154,7 @@
             for (var index=0; index < modalButtons.length; index++) {
                 modalForm(modalButtons[index], {
                 formURL: modalButtons[index]["dataset"]["formUrl"],
-                modalID: "#modals-here",
+                modalID: "#modals-large",
                 isDeleteForm: (modalButtons[index]["dataset"]["formDelete"] == true),
                 });
             }
