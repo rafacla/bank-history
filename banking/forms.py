@@ -12,8 +12,8 @@ from django.forms.models import inlineformset_factory
 from banking import models
 from banking.models import Account, Category, Transaction
 from banking.widgets import CategorySelect
-from banking.utils import parsePDF, parseCSV, parseXLSX, strToDate_anyformat
-
+from banking.utils import parseCSV, parseXLSX, strToDate_anyformat
+from banking.pdfparser.pdfparser import PDFParser
 
 class AccountForm(BSModalModelForm):
     class Meta:
@@ -191,7 +191,9 @@ class FileImportForm(forms.Form):
             if cd["import_file"].name.endswith(".csv"):
                 listOfTransactions = parseCSV(cd["import_file"])
             elif cd["import_file"].name.endswith(".pdf"):
-                listOfTransactions = parsePDF(cd["import_file"])
+                pdfFile = PDFParser(cd["import_file"].read())
+                listOfTransactions = pdfFile.parse()
+                #listOfTransactions = parsePDF(cd["import_file"])
             elif cd["import_file"].name.endswith(".xlsx") or cd[
                 "import_file"
             ].name.endswith(".xls"):
