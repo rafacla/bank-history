@@ -102,7 +102,65 @@ class PDFParser:
                 )
 
         return listOfTransactions
+
+    def brazilSantanderCreditCardMay24(self):
+        listOfTransactions = []
+
+        # For credit cards, we match the competency date with the due date of the statement
+        competency_date = strToDate_anyformat(self.getValuesFromKey("Vencimento", dx0=-15, dx1=+15)[2])
+
+        for page in self.file:
+            # Here we tell the script where to look in the statement:
+            vertical_lines_coordiantes = [[36, 55, 170, 199, 240], [317, 338, 450, 483, 524]]
+            for vlc in vertical_lines_coordiantes:
+                tabs = page.find_tables(
+                    horizontal_strategy="lines_strict", vertical_lines=vlc
+                )
+            
+                for table in tabs.tables:
+                    if table.col_count == 6:
+                        for row in table.extract():
+                            # as in itau CC statement transactions doesn't have the year, we need to consider that the year is the same of competency dates
+                            # except if the transaction date would result in a date greater then competency_date (due date of statement), in this case we should consider the past year
+                            rowDate = None
+                            if isinstance(row[1], str):
+                                rowDate = strToDate_anyformat(
+                                    row[1] + "/" + str(competency_date.year)
+                                )
+                            
+                            if isinstance(rowDate, date):
+                                if rowDate > competency_date:
+                                    rowDate = strToDate_anyformat(
+                                        row[1] + "/" + str(competency_date.year - 1)
+                                    )
+                                listOfTransactions.append(
+                                    {
+                                        "select_row": False,
+                                        "value": float(
+                                            str(row[4])
+                                            .replace(".","")
+                                            .replace(",", ".")
+                                            .replace(" ", "")
+                                        )
+                                        * (-1),
+                                        "date": rowDate,
+                                        "competency_date": competency_date,
+                                        "description": str(row[2])
+                                        .replace("\n", " (")
+                                        .replace(" .", "/")
+                                        + ")",
+                                        "account_name": None,
+                                        "account_id": None,
+                                        "category_name": None,
+                                        "category_id": None,
+                                        "is_transfer": None,
+                                        "concilied": None,
+                                    }
+                                )
+
         
+        return listOfTransactions
+
     def parse(self):
         # this function should identify the statement we are importing, and find the correct function to parse
 
@@ -110,5 +168,7 @@ class PDFParser:
         # this is a bad example of check for uniqueness of this kind of statement.. ideally we should lock a position and check for a specific string
         if self.file[0].search_for("Com vencimento em:"):
             return self.brazilItauCreditCardJan24()
+        elif self.file[0].search_for("a fatura do seu cartão SANTANDER"):
+            return self.brazilSantanderCreditCardMay24()
         else:
             return []
