@@ -145,10 +145,7 @@ class PDFParser:
                                         * (-1),
                                         "date": rowDate,
                                         "competency_date": competency_date,
-                                        "description": str(row[2])
-                                        .replace("\n", " (")
-                                        .replace(" .", "/")
-                                        + ")",
+                                        "description": str(row[2]),
                                         "account_name": None,
                                         "account_id": None,
                                         "category_name": None,
