@@ -246,6 +246,12 @@ class Category(models.Model):
 
 
 class Transaction(models.Model):
+    incurBudgetDateTypes = (
+        ("", "Account Default"),
+        ("C", "Competency Date"),
+        ("T", "Transaction Date")
+    )
+
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     date = models.DateField()
     competency_date = models.DateField(blank=True, null=True)
@@ -260,6 +266,7 @@ class Transaction(models.Model):
     concilied = models.BooleanField(default=False)
     value = models.DecimalField(max_digits=10, decimal_places=2)
     notes = models.TextField(blank=True, null=True)
+    budget_incur_type = models.CharField(blank=True, null=True, max_length=1, choices=incurBudgetDateTypes)
 
     def getMergedTransactions(self):
         mergedTransactions = Transaction.objects.filter(merged_to=self)
@@ -289,11 +296,13 @@ class Transaction(models.Model):
             account__user=user
         ).filter(
             ((models.Q(competency_date__isnull=True) 
-            | models.Q(account__incur_on_competency=False))
+            | models.Q(account__incur_on_competency=False) | models.Q(budget_incur_type="T")) 
+            & ~models.Q(budget_incur_type="C")
             & models.Q(date__lte=date_to)
             & models.Q(date__gte=date_from))
             | ((models.Q(competency_date__isnull=False)
-            & models.Q(account__incur_on_competency=True))
+            & (models.Q(account__incur_on_competency=True) | models.Q(budget_incur_type="C"))
+            & ~models.Q(budget_incur_type="T"))
             & models.Q(competency_date__lte=date_to)
             & models.Q(competency_date__gte=date_from))
         )

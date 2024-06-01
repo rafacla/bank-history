@@ -65,6 +65,7 @@ class TransactionForm(BSModalModelForm):
             "concilied",
             "value",
             "notes",
+            "budget_incur_type"
         ]
         widgets = {
             "category": CategorySelect,
@@ -128,6 +129,7 @@ class TransactionForm(BSModalModelForm):
                 "concilied",
                 "value",
                 "notes",
+                "budget_incur_type",
             ),
         )
 
