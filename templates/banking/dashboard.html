@@ -47,21 +47,60 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for item in CreditCategories %}
+                                {% for key, item in creditMainCategories %}
                                     <tr>
-                                        <td><a class="modal-button" 
-                                            href="#" 
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#modals-large"
-                                            data-form-url="{% url 'banking:dashboard_transactions' pk=item.category.id month=filtered_month %}">{{ item.category }}</a></td>
+                                        <td>
+                                            <a class="modal-button" 
+                                                href="#" 
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modals-large"
+                                                data-form-url="{% url 'banking:dashboard_transactions' pk=item.category.id month=filtered_month %}">
+                                                {{ item.category }}
+                                            </a>
+                                            </td>
                                         <td class="text-end">{{ item.incurred|floatformat:2|intcomma }}</td>
                                         <td class="w-50">
                                             <div class="progress progress-xs">
                                                 <div class="progress-bar bg-primary"
-                                                     style="width: {{ item.ratio|unlocalize }}%"></div>
+                                                    style="width: {{ item.ratio|unlocalize }}%"></div>
                                             </div>
                                         </td>
                                     </tr>
+                                    {% for subitem in CreditCategories %}
+                                        {% if subitem.category.nested_to.id == item.category.id %}
+                                        <tr>
+                                            <td>
+                                            <a class="modal-button" 
+                                                href="#" 
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modals-large"
+                                                data-form-url="{% url 'banking:dashboard_transactions' pk=subitem.category.id month=filtered_month %}">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                    class="icon icon-tabler icon-tabler-corner-down-right"
+                                                    width="24"
+                                                    height="24"
+                                                    viewBox="0 0 24 24"
+                                                    stroke-width="2"
+                                                    stroke="currentColor"
+                                                    fill="none"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4" />
+                                                </svg>
+                                                {{ subitem.category }}
+                                            </a>
+                                            </td>
+                                            <td class="text-end">{{ subitem.incurred|floatformat:2|intcomma }}</td>
+                                            <td class="w-50">
+                                                <div class="progress progress-xs">
+                                                    <div class="progress-bar bg-info"
+                                                         style="width: {{ subitem.ratio|unlocalize }}%"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
                                 {% endfor %}
                                 <tr>
                                     <td>{% trans "Not classified" %}</td>
@@ -97,23 +136,60 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for item in DebitCategories %}
+                                {% for key, item in debitMainCategories %}
                                     <tr>
                                         <td>
-                                        <a class="modal-button" 
-                                            href="#" 
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#modals-large"
-                                            data-form-url="{% url 'banking:dashboard_transactions' pk=item.category.id month=filtered_month %}">{{ item.category }}</a>
-                                        </td>
+                                            <a class="modal-button" 
+                                                href="#" 
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modals-large"
+                                                data-form-url="{% url 'banking:dashboard_transactions' pk=item.category.id month=filtered_month %}">
+                                                {{ item.category }}
+                                            </a>
+                                            </td>
                                         <td class="text-end">{{ item.incurred|floatformat:2|intcomma }}</td>
                                         <td class="w-50">
                                             <div class="progress progress-xs">
                                                 <div class="progress-bar bg-primary"
-                                                     style="width: {{ item.ratio|unlocalize }}%"></div>
+                                                    style="width: {{ item.ratio|unlocalize }}%"></div>
                                             </div>
                                         </td>
                                     </tr>
+                                    {% for subitem in DebitCategories %}
+                                        {% if subitem.category.nested_to.id == item.category.id %}
+                                        <tr>
+                                            <td>
+                                            <a class="modal-button" 
+                                                href="#" 
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modals-large"
+                                                data-form-url="{% url 'banking:dashboard_transactions' pk=subitem.category.id month=filtered_month %}">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                    class="icon icon-tabler icon-tabler-corner-down-right"
+                                                    width="24"
+                                                    height="24"
+                                                    viewBox="0 0 24 24"
+                                                    stroke-width="2"
+                                                    stroke="currentColor"
+                                                    fill="none"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M6 6v6a3 3 0 0 0 3 3h10l-4 -4m0 8l4 -4" />
+                                                </svg>
+                                                {{ subitem.category }}
+                                            </a>
+                                            </td>
+                                            <td class="text-end">{{ subitem.incurred|floatformat:2|intcomma }}</td>
+                                            <td class="w-50">
+                                                <div class="progress progress-xs">
+                                                    <div class="progress-bar bg-info"
+                                                         style="width: {{ subitem.ratio|unlocalize }}%"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
                                 {% endfor %}
                                 <tr>
                                     <td>{% trans "Not classified" %}</td>

@@ -684,8 +684,29 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             )
             .order_by("-incurred")
         )
+        data["creditMainCategories"] = {}
         for item in data["CreditCategories"]:
             item["category"] = Category.objects.get(pk=item["category"])
+            if item["category"].nested_to != None:
+                if (item["category"].nested_to.id in data["creditMainCategories"]):
+                    data["creditMainCategories"][item["category"].nested_to.id]["incurred"] = data["creditMainCategories"][item["category"].nested_to.id]["incurred"] + item["incurred"]
+                    data["creditMainCategories"][item["category"].nested_to.id]["ratio"] = 100 * data["creditMainCategories"][item["category"].nested_to.id]["incurred"] / data["sumOfCreditTransactions"]
+                else:
+                    data["creditMainCategories"][item["category"].nested_to.id] = {
+                        "category": item["category"].nested_to,
+                        "incurred": item["incurred"],
+                        "ratio": 100 * item["incurred"] / data["sumOfCreditTransactions"],
+                    }
+            else:
+                if (item["category"].id in data["creditMainCategories"]):
+                    data["creditMainCategories"][item["category"].id]["incurred"] = data["creditMainCategories"][item["category"].id]["incurred"] + item["incurred"]
+                    data["creditMainCategories"][item["category"].id]["ratio"] = 100 * data["creditMainCategories"][item["category"].id]["incurred"]/ data["sumOfCreditTransactions"]
+                else:
+                    data["creditMainCategories"][item["category"].id] = {
+                        "category": item["category"],
+                        "incurred": item["incurred"],
+                        "ratio": 100 * item["incurred"] / data["sumOfCreditTransactions"],
+                    }
         data["DebitCategories"] = (
             userDebitTransactions.filter(category__isnull=False)
             .values("category")
@@ -695,8 +716,30 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             )
             .order_by("-incurred")
         )
+        data["debitMainCategories"] = {}
         for item in data["DebitCategories"]:
             item["category"] = Category.objects.get(pk=item["category"])
+            if item["category"].nested_to != None:
+                if (item["category"].nested_to.id in data["debitMainCategories"]):
+                    data["debitMainCategories"][item["category"].nested_to.id]["incurred"] = data["debitMainCategories"][item["category"].nested_to.id]["incurred"] + item["incurred"]
+                    data["debitMainCategories"][item["category"].nested_to.id]["ratio"] = 100 * data["debitMainCategories"][item["category"].nested_to.id]["incurred"] / data["sumOfDebitTransactions"]
+                else:
+                    data["debitMainCategories"][item["category"].nested_to.id] = {
+                        "category": item["category"].nested_to,
+                        "incurred": item["incurred"],
+                        "ratio": 100 * item["incurred"] / data["sumOfDebitTransactions"],
+                    }
+            else:
+                if (item["category"].id in data["debitMainCategories"]):
+                    data["debitMainCategories"][item["category"].id]["incurred"] = data["debitMainCategories"][item["category"].id]["incurred"] + item["incurred"]
+                    data["debitMainCategories"][item["category"].id]["ratio"] = 100 * data["debitMainCategories"][item["category"].id]["incurred"]/ data["sumOfDebitTransactions"]
+                else:
+                    data["debitMainCategories"][item["category"].id] = {
+                        "category": item["category"],
+                        "incurred": item["incurred"],
+                        "ratio": 100 * item["incurred"] / data["sumOfDebitTransactions"],
+                    }
+
         data["sumOfNotClassifiedCreditTransactions"] = (
             userCreditTransactions.filter(category__isnull=True).aggregate(
                 incurred=models.Sum("value")
@@ -723,6 +766,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             if data["sumOfDebitTransactions"]
             else 0
         )
+
+        data["debitMainCategories"] = sorted(data["debitMainCategories"].items(), key=lambda item: item[1]['incurred'], reverse=True)
+        data["creditMainCategories"] = sorted(data["creditMainCategories"].items(), key=lambda item: item[1]['incurred'], reverse=True)
         return render(
             request,
             self.template_name,
