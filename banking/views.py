@@ -662,18 +662,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             "%Y-%m-%d",
         ).date()
 
-        userTransactions = Transaction.objects.filter(
-            account__user=self.request.user, is_transfer=False
-        ).filter(
-            ((models.Q(competency_date__isnull=True) 
-            | models.Q(account__incur_on_competency=False))
-            & models.Q(date__lte=date_to)
-            & models.Q(date__gte=date_from))
-            | ((models.Q(competency_date__isnull=False)
-            & models.Q(account__incur_on_competency=True))
-            & models.Q(competency_date__lte=date_to)
-            & models.Q(competency_date__gte=date_from))
-        )
+        userTransactions = Transaction.getCompetencyTransactions(date_from, request.user)
         userCreditTransactions = userTransactions.filter(value__gt=0)
         userDebitTransactions = userTransactions.filter(value__lt=0)
 
