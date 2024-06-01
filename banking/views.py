@@ -663,6 +663,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ).date()
 
         userTransactions = Transaction.getCompetencyTransactions(date_from, request.user)
+        userTransactions = userTransactions.filter(is_transfer=False)
         userCreditTransactions = userTransactions.filter(value__gt=0)
         userDebitTransactions = userTransactions.filter(value__lt=0)
 
