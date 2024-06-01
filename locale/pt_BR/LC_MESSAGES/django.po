@@ -271,8 +271,8 @@ msgid "Dashboard"
 msgstr "Dashboard"
 
 #: templates/banking/dashboard.html:39
-msgid "Top 10 Credit Categories"
-msgstr "Top 10 de Categorias de Crédito"
+msgid "Credit Categories (Incurred)"
+msgstr "Categorias de Crédito (Incorrido)"
 
 #: templates/banking/dashboard.html:44 templates/banking/dashboard.html:90
 #: templates/banking/transaction_list.html:280
@@ -289,8 +289,8 @@ msgid "Not classified"
 msgstr "Sem classificação"
 
 #: templates/banking/dashboard.html:85
-msgid "Top 10 Debit Categories"
-msgstr "Top 10 de Categorias de Débito"
+msgid "Debit Categories (Incurred)"
+msgstr "Categorias de Débito (Incorrido)"
 
 #: templates/banking/modal_confirm_delete.html:4
 msgid "Delete items"

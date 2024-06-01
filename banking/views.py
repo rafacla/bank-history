@@ -675,7 +675,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             userDebitTransactions.aggregate(incurred=-models.Sum("value"))["incurred"]
             or 0
         )
-        data["topTenCreditCategories"] = (
+        data["CreditCategories"] = (
             userCreditTransactions.filter(category__isnull=False)
             .values("category")
             .annotate(
@@ -683,10 +683,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 ratio=100 * models.Sum("value") / data["sumOfCreditTransactions"],
             )
             .order_by("-incurred")
-        )[:10]
-        for item in data["topTenCreditCategories"]:
+        )
+        for item in data["CreditCategories"]:
             item["category"] = Category.objects.get(pk=item["category"])
-        data["topTenDebitCategories"] = (
+        data["DebitCategories"] = (
             userDebitTransactions.filter(category__isnull=False)
             .values("category")
             .annotate(
@@ -694,8 +694,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 ratio=-100 * models.Sum("value") / data["sumOfDebitTransactions"],
             )
             .order_by("-incurred")
-        )[:10]
-        for item in data["topTenDebitCategories"]:
+        )
+        for item in data["DebitCategories"]:
             item["category"] = Category.objects.get(pk=item["category"])
         data["sumOfNotClassifiedCreditTransactions"] = (
             userCreditTransactions.filter(category__isnull=True).aggregate(

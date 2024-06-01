@@ -36,7 +36,7 @@
                 <div class="col-md-6 col-lg-6">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">{% trans "Top 10 Credit Categories" %}</h3>
+                            <h3 class="card-title">{% trans "Credit Categories (Incurred)" %}</h3>
                         </div>
                         <table class="table card-table table-vcenter">
                             <thead>
@@ -47,7 +47,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for item in topTenCreditCategories %}
+                                {% for item in CreditCategories %}
                                     <tr>
                                         <td><a class="modal-button" 
                                             href="#" 
@@ -86,7 +86,7 @@
                 <div class="col-md-6 col-lg-6">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">{% trans "Top 10 Debit Categories" %}</h3>
+                            <h3 class="card-title">{% trans "Debit Categories (Incurred)" %}</h3>
                         </div>
                         <table class="table card-table table-vcenter">
                             <thead>
@@ -97,7 +97,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for item in topTenDebitCategories %}
+                                {% for item in DebitCategories %}
                                     <tr>
                                         <td>
                                         <a class="modal-button" 
